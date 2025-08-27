@@ -1,0 +1,113 @@
+/* Logo styling for a beautiful, balanced look */
+.slotted-logo {
+  display: block;
+  margin: 0 auto 24px auto;
+  max-width: 110px;
+  max-height: 60px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(80, 112, 255, 0.1);
+  background: #fff;
+  object-fit: contain;
+  padding: 8px 16px;
+  transition: box-shadow 0.2s;
+}
+.slotted-logo:hover {
+  box-shadow: 0 4px 18px rgba(80, 112, 255, 0.18);
+}
+/* Slotted Easy-RFP Widget Styles */
+#slotted-easyrfp-iframe,
+#slotted-easyrfp {
+  font-family: inherit;
+  max-width: 420px;
+  margin: 3rem auto;
+  background: var(--slotted-bg, #fff);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(80, 112, 255, 0.1),
+    0 1.5px 6px rgba(0, 0, 0, 0.04);
+  padding: 2.5rem 2rem 2rem 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* body {
+  min-height: 100vh;
+  background: linear-gradient(
+    to right bottom,
+    rgb(239, 246, 255),
+    rgb(224, 231, 255)
+  );
+  margin: 0;
+  padding: 0;
+} */
+.slotted-step {
+  display: none;
+}
+.slotted-step.active {
+  display: block;
+}
+
+.slotted-step h3 {
+  font-size: 1.35em;
+  margin-bottom: 1.2em;
+  color: var(--slotted-text, #2d3a5a);
+  letter-spacing: 0.01em;
+}
+.slotted-btn {
+  background: var(--slotted-primary, #4f8cff);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.8em 1.7em;
+  font-size: 1.08em;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 1em;
+  box-shadow: 0 2px 8px rgba(80, 112, 255, 0.08);
+  transition: background 0.2s;
+}
+.slotted-btn:hover:not(:disabled) {
+  filter: brightness(0.95);
+}
+.slotted-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+.slotted-input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.6em 0.9em;
+  margin: 0.5em 0 0.2em 0;
+  border: 1.5px solid #dbeafe;
+  border-radius: 6px;
+  background: #f8fafc;
+  font-size: 1em;
+  transition: border 0.2s;
+}
+.slotted-input:focus {
+  border-color: var(--slotted-primary, #7c5cff);
+  outline: none;
+  background: #fff;
+}
+.slotted-label {
+  font-weight: 600;
+  margin-bottom: 0.2em;
+  display: block;
+  color: var(--slotted-text, #2d3a5a);
+}
+.slotted-footer {
+  font-size: 0.92em;
+  color: var(--slotted-primary, #7c5cff);
+  margin-top: 2em;
+  text-align: center;
+  opacity: 0.85;
+}
+.slotted-banner {
+  background: var(--slotted-bg, #f1f5ff);
+  color: var(--slotted-primary, #4f46e5);
+  padding: 0.7em 1.2em;
+  border-radius: 7px;
+  margin-bottom: 1.2em;
+  text-align: center;
+  font-weight: 500;
+  box-shadow: 0 1px 4px rgba(80, 112, 255, 0.07);
+}
