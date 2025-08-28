@@ -300,6 +300,10 @@
 
 .slotted-section-icon {
   font-size: 1.2rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: #dbeafe;
+  color: #2563eb;
 }
 
 .slotted-section-header h4 {

@@ -172,7 +172,7 @@
         
         <div class="slotted-critical-volume-card">
           <div class="slotted-section-header">
-            <span class="slotted-section-icon">📊</span>
+            <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-no-axes-column-increasing w-6 h-6" data-lov-id="src/components/ShippingProfileForm.tsx:238:14" data-lov-name="BarChart" data-component-path="src/components/ShippingProfileForm.tsx" data-component-line="238" data-component-file="ShippingProfileForm.tsx" data-component-name="BarChart" data-component-content="%7B%22className%22%3A%22w-6%20h-6%22%7D"><line x1="12" x2="12" y1="20" y2="10"></line><line x1="18" x2="18" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="16"></line></svg></span>
             <h4>Critical Volume Metrics</h4>
             <span class="slotted-required-badge">Required</span>
           </div>
@@ -203,7 +203,7 @@
 
         <div class="slotted-business-context-card">
           <div class="slotted-section-header">
-            <span class="slotted-section-icon">📈</span>
+            <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-6 h-6" data-lov-id="src/components/ShippingProfileForm.tsx:347:14" data-lov-name="TrendingUp" data-component-path="src/components/ShippingProfileForm.tsx" data-component-line="347" data-component-file="ShippingProfileForm.tsx" data-component-name="TrendingUp" data-component-content="%7B%22className%22%3A%22w-6%20h-6%22%7D"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
             <h4>Important Business Context</h4>
             <span class="slotted-required-badge">Required</span>
           </div>
@@ -219,7 +219,7 @@
           
           <div class="slotted-growth-section">
             <div class="slotted-growth-header">
-              <span class="slotted-growth-icon">🎯</span>
+              <span class="slotted-growth-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-target w-5 h-5 text-blue-600" data-lov-id="src/components/GrowthScenarioPlanner.tsx:43:10" data-lov-name="Target" data-component-path="src/components/GrowthScenarioPlanner.tsx" data-component-line="43" data-component-file="GrowthScenarioPlanner.tsx" data-component-name="Target" data-component-content="%7B%22className%22%3A%22w-5%20h-5%20text-blue-600%22%7D"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></span>
               <h5>Growth Expectations</h5>
             </div>
             <p class="slotted-growth-description">Plan for best and worst case scenarios to help providers understand your range</p>
@@ -235,7 +235,7 @@
                 <div class="slotted-growth-cards">
                   <div class="slotted-growth-card best-case">
                     <div class="slotted-growth-card-header">
-                      <span class="slotted-trend-icon">📈</span>
+                      <span class="slotted-trend-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-4 h-4 text-green-600" data-lov-id="src/components/GrowthScenarioPlanner.tsx:71:16" data-lov-name="TrendingUp" data-component-path="src/components/GrowthScenarioPlanner.tsx" data-component-line="71" data-component-file="GrowthScenarioPlanner.tsx" data-component-name="TrendingUp" data-component-content="%7B%22className%22%3A%22w-4%20h-4%20text-green-600%22%7D"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
                       Best Case
                     </div>
                     <div class="slotted-growth-input-group">
@@ -246,7 +246,7 @@
                   </div>
                   <div class="slotted-growth-card worst-case">
                     <div class="slotted-growth-card-header">
-                      <span class="slotted-trend-icon">📉</span>
+                      <span class="slotted-trend-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-down w-4 h-4 text-red-600" data-lov-id="src/components/GrowthScenarioPlanner.tsx:94:16" data-lov-name="TrendingDown" data-component-path="src/components/GrowthScenarioPlanner.tsx" data-component-line="94" data-component-file="GrowthScenarioPlanner.tsx" data-component-name="TrendingDown" data-component-content="%7B%22className%22%3A%22w-4%20h-4%20text-red-600%22%7D"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline><polyline points="16 17 22 17 22 11"></polyline></svg></span>
                       Worst Case
                     </div>
                     <div class="slotted-growth-input-group">
@@ -263,7 +263,7 @@
                 <div class="slotted-growth-cards">
                   <div class="slotted-growth-card best-case">
                     <div class="slotted-growth-card-header">
-                      <span class="slotted-trend-icon">📈</span>
+                      <span class="slotted-trend-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-4 h-4 text-green-600" data-lov-id="src/components/GrowthScenarioPlanner.tsx:71:16" data-lov-name="TrendingUp" data-component-path="src/components/GrowthScenarioPlanner.tsx" data-component-line="71" data-component-file="GrowthScenarioPlanner.tsx" data-component-name="TrendingUp" data-component-content="%7B%22className%22%3A%22w-4%20h-4%20text-green-600%22%7D"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
                       Best Case
                     </div>
                     <div class="slotted-growth-input-group">
@@ -274,7 +274,7 @@
                   </div>
                   <div class="slotted-growth-card worst-case">
                     <div class="slotted-growth-card-header">
-                      <span class="slotted-trend-icon">📉</span>
+                      <span class="slotted-trend-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-down w-4 h-4 text-red-600" data-lov-id="src/components/GrowthScenarioPlanner.tsx:94:16" data-lov-name="TrendingDown" data-component-path="src/components/GrowthScenarioPlanner.tsx" data-component-line="94" data-component-file="GrowthScenarioPlanner.tsx" data-component-name="TrendingDown" data-component-content="%7B%22className%22%3A%22w-4%20h-4%20text-red-600%22%7D"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline><polyline points="16 17 22 17 22 11"></polyline></svg></span>
                       Worst Case
                     </div>
                     <div class="slotted-growth-input-group">
@@ -361,7 +361,7 @@
         <div class="slotted-optional-content" id="slotted-optional-content" style="display: none;">
           <div class="slotted-business-context-card">
             <div class="slotted-section-header">
-              <span class="slotted-section-icon">📋</span>
+              <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-5 h-5" data-lov-id="src/components/ShippingProfileForm.tsx:448:18" data-lov-name="TrendingUp" data-component-path="src/components/ShippingProfileForm.tsx" data-component-line="448" data-component-file="ShippingProfileForm.tsx" data-component-name="TrendingUp" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
               <h4>Additional Context</h4>
             </div>
             <p class="slotted-section-description">Optional information that can help improve provider matches</p>
