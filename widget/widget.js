@@ -11,7 +11,7 @@
     logo: "assets/logo.png",
   };
 
-  // Step configuration
+  // Step configuration - Updated for RFP flow after contact
   const STEPS_CONFIG = [
     {
       id: 1,
@@ -84,11 +84,12 @@
     !!PROVIDER && PROVIDER.subscription_status === "active";
   // State
   let state = {
-    step: 1,
+    step: 0, // 0 = contact form, 1+ = RFP steps
     lead_id: null,
     contact: {},
     rfp: {},
     outbound_profile: {},
+    inbound_profile: {},
     status: null,
   };
   
@@ -103,8 +104,13 @@
 
   // Component Functions
   function renderStepProgress() {
+    // Only show step progress if we're in RFP flow (step > 0)
+    if (state.step === 0) {
+      return '';
+    }
+    
     const currentStep = STEPS_CONFIG.find(s => s.id === state.step);
-    const progressPercentage = currentStep ? currentStep.percentage : 33;
+    const progressPercentage = currentStep ? currentStep.percentage : 50;
     
     return `
       <div class="slotted-step-progress">
@@ -142,7 +148,7 @@
 
   function renderContactStep() {
     return `
-      <div class="slotted-step${state.step === 1 ? " active" : ""}" id="slotted-step-1">
+      <div class="slotted-step${state.step === 0 ? " active" : ""}" id="slotted-step-0">
         <img src="${PROVIDER.theme.logo || "assets/logo.png"}" class="slotted-logo" alt="Provider Logo"/>
         <h3>Contact Info</h3>
         <label class="slotted-label">Name*</label>
@@ -159,14 +165,14 @@
           <input type="checkbox" id="slotted-gdpr" required/>
           <label for="slotted-gdpr" style="font-size:0.9em;">I consent to data processing (GDPR/CCPA)</label>
         </div>
-        <button class="slotted-btn" id="slotted-next">Next</button>
+        <button class="slotted-btn" id="slotted-next">Start RFP Process</button>
       </div>
     `;
   }
 
   function renderOutboundProfileStep() {
     return `
-      <div class="slotted-step${state.step === 2 ? " active" : ""}" id="slotted-step-2">
+      <div class="slotted-step${state.step === 1 ? " active" : ""}" id="slotted-step-1">
         <h3>Outbound Profile</h3>
         <p style="margin-bottom: 1.5rem; color: #6b7280; font-size: 0.95rem;">Tell us about your volume and business context to get the right provider matches.</p>
         
@@ -488,46 +494,314 @@
           </div>
         </div>
 
-        <div class="slotted-btn-group">
-          <button class="slotted-btn-back" id="slotted-back-to-contact">Back</button>
-          <button class="slotted-btn" id="slotted-outbound-next">Continue to Inbound Profile</button>
-        </div>
+        ${renderNavigationButtons(1)}
       </div>
     `;
   }
 
   function renderInboundProfileStep() {
     return `
+      <div class="slotted-step${state.step === 2 ? " active" : ""}" id="slotted-step-2">
+        <h3>Inbound Profile</h3>
+        <p style="margin-bottom: 1.5rem; color: #6b7280; font-size: 0.95rem;">Tell us about your inventory and storage needs.</p>
+        
+        <div class="slotted-business-context-card">
+          <div class="slotted-section-header">
+            <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-truck h-5 w-5" data-lov-id="src/components/ProductNeedsForm.tsx:120:16" data-lov-name="Truck" data-component-path="src/components/ProductNeedsForm.tsx" data-component-line="120" data-component-file="ProductNeedsForm.tsx" data-component-name="Truck" data-component-content="%7B%22className%22%3A%22h-5%20w-5%22%7D"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9"></path><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg></span>
+            <h4>Essential Inbound Information</h4>
+            <span class="slotted-required-badge">Required</span>
+          </div>
+          
+          <div class="slotted-form-section">
+            <label class="slotted-label">How frequently do you send inbound inventory? *</label>
+            <div class="slotted-radio-group">
+              <div class="slotted-radio-item">
+                <input type="radio" id="slotted-freq-weekly" name="inbound_frequency" value="weekly" ${state.inbound_profile?.inbound_frequency === 'weekly' ? 'checked' : ''}/>
+                <label for="slotted-freq-weekly">Weekly</label>
+              </div>
+              <div class="slotted-radio-item">
+                <input type="radio" id="slotted-freq-monthly" name="inbound_frequency" value="monthly" ${state.inbound_profile?.inbound_frequency === 'monthly' ? 'checked' : ''}/>
+                <label for="slotted-freq-monthly">Monthly</label>
+              </div>
+              <div class="slotted-radio-item">
+                <input type="radio" id="slotted-freq-quarterly" name="inbound_frequency" value="quarterly" ${state.inbound_profile?.inbound_frequency === 'quarterly' ? 'checked' : ''}/>
+                <label for="slotted-freq-quarterly">Quarterly</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="slotted-form-section">
+            <label class="slotted-label">Storage Type Required *</label>
+            <select class="slotted-input" id="slotted-storage-type">
+              <option value="">Select storage temperature requirements</option>
+              <option value="ambient" ${state.inbound_profile?.storage_type === 'ambient' ? 'selected' : ''}>Ambient Temperature</option>
+              <option value="refrigerated" ${state.inbound_profile?.storage_type === 'refrigerated' ? 'selected' : ''}>Refrigerated (32-40°F)</option>
+              <option value="frozen" ${state.inbound_profile?.storage_type === 'frozen' ? 'selected' : ''}>Frozen (Below 0°F)</option>
+              <option value="climate_controlled" ${state.inbound_profile?.storage_type === 'climate_controlled' ? 'selected' : ''}>Climate Controlled</option>
+              <option value="multiple" ${state.inbound_profile?.storage_type === 'multiple' ? 'selected' : ''}>Multiple Temperature Zones</option>
+            </select>
+          </div>
+          
+          <div class="slotted-form-section">
+            <label class="slotted-label">Average Pallets Per Month *</label>
+            <div style="position: relative;">
+              <input class="slotted-input" id="slotted-avg-pallets" type="number" placeholder="10" value="${state.inbound_profile?.avg_pallets || ""}" style="padding-right: 4rem;"/>
+              <span style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: #6b7280; font-size: 0.9rem;">pallets</span>
+            </div>
+            <div style="color: #6b7280; font-size: 0.85rem; margin-top: 0.5rem;">How many pallets you need to store on average per month</div>
+          </div>
+          
+          <div class="slotted-grid-2">
+            <div class="slotted-form-section">
+              <label class="slotted-label">Inbound Shipment Format *</label>
+              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <div class="slotted-checkbox-item">
+                  <input type="checkbox" id="slotted-palletized" ${state.inbound_profile?.palletized ? 'checked' : ''}/>
+                  <label for="slotted-palletized">Palletized</label>
+                </div>
+                <div class="slotted-checkbox-item">
+                  <input type="checkbox" id="slotted-floor-loaded" ${state.inbound_profile?.floor_loaded ? 'checked' : ''}/>
+                  <label for="slotted-floor-loaded">Floor Loaded</label>
+                </div>
+                <div class="slotted-checkbox-item">
+                  <input type="checkbox" id="slotted-parcel" ${state.inbound_profile?.parcel ? 'checked' : ''}/>
+                  <label for="slotted-parcel">Parcel</label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="slotted-form-section">
+              <label class="slotted-label">Average Return Rate *</label>
+              <div style="position: relative;">
+                <input class="slotted-input" id="slotted-return-rate" type="number" placeholder="5" value="${state.inbound_profile?.return_rate || ""}" style="padding-right: 2rem;"/>
+                <span style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: #6b7280; font-size: 0.9rem;">%</span>
+              </div>
+              <div style="color: #6b7280; font-size: 0.85rem; margin-top: 0.5rem;">Percentage of orders that are returned by customers</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Optional Information Section -->
+        <div class="slotted-optional-toggle" id="slotted-inbound-optional-toggle">
+          <span>Optional: Additional Details</span>
+          <span class="slotted-toggle-text">(Show)</span>
+          <span class="slotted-toggle-icon">▼</span>
+        </div>
+        
+        <div class="slotted-optional-content" id="slotted-inbound-optional-content" style="display: none;">
+          <div class="slotted-business-context-card">
+            <div class="slotted-section-header">
+              <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-package h-5 w-5" data-lov-id="src/components/ProductNeedsForm.tsx:254:20" data-lov-name="Package" data-component-path="src/components/ProductNeedsForm.tsx" data-component-line="254" data-component-file="ProductNeedsForm.tsx" data-component-name="Package" data-component-content="%7B%22className%22%3A%22h-5%20w-5%22%7D"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12"></path><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path><path d="m7.5 4.27 9 5.15"></path></svg></span>
+              <h4>Additional Inbound Details</h4>
+            </div>
+            
+            <div class="slotted-form-section">
+              <div class="slotted-checkbox-item" style="margin-bottom: 1rem;">
+                <input type="checkbox" id="slotted-single-sku-case" ${state.inbound_profile?.single_sku_case ? 'checked' : ''}/>
+                <div style="margin-left: 0.5rem;">
+                  <label for="slotted-single-sku-case" style="font-weight: 600; margin-bottom: 0.25rem; display: block;">Single SKU per case</label>
+                  <div style="color: #6b7280; font-size: 0.85rem;">Each case/box contains only one type of product</div>
+                </div>
+              </div>
+              
+              <div class="slotted-checkbox-item" style="margin-bottom: 1rem;">
+                <input type="checkbox" id="slotted-case-barcoding" ${state.inbound_profile?.case_barcoding ? 'checked' : ''}/>
+                <div style="margin-left: 0.5rem;">
+                  <label for="slotted-case-barcoding" style="font-weight: 600; margin-bottom: 0.25rem; display: block;">Case-level barcoding</label>
+                  <div style="color: #6b7280; font-size: 0.85rem;">Cases/boxes have barcodes for easy scanning and tracking</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Centered Continue Button -->
+          <div style="text-align: center; margin: 2rem 0;">
+            <button class="slotted-btn" id="slotted-inbound-next-centered" style="padding: 0.8em 2em;">Continue to Review</button>
+          </div>
+        </div>
+
+        ${renderNavigationButtons(2)}
+      </div>
+    `;
+  }
+
+  // Helper function to render consistent navigation buttons
+  function renderNavigationButtons(currentStep) {
+    const isFirstStep = currentStep === 1; // Step 1 is the first RFP step
+    const isLastStep = currentStep === 3; // Step 3 is the final step
+    
+    const backButton = isFirstStep 
+      ? `<button class="slotted-btn-back" disabled>
+           <svg class="slotted-nav-icon slotted-nav-icon-left" viewBox="0 0 24 24" fill="none">
+             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m0 0l7 7m-7-7l7-7"/>
+           </svg>
+           Back
+         </button>`
+      : `<button class="slotted-btn-back" id="slotted-back-step-${currentStep}">
+           <svg class="slotted-nav-icon slotted-nav-icon-left" viewBox="0 0 24 24" fill="none">
+             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m0 0l7 7m-7-7l7-7"/>
+           </svg>
+           Back
+         </button>`;
+    
+    const nextButton = isLastStep
+      ? `<button class="slotted-btn" id="slotted-submit-final">Submit RFP</button>`
+      : `<button class="slotted-btn" id="slotted-next-step-${currentStep}">
+           Next
+           <svg class="slotted-nav-icon slotted-nav-icon-right" viewBox="0 0 24 24" fill="none">
+             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m0 0l-7-7m7 7l-7 7"/>
+           </svg>
+         </button>`;
+    
+    return `
+      <div class="slotted-navigation-bar">
+        ${backButton}
+        <div class="slotted-navigation-group">
+          <button class="slotted-btn-secondary" id="slotted-save-progress">
+            <svg class="slotted-nav-icon slotted-nav-icon-left" viewBox="0 0 24 24" fill="none">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 0V4a2 2 0 00-2-2H9a2 2 0 00-2 2v3m1 0h4"/>
+            </svg>
+            Save Progress
+          </button>
+          ${nextButton}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderFinalReviewStep() {
+    return `
       <div class="slotted-step${state.step === 3 ? " active" : ""}" id="slotted-step-3">
         <h3>Final Review</h3>
-        <p style="margin-bottom: 1.5rem; color: #6b7280;">Review your information and submit to providers.</p>
+        <p style="margin-bottom: 2rem; color: #6b7280; text-align: center;">Please review your information before we submit your RFP to potential providers.</p>
         
-        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
-          <h4 style="margin: 0 0 1rem 0; color: #374151;">Contact Information</h4>
-          <p><strong>Name:</strong> ${state.contact.name || 'Not provided'}</p>
-          <p><strong>Email:</strong> ${state.contact.email || 'Not provided'}</p>
-          <p><strong>Company:</strong> ${state.contact.company || 'Not provided'}</p>
-          <p><strong>Website:</strong> ${state.contact.website_url || 'Not provided'}</p>
+        <!-- Shipping Profile Card -->
+        <div class="slotted-business-context-card" style="margin-bottom: 1.5rem;">
+          <div class="slotted-section-header" style="margin-bottom: 1.5rem;">
+            <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin w-5 h-5" data-lov-id="src/components/ReviewSummary.tsx:106:18" data-lov-name="MapPin" data-component-path="src/components/ReviewSummary.tsx" data-component-line="106" data-component-file="ReviewSummary.tsx" data-component-name="MapPin" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
+            <div style="flex: 1;">
+              <h4 style="margin: 0;">Shipping Profile</h4>
+              <p style="margin: 0; color: #6b7280; font-size: 0.85rem;">Volume metrics and business context</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="background: #d1fae5; color: #065f46; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500;">✓ Complete</span>
+              <button id="slotted-edit-outbound" style="background: none; border: none; color: #6b7280; cursor: pointer; padding: 0.25rem;" title="Edit Shipping Profile">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="m18.5 2.5 3 3L13 14l-4 1 1-4 8.5-8.5z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <div class="slotted-grid-2" style="gap: 2rem;">
+            <div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Monthly Orders</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${state.outbound_profile?.monthly_orders || 'Not specified'}</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Average Order Value</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">$${state.outbound_profile?.avg_order_value || 'Not specified'}</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Sales Regions</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${state.outbound_profile?.sell_location || 'Not specified'}</div>
+              </div>
+              <div>
+                <strong style="color: #374151; font-size: 0.9rem;">Growth Expectations</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">
+                  ${state.outbound_profile?.year1_best_growth ? `Year 1: ${state.outbound_profile.year1_worst_growth || 0}% to ${state.outbound_profile.year1_best_growth}%` : 'Not specified'}<br>
+                  ${state.outbound_profile?.year2_best_growth ? `Year 2: ${state.outbound_profile.year2_worst_growth || 0}% to ${state.outbound_profile.year2_best_growth}%` : ''}
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Avg Items/Order</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${state.outbound_profile?.avg_items || 'Not specified'}</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">SKU Count</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${state.outbound_profile?.sku_count || 'Not specified'}</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Return Rate</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">Not specified</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
-          <h4 style="margin: 0 0 1rem 0; color: #374151;">Outbound Profile</h4>
-          <p><strong>Monthly Orders:</strong> ${state.outbound_profile.monthly_orders || 'Not provided'}</p>
-          <p><strong>Average Items per Order:</strong> ${state.outbound_profile.avg_items || 'Not provided'}</p>
-          <p><strong>Average Order Value:</strong> $${state.outbound_profile.avg_order_value || 'Not provided'}</p>
-          <p><strong>SKU Count:</strong> ${state.outbound_profile.sku_count || 'Not provided'}</p>
-          <p><strong>Sell Location:</strong> ${state.outbound_profile.sell_location || 'Not provided'}</p>
-          <p><strong>Year 1 Best Case Growth:</strong> ${state.outbound_profile.year1_best_growth ? state.outbound_profile.year1_best_growth + '%' : 'Not provided'}</p>
-          <p><strong>Year 1 Worst Case Growth:</strong> ${state.outbound_profile.year1_worst_growth ? state.outbound_profile.year1_worst_growth + '%' : 'Not provided'}</p>
-          <p><strong>Year 2 Best Case Growth:</strong> ${state.outbound_profile.year2_best_growth ? state.outbound_profile.year2_best_growth + '%' : 'Not provided'}</p>
-          <p><strong>Year 2 Worst Case Growth:</strong> ${state.outbound_profile.year2_worst_growth ? state.outbound_profile.year2_worst_growth + '%' : 'Not provided'}</p>
-          <p><strong>Serialized/Batch Controlled:</strong> ${state.outbound_profile.are_serialized === 'yes' ? 'Yes' : state.outbound_profile.are_serialized === 'no' ? 'No' : 'Not provided'}</p>
+        <!-- Inbound Profile Card -->
+        <div class="slotted-business-context-card" style="margin-bottom: 2rem;">
+          <div class="slotted-section-header" style="margin-bottom: 1.5rem;">
+            <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-package w-5 h-5" data-lov-id="src/components/ReviewSummary.tsx:190:18" data-lov-name="Package" data-component-path="src/components/ReviewSummary.tsx" data-component-line="190" data-component-file="ReviewSummary.tsx" data-component-name="Package" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12"></path><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path><path d="m7.5 4.27 9 5.15"></path></svg></span>
+            <div style="flex: 1;">
+              <h4 style="margin: 0;">Inbound Profile</h4>
+              <p style="margin: 0; color: #6b7280; font-size: 0.85rem;">Product and operational requirements</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="background: #d1fae5; color: #065f46; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500;">✓ Complete</span>
+              <button id="slotted-edit-inbound" style="background: none; border: none; color: #6b7280; cursor: pointer; padding: 0.25rem;" title="Edit Inbound Profile">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="m18.5 2.5 3 3L13 14l-4 1 1-4 8.5-8.5z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          
+          <div class="slotted-grid-2" style="gap: 2rem;">
+            <div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Storage Type</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${state.inbound_profile?.storage_type ? state.inbound_profile.storage_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Not specified'}</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Inbound Frequency</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${state.inbound_profile?.inbound_frequency ? state.inbound_profile.inbound_frequency.charAt(0).toUpperCase() + state.inbound_profile.inbound_frequency.slice(1) : 'Not specified'}</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Special Storage Requirements</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">Not specified</div>
+              </div>
+              <div>
+                <strong style="color: #374151; font-size: 0.9rem;">Eaches vs Case/Pallet</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">50% Eaches</div>
+              </div>
+            </div>
+            <div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Shipment Types</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${
+                  [
+                    state.inbound_profile?.palletized ? 'Palletized' : null,
+                    state.inbound_profile?.floor_loaded ? 'Floor Loaded' : null,
+                    state.inbound_profile?.parcel ? 'Parcel' : null
+                  ].filter(Boolean).join(', ') || 'Not specified'
+                }</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Return Rate</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${state.inbound_profile?.return_rate ? state.inbound_profile.return_rate + '%' : 'Not specified'}</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Serialized/Batch-Controlled</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${state.outbound_profile?.are_serialized === 'yes' ? 'Yes' : state.outbound_profile?.are_serialized === 'no' ? 'No' : 'Not specified'}</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="slotted-btn-group">
-          <button class="slotted-btn-back" id="slotted-back-to-outbound">Back</button>
-          <button class="slotted-btn" id="slotted-submit">Submit RFP</button>
+        <!-- Create Volume Profile Section -->
+        <div style="background: #f8fafc; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; text-align: center;">
+          <h4 style="margin: 0 0 0.5rem 0; color: #374151;">Ready to create your volume profile?</h4>
+          <p style="margin: 0 0 1.5rem 0; color: #6b7280; font-size: 0.9rem;">Generate a comprehensive analysis of your business volume and requirements.</p>
+          <button class="slotted-btn" id="slotted-create-profile" style="background: #4f46e5; padding: 0.75rem 2rem;">Create Volume Profile</button>
         </div>
+
+        ${renderNavigationButtons(3)}
       </div>
     `;
   }
@@ -593,35 +867,46 @@
       return;
     }
     
-    // Render components with separate containers
-    el.innerHTML = `
-      <div class="slotted-step-progress-container">
-        ${renderStepProgress()}
-      </div>
-      <div class="slotted-content-container">
-        ${renderBanner()}
-        ${renderContactStep()}
-        ${renderOutboundProfileStep()}
-        ${renderInboundProfileStep()}
-        ${renderFooter()}
-      </div>
-    `;
+    // If step 0 (contact form), render only contact form without step progress
+    if (state.step === 0) {
+      el.innerHTML = `
+        <div class="slotted-content-container">
+          ${renderBanner()}
+          ${renderContactStep()}
+          ${renderFooter()}
+        </div>
+      `;
+    } else {
+      // Render RFP flow with step progress
+      el.innerHTML = `
+        <div class="slotted-step-progress-container">
+          ${renderStepProgress()}
+        </div>
+        <div class="slotted-content-container">
+          ${renderBanner()}
+          ${renderOutboundProfileStep()}
+          ${renderInboundProfileStep()}
+          ${renderFinalReviewStep()}
+          ${renderFooter()}
+        </div>
+      `;
+    }
     
     applyTheme();
     bindEvents();
   }
   // Events
   function bindEvents() {
-    if (state.step === 1) {
+    if (state.step === 0) {
       const nextBtn = document.getElementById("slotted-next");
       if (nextBtn) nextBtn.onclick = handleContactSubmit;
     }
-    if (state.step === 2) {
-      const outboundNextBtn = document.getElementById("slotted-outbound-next");
-      if (outboundNextBtn) outboundNextBtn.onclick = handleOutboundProfileSubmit;
+    if (state.step === 1) {
+      // New navigation buttons
+      const nextBtn = document.getElementById("slotted-next-step-1");
+      if (nextBtn) nextBtn.onclick = handleOutboundProfileSubmit;
       
-      const backBtn = document.getElementById("slotted-back-to-contact");
-      if (backBtn) backBtn.onclick = handleBackToContact;
+      // Back button is disabled in step 1, no need to bind
       
       // Bind optional toggle
       const optionalToggle = document.getElementById("slotted-optional-toggle");
@@ -654,12 +939,59 @@
         };
       }
     }
+    if (state.step === 2) {
+      // New navigation buttons
+      const nextBtn = document.getElementById("slotted-next-step-2");
+      if (nextBtn) nextBtn.onclick = handleInboundProfileSubmit;
+      
+      const backBtn = document.getElementById("slotted-back-step-2");
+      if (backBtn) backBtn.onclick = handleBackToOutbound;
+      
+      // Keep the centered button for now
+      const inboundNextCenteredBtn = document.getElementById("slotted-inbound-next-centered");
+      if (inboundNextCenteredBtn) inboundNextCenteredBtn.onclick = handleInboundProfileSubmit;
+      
+      // Bind inbound optional toggle
+      const optionalToggle = document.getElementById("slotted-inbound-optional-toggle");
+      const optionalContent = document.getElementById("slotted-inbound-optional-content");
+      if (optionalToggle && optionalContent) {
+        optionalToggle.onclick = function() {
+          const isExpanded = optionalContent.style.display !== 'none';
+          if (isExpanded) {
+            optionalContent.style.display = 'none';
+            optionalToggle.classList.remove('expanded');
+            optionalToggle.querySelector('.slotted-toggle-text').textContent = '(Show)';
+          } else {
+            optionalContent.style.display = 'block';
+            optionalToggle.classList.add('expanded');
+            optionalToggle.querySelector('.slotted-toggle-text').textContent = '(Hide)';
+          }
+        };
+      }
+    }
     if (state.step === 3) {
-      const submitBtn = document.getElementById("slotted-submit");
+      // New navigation buttons
+      const submitBtn = document.getElementById("slotted-submit-final");
       if (submitBtn) submitBtn.onclick = handleFinalSubmit;
       
-      const backBtn = document.getElementById("slotted-back-to-outbound");
-      if (backBtn) backBtn.onclick = handleBackToOutbound;
+      const backBtn = document.getElementById("slotted-back-step-3");
+      if (backBtn) backBtn.onclick = handleBackToInbound;
+      
+      const createProfileBtn = document.getElementById("slotted-create-profile");
+      if (createProfileBtn) createProfileBtn.onclick = handleCreateProfile;
+      
+      // Edit buttons
+      const editOutboundBtn = document.getElementById("slotted-edit-outbound");
+      if (editOutboundBtn) editOutboundBtn.onclick = handleEditOutbound;
+      
+      const editInboundBtn = document.getElementById("slotted-edit-inbound");
+      if (editInboundBtn) editInboundBtn.onclick = handleEditInbound;
+    }
+    
+    // Bind Save Progress button (available in all RFP steps)
+    if (state.step > 0) {
+      const saveProgressBtn = document.getElementById("slotted-save-progress");
+      if (saveProgressBtn) saveProgressBtn.onclick = handleSaveProgress;
     }
   }
 
@@ -667,7 +999,7 @@
   function handleBackToContact() {
     state = {
       ...state,
-      step: 1,
+      step: 0, // Back to contact form
     };
     saveState();
     render();
@@ -676,10 +1008,76 @@
   function handleBackToOutbound() {
     state = {
       ...state,
-      step: 2,
+      step: 1, // Back to outbound profile
     };
     saveState();
     render();
+  }
+
+  function handleBackToInbound() {
+    state = {
+      ...state,
+      step: 2, // Back to inbound profile
+    };
+    saveState();
+    render();
+  }
+
+  // Edit button handlers
+  function handleEditOutbound() {
+    state = {
+      ...state,
+      step: 1, // Go to outbound profile step
+    };
+    saveState();
+    render();
+  }
+
+  function handleEditInbound() {
+    state = {
+      ...state,
+      step: 2, // Go to inbound profile step
+    };
+    saveState();
+    render();
+  }
+
+  // Create Volume Profile handler
+  function handleCreateProfile() {
+    // This could open a modal, redirect to another page, or trigger an API call
+    console.log("Create Volume Profile clicked");
+    alert("Volume Profile creation feature coming soon!");
+  }
+
+  // Save Progress handler
+  function handleSaveProgress() {
+    // Save current state to session storage
+    saveState();
+    
+    // Show confirmation message
+    const button = document.getElementById("slotted-save-progress");
+    const originalText = button.innerHTML;
+    
+    // Temporarily show success state
+    button.innerHTML = `
+      <svg class="slotted-nav-icon slotted-nav-icon-left" viewBox="0 0 24 24" fill="none">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+      Saved!
+    `;
+    button.style.background = "#d1fae5";
+    button.style.borderColor = "#a7f3d0";
+    button.style.color = "#065f46";
+    
+    // Reset after 2 seconds
+    setTimeout(() => {
+      button.innerHTML = originalText;
+      button.style.background = "#f9fafb";
+      button.style.borderColor = "#e5e7eb";
+      button.style.color = "#6b7280";
+    }, 2000);
+    
+    console.log("Progress saved:", state);
   }
 
   // Step 1 handler - Contact Info
@@ -726,7 +1124,7 @@
     
     state = {
       ...state,
-      step: 2,
+      step: 1, // Start RFP flow with step 1 (Outbound Profile)
       lead_id,
       contact: { name, email, company, website_url, phone },
       status: "partial_contact",
@@ -809,7 +1207,7 @@
 
     state = {
       ...state,
-      step: 3,
+      step: 2, // Move to Inbound Profile
       outbound_profile: {
         monthly_orders: parseInt(monthly_orders),
         avg_items: parseFloat(avg_items),
@@ -848,6 +1246,63 @@
     saveState();
     render();
     console.log("Outbound profile completed:", state.outbound_profile);
+  }
+
+  // Step 2 handler - Inbound Profile
+  function handleInboundProfileSubmit() {
+    // Required fields
+    const inbound_frequency_weekly = document.getElementById("slotted-freq-weekly").checked;
+    const inbound_frequency_monthly = document.getElementById("slotted-freq-monthly").checked;
+    const inbound_frequency_quarterly = document.getElementById("slotted-freq-quarterly").checked;
+    const inbound_frequency = inbound_frequency_weekly ? 'weekly' : 
+                             inbound_frequency_monthly ? 'monthly' : 
+                             inbound_frequency_quarterly ? 'quarterly' : '';
+    
+    const storage_type = document.getElementById("slotted-storage-type").value.trim();
+    const avg_pallets = document.getElementById("slotted-avg-pallets").value.trim();
+    const return_rate = document.getElementById("slotted-return-rate").value.trim();
+    
+    // Inbound shipment format
+    const palletized = document.getElementById("slotted-palletized").checked;
+    const floor_loaded = document.getElementById("slotted-floor-loaded").checked;
+    const parcel = document.getElementById("slotted-parcel").checked;
+
+    // Optional fields
+    const single_sku_case = document.getElementById("slotted-single-sku-case")?.checked || false;
+    const case_barcoding = document.getElementById("slotted-case-barcoding")?.checked || false;
+
+    // Validation
+    if (!inbound_frequency || !storage_type || !avg_pallets || !return_rate) {
+      alert("Please fill all required fields in the Inbound Profile.");
+      return;
+    }
+
+    // Check if at least one shipment format is selected
+    if (!palletized && !floor_loaded && !parcel) {
+      alert("Please select at least one inbound shipment format.");
+      return;
+    }
+
+    state = {
+      ...state,
+      step: 3, // Move to final review
+      inbound_profile: {
+        inbound_frequency,
+        storage_type,
+        avg_pallets: parseInt(avg_pallets),
+        return_rate: parseFloat(return_rate),
+        palletized,
+        floor_loaded,
+        parcel,
+        // Optional fields
+        single_sku_case,
+        case_barcoding,
+      },
+    };
+
+    saveState();
+    render();
+    console.log("Inbound profile completed:", state.inbound_profile);
   }
 
   // Step 3 handler - Final Submit
