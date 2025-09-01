@@ -33,31 +33,6 @@
     },
   ];
 
-  // Simulated provider DB (could be replaced by API call)
-  const PROVIDER_DB = [
-    {
-      id: "provider-123",
-      name: "Demo 3PL Provider",
-      widget_key: "abc123",
-      subscription_status: "active",
-      theme: THEME,
-    },
-    {
-      id: "provider-456",
-      name: "Inactive Provider",
-      widget_key: "def456",
-      subscription_status: "active",
-      theme: THEME2,
-    },
-    {
-      id: "provider-456",
-      name: "Inactive Provider",
-      widget_key: "xyz999",
-      subscription_status: "inactive",
-      theme: THEME2,
-    },
-  ];
-
   // Read widget key from data attribute on container div
   function getWidgetKey() {
     const el = document.getElementById("slotted-easyrfp");
@@ -76,15 +51,14 @@
   }
 
   const SNIPPET_WIDGET_KEY = getWidgetKey();
-  const PROVIDER_ID_FROM_URL = getProviderIdFromScript();
+  const PROVIDER_WIDGET_KEY = getProviderIdFromScript();
+  // API Configuration
+  const API_BASE_URL = "https://api-develop.izba.co"; // Replace with your actual API base URL
 
   // Provider state
   let PROVIDER = null;
   let isAuthenticated = false;
   let providerError = null;
-
-  // API Configuration
-  const API_BASE_URL = "https://api.slotted.com"; // Replace with your actual API base URL
 
   // Static provider response for development (remove when API is ready)
   function getStaticProviderResponse(widgetKey) {
@@ -157,18 +131,20 @@
 
     try {
       // TODO: Replace with actual API call when ready
-      // const response = await fetch(`${API_BASE_URL}/providers/validate`, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ widget_key: widgetKey })
-      // });
-      // const data = await response.json();
-      // return data;
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/three-pl/lead/provider-details/${widgetKey}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      return data;
 
       // For now, use static response
-      return await getStaticProviderResponse(widgetKey);
+      // return await getStaticProviderResponse(widgetKey);
     } catch (error) {
       console.error("Provider API error:", error);
       return {
@@ -181,7 +157,8 @@
 
   // Initialize provider authentication
   async function initializeProvider() {
-    const widgetKey = SNIPPET_WIDGET_KEY;
+    // const widgetKey = SNIPPET_WIDGET_KEY;
+    const widgetKey = PROVIDER_WIDGET_KEY;
 
     if (!widgetKey) {
       providerError = {
@@ -193,17 +170,19 @@
     }
 
     const result = await fetchProviderData(widgetKey);
-
+    console.log(result);
     if (result.success) {
-      PROVIDER = result.data;
+      PROVIDER = { ...result.data, theme: THEME };
 
-      if (PROVIDER.subscription_status === "active") {
+      if (PROVIDER.isActiveSubscription) {
         isAuthenticated = true;
         return true;
       } else {
         providerError = {
           type: "inactive_subscription",
-          message: `Provider subscription is ${PROVIDER.subscription_status}. Please contact support to reactivate your account.`,
+          message: `Provider subscription is ${
+            PROVIDER.isActiveSubscription ? "active" : "inactive"
+          }. Please contact support to reactivate your account.`,
         };
         return false;
       }
@@ -305,10 +284,10 @@
   }
 
   function renderBanner() {
-    if (state.status === "partial_contact") {
+    if (state.status === "Partially Completed") {
       return `<div class="slotted-banner">Partial lead saved. Provider notified.</div>`;
     }
-    if (state.status === "complete") {
+    if (state.status === "Complete") {
       return `<div class="slotted-banner">Lead complete! ICP Score: <b>${state.icp_score}</b></div>`;
     }
     return "";
@@ -320,7 +299,7 @@
         state.step === 0 ? " active" : ""
       }" id="slotted-step-0">
         <img src="${
-          PROVIDER.theme.logo || "assets/logo.png"
+          PROVIDER.theme?.logo || "assets/logo.png"
         }" class="slotted-logo" alt="Provider Logo"/>
         <h3>Contact Info</h3>
         <label class="slotted-label">Name*</label>
@@ -1244,12 +1223,12 @@
 
   // Inject widget CSS from external file
   function injectWidgetCSS() {
-    if (document.getElementById("slotted-widget-style")) return;
-    const link = document.createElement("link");
-    link.id = "slotted-widget-style";
-    link.rel = "stylesheet";
-    link.href = "http://localhost:3000/widget.css";
-    document.head.appendChild(link);
+    // if (document.getElementById("slotted-widget-style")) return;
+    // const link = document.createElement("link");
+    // link.id = "slotted-widget-style";
+    // link.rel = "stylesheet";
+    // link.href = "http://localhost:3000/widget.css";
+    // document.head.appendChild(link);
   }
 
   // Theme
@@ -1533,51 +1512,58 @@
     const gdpr = document.getElementById("slotted-gdpr").checked;
 
     // Log provider ID from script URL
-    console.log("Provider ID from URL:", PROVIDER_ID_FROM_URL);
+    console.log("Provider ID from URL:", PROVIDER_WIDGET_KEY);
 
     if (!name || !email || !company || !website_url || !gdpr) {
       alert("Please fill all required fields and consent.");
       return;
     }
 
-    // Simulate duplicate check
-    let existing = leads.find(
-      (l) => l.email === email && l.website_url === website_url
-    );
-    let lead_id = existing
-      ? existing.lead_id
-      : "uuid-" + Math.random().toString(36).substr(2, 9);
-    if (!existing) {
-      leads.push({
+    // API integration for contact form
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/three-pl/lead/provider-lead-contact`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            widgetKey: PROVIDER_WIDGET_KEY,
+            name,
+            email,
+            company,
+            website: website_url,
+            phone,
+            countryCode: "",
+          }),
+        }
+      );
+      const contactResponse = await response.json();
+      if (!response.ok) {
+        alert(
+          contactResponse.message ||
+            "Failed to submit contact form. Please try again."
+        );
+        return;
+      }
+
+      // Use returned lead_id if available, else fallback
+      let lead_id = contactResponse.data.leadContactId;
+      let status = contactResponse.data.status;
+      state = {
+        ...state,
+        step: 1, // Start RFP flow with step 1 (Outbound Profile)
         lead_id,
-        provider_id: PROVIDER.id,
-        name,
-        email,
-        company,
-        website_url,
-        phone,
-        status: "partial_contact",
-        created_at: Date.now(),
-        updated_at: Date.now(),
-      });
-    } else {
-      existing.updated_at = Date.now();
-      existing.provider_id = PROVIDER.id;
+        contact: { name, email, company, website_url, phone },
+        status,
+      };
+      saveState();
+      render();
+    } catch (err) {
+      alert("Network error. Please try again later.");
+      console.error(err);
     }
-
-    state = {
-      ...state,
-      step: 1, // Start RFP flow with step 1 (Outbound Profile)
-      lead_id,
-      contact: { name, email, company, website_url, phone },
-      status: "partial_contact",
-    };
-
-    saveState();
-    console.log(state);
-    render();
-    // Simulate provider notification
-    console.log("Provider notified: New partial lead captured.");
   }
 
   // Step 2 handler - Outbound Profile
