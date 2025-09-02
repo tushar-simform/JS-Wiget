@@ -11,6 +11,55 @@
     logo: "assets/logo.png",
   };
 
+  // Country codes data for phone number selector
+  const COUNTRY_CODES = [
+    { code: "+1", flag: "🇺🇸", name: "United States" },
+    { code: "+44", flag: "🇬🇧", name: "United Kingdom" },
+    { code: "+91", flag: "🇮🇳", name: "India" },
+    { code: "+61", flag: "🇦🇺", name: "Australia" },
+    { code: "+33", flag: "🇫🇷", name: "France" },
+    { code: "+49", flag: "🇩🇪", name: "Germany" },
+    { code: "+81", flag: "🇯🇵", name: "Japan" },
+    { code: "+86", flag: "🇨🇳", name: "China" },
+    { code: "+7", flag: "🇷🇺", name: "Russia" },
+    { code: "+55", flag: "🇧🇷", name: "Brazil" },
+    { code: "+39", flag: "🇮🇹", name: "Italy" },
+    { code: "+34", flag: "🇪🇸", name: "Spain" },
+    { code: "+31", flag: "🇳🇱", name: "Netherlands" },
+    { code: "+46", flag: "🇸🇪", name: "Sweden" },
+    { code: "+47", flag: "🇳🇴", name: "Norway" },
+    { code: "+45", flag: "🇩🇰", name: "Denmark" },
+    { code: "+41", flag: "🇨🇭", name: "Switzerland" },
+    { code: "+43", flag: "🇦🇹", name: "Austria" },
+    { code: "+32", flag: "🇧🇪", name: "Belgium" },
+    { code: "+351", flag: "🇵🇹", name: "Portugal" },
+    { code: "+48", flag: "🇵🇱", name: "Poland" },
+    { code: "+420", flag: "🇨🇿", name: "Czech Republic" },
+    { code: "+36", flag: "🇭🇺", name: "Hungary" },
+    { code: "+30", flag: "🇬🇷", name: "Greece" },
+    { code: "+358", flag: "🇫🇮", name: "Finland" },
+    { code: "+1", flag: "🇨🇦", name: "Canada" },
+    { code: "+52", flag: "🇲🇽", name: "Mexico" },
+    { code: "+54", flag: "🇦🇷", name: "Argentina" },
+    { code: "+56", flag: "🇨🇱", name: "Chile" },
+    { code: "+27", flag: "🇿🇦", name: "South Africa" },
+    { code: "+82", flag: "🇰🇷", name: "South Korea" },
+    { code: "+65", flag: "🇸🇬", name: "Singapore" },
+    { code: "+60", flag: "🇲🇾", name: "Malaysia" },
+    { code: "+66", flag: "🇹🇭", name: "Thailand" },
+    { code: "+84", flag: "🇻🇳", name: "Vietnam" },
+    { code: "+62", flag: "🇮🇩", name: "Indonesia" },
+    { code: "+63", flag: "🇵🇭", name: "Philippines" },
+    { code: "+64", flag: "🇳🇿", name: "New Zealand" },
+    { code: "+971", flag: "🇦🇪", name: "UAE" },
+    { code: "+966", flag: "🇸🇦", name: "Saudi Arabia" },
+    { code: "+972", flag: "🇮🇱", name: "Israel" },
+    { code: "+90", flag: "🇹🇷", name: "Turkey" },
+    { code: "+20", flag: "🇪🇬", name: "Egypt" },
+    { code: "+234", flag: "🇳🇬", name: "Nigeria" },
+    { code: "+254", flag: "🇰🇪", name: "Kenya" },
+  ];
+
   // Step configuration - Updated for RFP flow after contact
   const STEPS_CONFIG = [
     {
@@ -32,6 +81,18 @@
       percentage: 100,
     },
   ];
+
+  // Generate country code options dynamically
+  function generateCountryOptions(selectedCode) {
+    return COUNTRY_CODES.map(
+      (country) =>
+        `<option value="${country.code}" ${
+          selectedCode === country.code ? "selected" : ""
+        }>
+        ${country.flag} ${country.code}
+      </option>`
+    ).join("");
+  }
 
   // Read widget key from data attribute on container div
   function getWidgetKey() {
@@ -319,9 +380,14 @@
           state.contact.website_url || ""
         }"/>
         <label class="slotted-label">Phone</label>
-        <input class="slotted-input" id="slotted-phone" value="${
-          state.contact.phone || ""
-        }"/>
+        <div class="slotted-phone-container">
+          <select class="slotted-country-code" id="slotted-country-code">
+            ${generateCountryOptions(state.contact.countryCode)}
+          </select>
+          <input class="slotted-input slotted-phone-input" id="slotted-phone" placeholder="123-456-7890" value="${
+            state.contact.phone || ""
+          }"/>
+        </div>
         <div class="slotted-gdpr-container">
           <input type="checkbox" id="slotted-gdpr" required/>
           <label for="slotted-gdpr" class="slotted-gdpr-label">I consent to data processing (GDPR/CCPA)</label>
@@ -1509,6 +1575,7 @@
     const company = document.getElementById("slotted-company").value.trim();
     const website_url = document.getElementById("slotted-website").value.trim();
     const phone = document.getElementById("slotted-phone").value.trim();
+    const countryCode = document.getElementById("slotted-country-code").value;
     const gdpr = document.getElementById("slotted-gdpr").checked;
 
     // Log provider ID from script URL
@@ -1535,7 +1602,7 @@
             company,
             website: website_url,
             phone,
-            countryCode: "",
+            countryCode: countryCode,
           }),
         }
       );
@@ -1555,7 +1622,7 @@
         ...state,
         step: 1, // Start RFP flow with step 1 (Outbound Profile)
         lead_id,
-        contact: { name, email, company, website_url, phone },
+        contact: { name, email, company, website_url, phone, countryCode },
         status,
       };
       saveState();
