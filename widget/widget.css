@@ -724,8 +724,47 @@
 /* Checkbox and Radio Styles */
 .slotted-checkbox-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+/* Seasonal months styling */
+.slotted-seasonal-months {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.slotted-months-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.slotted-month-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slotted-month-item input[type="checkbox"] {
+  margin: 0;
+}
+
+.slotted-month-item label {
+  font-size: 14px;
+  color: #495057;
+  cursor: pointer;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .slotted-months-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .slotted-checkbox-item,
@@ -1090,4 +1129,99 @@ select.slotted-input {
 
 .slotted-checkbox-content {
   margin-left: 0.5rem;
+}
+
+/* Weight Input Section */
+.slotted-weight-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.slotted-weight-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.slotted-weight-input-row:last-child {
+  border-bottom: none;
+}
+
+.slotted-weight-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  min-width: 150px;
+  margin: 0;
+}
+
+.slotted-weight-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.slotted-weight-value {
+  width: 100px;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  text-align: center;
+  transition: border-color 0.2s ease;
+}
+
+.slotted-weight-value:focus {
+  outline: none;
+  border-color: var(--slotted-primary, #4f8cff);
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+}
+
+.slotted-weight-unit {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  min-width: 70px;
+}
+
+.slotted-weight-unit:focus {
+  outline: none;
+  border-color: var(--slotted-primary, #4f8cff);
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+}
+
+/* Weight unit dropdown styling */
+.slotted-weight-unit option {
+  padding: 8px;
+}
+
+/* Responsive adjustments for weight inputs */
+@media (max-width: 768px) {
+  .slotted-weight-input-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .slotted-weight-label {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .slotted-weight-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .slotted-weight-value {
+    flex: 1;
+    min-width: 0;
+  }
 }

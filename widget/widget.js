@@ -13,51 +13,51 @@
 
   // Country codes data for phone number selector
   const COUNTRY_CODES = [
-    { code: "+1", flag: "🇺🇸", name: "United States" },
-    { code: "+44", flag: "🇬🇧", name: "United Kingdom" },
-    { code: "+91", flag: "🇮🇳", name: "India" },
-    { code: "+61", flag: "🇦🇺", name: "Australia" },
-    { code: "+33", flag: "🇫🇷", name: "France" },
-    { code: "+49", flag: "🇩🇪", name: "Germany" },
-    { code: "+81", flag: "🇯🇵", name: "Japan" },
-    { code: "+86", flag: "🇨🇳", name: "China" },
-    { code: "+7", flag: "🇷🇺", name: "Russia" },
-    { code: "+55", flag: "🇧🇷", name: "Brazil" },
-    { code: "+39", flag: "🇮🇹", name: "Italy" },
-    { code: "+34", flag: "🇪🇸", name: "Spain" },
-    { code: "+31", flag: "🇳🇱", name: "Netherlands" },
-    { code: "+46", flag: "🇸🇪", name: "Sweden" },
-    { code: "+47", flag: "🇳🇴", name: "Norway" },
-    { code: "+45", flag: "🇩🇰", name: "Denmark" },
-    { code: "+41", flag: "🇨🇭", name: "Switzerland" },
-    { code: "+43", flag: "🇦🇹", name: "Austria" },
-    { code: "+32", flag: "🇧🇪", name: "Belgium" },
-    { code: "+351", flag: "🇵🇹", name: "Portugal" },
-    { code: "+48", flag: "🇵🇱", name: "Poland" },
-    { code: "+420", flag: "🇨🇿", name: "Czech Republic" },
-    { code: "+36", flag: "🇭🇺", name: "Hungary" },
-    { code: "+30", flag: "🇬🇷", name: "Greece" },
-    { code: "+358", flag: "🇫🇮", name: "Finland" },
-    { code: "+1", flag: "🇨🇦", name: "Canada" },
-    { code: "+52", flag: "🇲🇽", name: "Mexico" },
-    { code: "+54", flag: "🇦🇷", name: "Argentina" },
-    { code: "+56", flag: "🇨🇱", name: "Chile" },
-    { code: "+27", flag: "🇿🇦", name: "South Africa" },
-    { code: "+82", flag: "🇰🇷", name: "South Korea" },
-    { code: "+65", flag: "🇸🇬", name: "Singapore" },
-    { code: "+60", flag: "🇲🇾", name: "Malaysia" },
-    { code: "+66", flag: "🇹🇭", name: "Thailand" },
-    { code: "+84", flag: "🇻🇳", name: "Vietnam" },
-    { code: "+62", flag: "🇮🇩", name: "Indonesia" },
-    { code: "+63", flag: "🇵🇭", name: "Philippines" },
-    { code: "+64", flag: "🇳🇿", name: "New Zealand" },
-    { code: "+971", flag: "🇦🇪", name: "UAE" },
-    { code: "+966", flag: "🇸🇦", name: "Saudi Arabia" },
-    { code: "+972", flag: "🇮🇱", name: "Israel" },
-    { code: "+90", flag: "🇹🇷", name: "Turkey" },
-    { code: "+20", flag: "🇪🇬", name: "Egypt" },
-    { code: "+234", flag: "🇳🇬", name: "Nigeria" },
-    { code: "+254", flag: "🇰🇪", name: "Kenya" },
+    { code: "+1", flag: "🇺🇸", name: "United States", shortCode: "USA" },
+    { code: "+44", flag: "🇬🇧", name: "United Kingdom", shortCode: "GBR" },
+    { code: "+91", flag: "🇮🇳", name: "India", shortCode: "IND" },
+    { code: "+61", flag: "🇦🇺", name: "Australia", shortCode: "AUS" },
+    { code: "+33", flag: "🇫🇷", name: "France", shortCode: "FRA" },
+    { code: "+49", flag: "🇩🇪", name: "Germany", shortCode: "DEU" },
+    { code: "+81", flag: "🇯🇵", name: "Japan", shortCode: "JPN" },
+    { code: "+86", flag: "🇨🇳", name: "China", shortCode: "CHN" },
+    { code: "+7", flag: "🇷🇺", name: "Russia", shortCode: "RUS" },
+    { code: "+55", flag: "🇧🇷", name: "Brazil", shortCode: "BRA" },
+    { code: "+39", flag: "🇮🇹", name: "Italy", shortCode: "ITA" },
+    { code: "+34", flag: "🇪🇸", name: "Spain", shortCode: "ESP" },
+    { code: "+31", flag: "🇳🇱", name: "Netherlands", shortCode: "NLD" },
+    { code: "+46", flag: "🇸🇪", name: "Sweden", shortCode: "SWE" },
+    { code: "+47", flag: "🇳🇴", name: "Norway", shortCode: "NOR" },
+    { code: "+45", flag: "🇩🇰", name: "Denmark", shortCode: "DNK" },
+    { code: "+41", flag: "🇨🇭", name: "Switzerland", shortCode: "CHE" },
+    { code: "+43", flag: "🇦🇹", name: "Austria", shortCode: "AUT" },
+    { code: "+32", flag: "🇧🇪", name: "Belgium", shortCode: "BEL" },
+    { code: "+351", flag: "🇵🇹", name: "Portugal", shortCode: "PRT" },
+    { code: "+48", flag: "🇵🇱", name: "Poland", shortCode: "POL" },
+    { code: "+420", flag: "🇨🇿", name: "Czech Republic", shortCode: "CZE" },
+    { code: "+36", flag: "🇭🇺", name: "Hungary", shortCode: "HUN" },
+    { code: "+30", flag: "🇬🇷", name: "Greece", shortCode: "GRC" },
+    { code: "+358", flag: "🇫🇮", name: "Finland", shortCode: "FIN" },
+    { code: "+1", flag: "🇨🇦", name: "Canada", shortCode: "CAN" },
+    { code: "+52", flag: "🇲🇽", name: "Mexico", shortCode: "MEX" },
+    { code: "+54", flag: "🇦🇷", name: "Argentina", shortCode: "ARG" },
+    { code: "+56", flag: "🇨🇱", name: "Chile", shortCode: "CHL" },
+    { code: "+27", flag: "🇿🇦", name: "South Africa", shortCode: "ZAF" },
+    { code: "+82", flag: "🇰🇷", name: "South Korea", shortCode: "KOR" },
+    { code: "+65", flag: "🇸🇬", name: "Singapore", shortCode: "SGP" },
+    { code: "+60", flag: "🇲🇾", name: "Malaysia", shortCode: "MYS" },
+    { code: "+66", flag: "🇹🇭", name: "Thailand", shortCode: "THA" },
+    { code: "+84", flag: "🇻🇳", name: "Vietnam", shortCode: "VNM" },
+    { code: "+62", flag: "🇮🇩", name: "Indonesia", shortCode: "IDN" },
+    { code: "+63", flag: "🇵🇭", name: "Philippines", shortCode: "PHL" },
+    { code: "+64", flag: "🇳🇿", name: "New Zealand", shortCode: "NZL" },
+    { code: "+971", flag: "🇦🇪", name: "UAE", shortCode: "ARE" },
+    { code: "+966", flag: "🇸🇦", name: "Saudi Arabia", shortCode: "SAU" },
+    { code: "+972", flag: "🇮🇱", name: "Israel", shortCode: "ISR" },
+    { code: "+90", flag: "🇹🇷", name: "Turkey", shortCode: "TUR" },
+    { code: "+20", flag: "🇪🇬", name: "Egypt", shortCode: "EGY" },
+    { code: "+234", flag: "🇳🇬", name: "Nigeria", shortCode: "NGA" },
+    { code: "+254", flag: "🇰🇪", name: "Kenya", shortCode: "KEN" },
   ];
 
   // Step configuration - Updated for RFP flow after contact
@@ -168,6 +168,20 @@
     `
       )
       .join("");
+  }
+
+  // Convert country names to short codes for API payload
+  function getCountryShortCodes(countryNames) {
+    if (!countryNames || !Array.isArray(countryNames)) {
+      return [];
+    }
+
+    return countryNames
+      .map((countryName) => {
+        const country = COUNTRY_CODES.find((c) => c.name === countryName);
+        return country ? country.shortCode : null;
+      })
+      .filter((shortCode) => shortCode !== null);
   }
 
   // Global functions for country selection (accessible from onclick)
@@ -551,8 +565,8 @@
             
             <div class="slotted-current-orders">
               <label>Current Monthly Orders</label>
-              <div class="slotted-current-value">${
-                state.outbound_profile.current_monthly_orders || "0"
+              <div class="slotted-current-value" id="slotted-current-orders-display">${
+                state.outbound_profile.monthly_orders || "0"
               }</div>
             </div>
             
@@ -631,16 +645,22 @@
             <label class="slotted-label">How big is your typical customer order? *</label>
             <div class="slotted-checkbox-grid">
               <div class="slotted-checkbox-item">
-                <input type="checkbox" id="slotted-fits-mailbox" ${
-                  state.outbound_profile.fits_in_mailbox ? "checked" : ""
+                <input type="checkbox" id="slotted-fits-hand" ${
+                  state.outbound_profile.fits_in_hand ? "checked" : ""
                 }/>
-                <label for="slotted-fits-mailbox">Fits in your mailbox</label>
+                <label for="slotted-fits-hand">Fits in your hand</label>
               </div>
               <div class="slotted-checkbox-item">
                 <input type="checkbox" id="slotted-fits-porch" ${
                   state.outbound_profile.fits_on_porch ? "checked" : ""
                 }/>
                 <label for="slotted-fits-porch">Fits on the porch</label>
+              </div>
+              <div class="slotted-checkbox-item">
+                <input type="checkbox" id="slotted-fits-mailbox" ${
+                  state.outbound_profile.fits_in_mailbox ? "checked" : ""
+                }/>
+                <label for="slotted-fits-mailbox">Fits in your mailbox</label>
               </div>
               <div class="slotted-checkbox-item">
                 <input type="checkbox" id="slotted-needs-two-people" ${
@@ -857,6 +877,120 @@
                 }/>
                 <label for="slotted-seasonal-peaks">Seasonal peaks in sales</label>
               </div>
+              <div class="slotted-seasonal-months" id="slotted-seasonal-months" style="display: ${
+                state.outbound_profile.seasonal_peaks ? "block" : "none"
+              }">
+                <div class="slotted-months-grid">
+                  <div class="slotted-month-item">
+                    <input type="checkbox" id="slotted-month-1" value="1" ${
+                      state.outbound_profile.seasonal_months &&
+                      state.outbound_profile.seasonal_months.includes(1)
+                        ? "checked"
+                        : ""
+                    }/>
+                    <label for="slotted-month-1">January</label>
+                  </div>
+                  <div class="slotted-month-item">
+                    <input type="checkbox" id="slotted-month-2" value="2" ${
+                      state.outbound_profile.seasonal_months &&
+                      state.outbound_profile.seasonal_months.includes(2)
+                        ? "checked"
+                        : ""
+                    }/>
+                    <label for="slotted-month-2">February</label>
+                  </div>
+                  <div class="slotted-month-item">
+                    <input type="checkbox" id="slotted-month-3" value="3" ${
+                      state.outbound_profile.seasonal_months &&
+                      state.outbound_profile.seasonal_months.includes(3)
+                        ? "checked"
+                        : ""
+                    }/>
+                    <label for="slotted-month-3">March</label>
+                  </div>
+                  <div class="slotted-month-item">
+                    <input type="checkbox" id="slotted-month-4" value="4" ${
+                      state.outbound_profile.seasonal_months &&
+                      state.outbound_profile.seasonal_months.includes(4)
+                        ? "checked"
+                        : ""
+                    }/>
+                    <label for="slotted-month-4">April</label>
+                  </div>
+                  <div class="slotted-month-item">
+                    <input type="checkbox" id="slotted-month-5" value="5" ${
+                      state.outbound_profile.seasonal_months &&
+                      state.outbound_profile.seasonal_months.includes(5)
+                        ? "checked"
+                        : ""
+                    }/>
+                    <label for="slotted-month-5">May</label>
+                  </div>
+                  <div class="slotted-month-item">
+                    <input type="checkbox" id="slotted-month-6" value="6" ${
+                      state.outbound_profile.seasonal_months &&
+                      state.outbound_profile.seasonal_months.includes(6)
+                        ? "checked"
+                        : ""
+                    }/>
+                    <label for="slotted-month-6">June</label>
+                  </div>
+                  <div class="slotted-month-item">
+                    <input type="checkbox" id="slotted-month-7" value="7" ${
+                      state.outbound_profile.seasonal_months &&
+                      state.outbound_profile.seasonal_months.includes(7)
+                        ? "checked"
+                        : ""
+                    }/>
+                    <label for="slotted-month-7">July</label>
+                  </div>
+                  <div class="slotted-month-item">
+                    <input type="checkbox" id="slotted-month-8" value="8" ${
+                      state.outbound_profile.seasonal_months &&
+                      state.outbound_profile.seasonal_months.includes(8)
+                        ? "checked"
+                        : ""
+                    }/>
+                    <label for="slotted-month-8">August</label>
+                  </div>
+                  <div class="slotted-month-item">
+                    <input type="checkbox" id="slotted-month-9" value="9" ${
+                      state.outbound_profile.seasonal_months &&
+                      state.outbound_profile.seasonal_months.includes(9)
+                        ? "checked"
+                        : ""
+                    }/>
+                    <label for="slotted-month-9">September</label>
+                  </div>
+                  <div class="slotted-month-item">
+                    <input type="checkbox" id="slotted-month-10" value="10" ${
+                      state.outbound_profile.seasonal_months &&
+                      state.outbound_profile.seasonal_months.includes(10)
+                        ? "checked"
+                        : ""
+                    }/>
+                    <label for="slotted-month-10">October</label>
+                  </div>
+                  <div class="slotted-month-item">
+                    <input type="checkbox" id="slotted-month-11" value="11" ${
+                      state.outbound_profile.seasonal_months &&
+                      state.outbound_profile.seasonal_months.includes(11)
+                        ? "checked"
+                        : ""
+                    }/>
+                    <label for="slotted-month-11">November</label>
+                  </div>
+                  <div class="slotted-month-item">
+                    <input type="checkbox" id="slotted-month-12" value="12" ${
+                      state.outbound_profile.seasonal_months &&
+                      state.outbound_profile.seasonal_months.includes(12)
+                        ? "checked"
+                        : ""
+                    }/>
+                    <label for="slotted-month-12">December</label>
+                  </div>
+                </div>
+              </div>
             </div>
             
             <div class="slotted-form-section">
@@ -895,27 +1029,11 @@
               </div>
             </div>
             
-            <div class="slotted-form-section">
+            <!-- Dynamic Average Weight Section -->
+            <div class="slotted-form-section" id="slotted-weight-section" style="display: none;">
               <label class="slotted-label">Average weight per shipment type</label>
-              <div class="slotted-grid-3">
-                <div>
-                  <label class="slotted-label slotted-weight-label">Eaches (lbs)</label>
-                  <input class="slotted-input" id="slotted-weight-eaches" type="number" step="0.1" placeholder="2.5" value="${
-                    state.outbound_profile.weight_eaches || ""
-                  }"/>
-                </div>
-                <div>
-                  <label class="slotted-label slotted-weight-label">Cases (lbs)</label>
-                  <input class="slotted-input" id="slotted-weight-cases" type="number" step="0.1" placeholder="25" value="${
-                    state.outbound_profile.weight_cases || ""
-                  }"/>
-                </div>
-                <div>
-                  <label class="slotted-label slotted-weight-label">Pallets (lbs)</label>
-                  <input class="slotted-input" id="slotted-weight-pallets" type="number" step="0.1" placeholder="1500" value="${
-                    state.outbound_profile.weight_pallets || ""
-                  }"/>
-                </div>
+              <div class="slotted-weight-inputs" id="slotted-weight-inputs">
+                <!-- Dynamic weight inputs will be inserted here -->
               </div>
             </div>
             
@@ -1442,6 +1560,242 @@
     applyTheme();
     bindEvents();
   }
+
+  // Update weight section based on selected shipment types
+  function updateWeightSection() {
+    const weightSection = document.getElementById("slotted-weight-section");
+    const weightInputs = document.getElementById("slotted-weight-inputs");
+
+    if (!weightSection || !weightInputs) return;
+
+    const shipmentTypes = [
+      { id: "slotted-dtc-parcel", label: "DTC (Parcel)", key: "dtcParcel" },
+      {
+        id: "slotted-retail-cases",
+        label: "Retail (Cases)",
+        key: "retailCases",
+      },
+      {
+        id: "slotted-retail-pallets",
+        label: "Retail (Pallet)",
+        key: "retailPallet",
+      },
+      {
+        id: "slotted-marketplace-cases",
+        label: "MarketPlace (Cases)",
+        key: "marketplaceCases",
+      },
+      {
+        id: "slotted-marketplace-pallets",
+        label: "MarketPlace (Pallet)",
+        key: "marketplacePallet",
+      },
+    ];
+
+    const selectedTypes = shipmentTypes.filter((type) => {
+      const checkbox = document.getElementById(type.id);
+      return checkbox && checkbox.checked;
+    });
+
+    if (selectedTypes.length > 0) {
+      weightSection.style.display = "block";
+
+      weightInputs.innerHTML = selectedTypes
+        .map(
+          (type) => `
+        <div class="slotted-weight-input-row">
+          <label class="slotted-weight-label">${type.label}:</label>
+          <div class="slotted-weight-controls">
+            <input 
+              type="number" 
+              id="slotted-weight-${type.key}" 
+              class="slotted-weight-value" 
+              placeholder="50"
+              value="${state.outbound_profile[type.key + "Value"] || ""}"
+              min="0" 
+              step="0.1"
+            />
+            <select 
+              id="slotted-unit-${type.key}" 
+              class="slotted-weight-unit"
+            >
+              <option value="oz" ${
+                state.outbound_profile[type.key + "Unit"] === "oz"
+                  ? "selected"
+                  : ""
+              }>oz</option>
+              <option value="lbs" ${
+                state.outbound_profile[type.key + "Unit"] === "lbs"
+                  ? "selected"
+                  : ""
+              }>lbs</option>
+              <option value="kg" ${
+                state.outbound_profile[type.key + "Unit"] === "kg"
+                  ? "selected"
+                  : ""
+              }>kg</option>
+            </select>
+          </div>
+        </div>
+      `
+        )
+        .join("");
+
+      // Bind change events to weight inputs
+      selectedTypes.forEach((type) => {
+        const weightInput = document.getElementById(
+          `slotted-weight-${type.key}`
+        );
+        const unitSelect = document.getElementById(`slotted-unit-${type.key}`);
+
+        if (weightInput) {
+          weightInput.onchange = function () {
+            if (!state.outbound_profile) state.outbound_profile = {};
+            state.outbound_profile[type.key + "Value"] =
+              parseFloat(this.value) || 0;
+            saveState();
+          };
+        }
+
+        if (unitSelect) {
+          unitSelect.onchange = function () {
+            if (!state.outbound_profile) state.outbound_profile = {};
+            state.outbound_profile[type.key + "Unit"] = this.value;
+            saveState();
+          };
+        }
+      });
+    } else {
+      weightSection.style.display = "none";
+    }
+  }
+
+  // Fetch existing outbound profile data
+  async function fetchOutboundProfile(leadId) {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/brand/volume/outbound-profile?leadId=${leadId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data?.data) {
+          const profileData = result.data.data;
+
+          // Map API data to state format
+          const mappedData = {
+            monthly_orders: profileData.monthlyOrders,
+            avg_items: profileData.avgItemsPerOrder,
+            avg_order_value: profileData.avgOrderValue,
+            sku_count: profileData.numberOfSKUs,
+            year1_best_growth: profileData.bestCaseGrowthYear1,
+            year1_worst_growth: profileData.worstCaseGrowthYear1,
+            year2_best_growth: profileData.bestCaseGrowthYear2,
+            year2_worst_growth: profileData.worstCaseGrowthYear2,
+
+            // Map fulfillment type back to form values
+            fulfillment_method:
+              profileData.fulfillmentType === "threePlProvider"
+                ? "3pl"
+                : profileData.fulfillmentType === "inHouseFulfillment"
+                ? "inhouse"
+                : profileData.fulfillmentType === "dropshipping"
+                ? "dropship"
+                : profileData.fulfillmentType === "notFulfillingYet"
+                ? "not_yet"
+                : "",
+
+            start_month: profileData.contractExpiryMonth,
+            start_year: profileData.contractExpiryYear,
+            ship_from_location: profileData.shippingZip,
+            seasonal_peaks:
+              profileData.seasonalPeaks && profileData.seasonalPeaks.length > 0,
+            seasonal_months: profileData.seasonalPeaks || [],
+            single_sku_orders: profileData.isSingleSKU ? "yes" : "no",
+            volume_distribution: profileData.percentEaches || 50,
+
+            // Map typical order size back to checkboxes
+            fits_in_hand:
+              profileData.typicalOrderSize?.includes("Fits in your hand") ||
+              false,
+            fits_on_porch:
+              profileData.typicalOrderSize?.includes("Fits on the porch") ||
+              false,
+            fits_in_mailbox:
+              profileData.typicalOrderSize?.includes("Fits in your mailbox") ||
+              false,
+            needs_two_people:
+              profileData.typicalOrderSize?.includes(
+                "Needs two people to carry"
+              ) || false,
+
+            are_serialized: profileData.isSerialized ? "yes" : "no",
+            hazardous_products: profileData.isHazardousProducts ? "yes" : "no",
+
+            // Map shipment types back to checkboxes
+            shipment_dtc_parcel:
+              profileData.shipmentTypes?.includes("dtcParcelValue") || false,
+            shipment_retail_cases:
+              profileData.shipmentTypes?.includes("retailCasesValue") || false,
+            shipment_retail_pallets:
+              profileData.shipmentTypes?.includes("retailPalletValue") || false,
+            shipment_marketplace_cases:
+              profileData.shipmentTypes?.includes("marketplaceCasesValue") ||
+              false,
+            shipment_marketplace_pallets:
+              profileData.shipmentTypes?.includes("marketplacePalletValue") ||
+              false,
+
+            // Map weight data
+            dtcParcelValue: profileData.dtcParcelValue,
+            dtcParcelUnit: profileData.dtcParcelUnit || "oz",
+            retailCasesValue: profileData.retailCasesValue,
+            retailCasesUnit: profileData.retailCasesUnit || "oz",
+            retailPalletValue: profileData.retailPalletValue,
+            retailPalletUnit: profileData.retailPalletUnit || "oz",
+            marketplaceCasesValue: profileData.marketplaceCasesValue,
+            marketplaceCasesUnit: profileData.marketplaceCasesUnit || "oz",
+            marketplacePalletValue: profileData.marketplacePalletValue,
+            marketplacePalletUnit: profileData.marketplacePalletUnit || "oz",
+
+            // Map countries from short codes back to full names
+            selected_countries: profileData.whereDoYouSell
+              ? mapShortCodesToCountries(profileData.whereDoYouSell)
+              : [],
+          };
+
+          // Update state with fetched data
+          state.outbound_profile = { ...state.outbound_profile, ...mappedData };
+          saveState();
+
+          console.log("Outbound profile data fetched and loaded:", mappedData);
+          return true;
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching outbound profile:", error);
+    }
+    return false;
+  }
+
+  // Helper function to map short codes back to country names
+  function mapShortCodesToCountries(shortCodes) {
+    if (!shortCodes || !Array.isArray(shortCodes)) return [];
+
+    return shortCodes
+      .map((shortCode) => {
+        const country = COUNTRY_CODES.find((c) => c.shortCode === shortCode);
+        return country ? country.name : null;
+      })
+      .filter(Boolean);
+  }
+
   // Events
   function bindEvents() {
     if (state.step === 0) {
@@ -1449,6 +1803,16 @@
       if (nextBtn) nextBtn.onclick = handleContactSubmit;
     }
     if (state.step === 1) {
+      // Fetch existing outbound profile data if available
+      if (state.lead_id && !state.outbound_profile?.dataLoaded) {
+        fetchOutboundProfile(state.lead_id).then((loaded) => {
+          if (loaded) {
+            state.outbound_profile.dataLoaded = true;
+            render(); // Re-render to populate form with fetched data
+          }
+        });
+      }
+
       // New navigation buttons
       const nextBtn = document.getElementById("slotted-next-step-1");
       if (nextBtn) nextBtn.onclick = handleOutboundProfileSubmit;
@@ -1476,6 +1840,22 @@
             optionalToggle.querySelector("span:first-child").textContent =
               "Hide Optional Information";
           }
+        };
+      }
+
+      // Bind monthly orders input to update Current Monthly Orders display
+      const monthlyOrdersInput = document.getElementById(
+        "slotted-monthly-orders"
+      );
+      const currentOrdersDisplay = document.getElementById(
+        "slotted-current-orders-display"
+      );
+      if (monthlyOrdersInput && currentOrdersDisplay) {
+        monthlyOrdersInput.oninput = function () {
+          const value = this.value.trim();
+          currentOrdersDisplay.textContent = value || "0";
+          state.outbound_profile.monthly_orders = value;
+          saveState();
         };
       }
 
@@ -1545,6 +1925,83 @@
           }
         });
       }
+
+      // Bind seasonal peaks functionality
+      const seasonalPeaksCheckbox = document.getElementById(
+        "slotted-seasonal-peaks"
+      );
+      const seasonalMonthsContainer = document.getElementById(
+        "slotted-seasonal-months"
+      );
+
+      if (seasonalPeaksCheckbox && seasonalMonthsContainer) {
+        seasonalPeaksCheckbox.onchange = function () {
+          if (this.checked) {
+            seasonalMonthsContainer.style.display = "block";
+            state.outbound_profile.seasonal_peaks = true;
+          } else {
+            seasonalMonthsContainer.style.display = "none";
+            state.outbound_profile.seasonal_peaks = false;
+            state.outbound_profile.seasonal_months = [];
+            // Uncheck all month checkboxes
+            const monthCheckboxes = seasonalMonthsContainer.querySelectorAll(
+              'input[type="checkbox"]'
+            );
+            monthCheckboxes.forEach((checkbox) => (checkbox.checked = false));
+          }
+          saveState();
+        };
+
+        // Bind month checkboxes
+        const monthCheckboxes = seasonalMonthsContainer.querySelectorAll(
+          'input[type="checkbox"]'
+        );
+        monthCheckboxes.forEach((checkbox) => {
+          checkbox.onchange = function () {
+            if (!state.outbound_profile.seasonal_months) {
+              state.outbound_profile.seasonal_months = [];
+            }
+
+            const monthValue = parseInt(this.value);
+            if (this.checked) {
+              if (
+                !state.outbound_profile.seasonal_months.includes(monthValue)
+              ) {
+                state.outbound_profile.seasonal_months.push(monthValue);
+              }
+            } else {
+              const index =
+                state.outbound_profile.seasonal_months.indexOf(monthValue);
+              if (index > -1) {
+                state.outbound_profile.seasonal_months.splice(index, 1);
+              }
+            }
+            saveState();
+          };
+        });
+      }
+
+      // Bind shipment type checkboxes to show/hide weight section
+      const shipmentCheckboxes = [
+        "slotted-dtc-parcel",
+        "slotted-retail-cases",
+        "slotted-retail-pallets",
+        "slotted-marketplace-cases",
+        "slotted-marketplace-pallets",
+      ];
+
+      shipmentCheckboxes.forEach((id) => {
+        const checkbox = document.getElementById(id);
+        if (checkbox) {
+          checkbox.onchange = function () {
+            updateWeightSection();
+            saveState();
+          };
+        }
+      });
+
+      // Initialize weight section on page load
+      updateWeightSection();
     }
     if (state.step === 2) {
       // New navigation buttons
@@ -1613,16 +2070,6 @@
       const saveProgressBtn = document.getElementById("slotted-save-progress");
       if (saveProgressBtn) saveProgressBtn.onclick = handleSaveProgress;
     }
-  }
-
-  // Back button handlers
-  function handleBackToContact() {
-    state = {
-      ...state,
-      step: 0, // Back to contact form
-    };
-    saveState();
-    render();
   }
 
   function handleBackToOutbound() {
@@ -1766,7 +2213,7 @@
   }
 
   // Step 2 handler - Outbound Profile
-  function handleOutboundProfileSubmit() {
+  async function handleOutboundProfileSubmit() {
     const monthly_orders = document
       .getElementById("slotted-monthly-orders")
       .value.trim();
@@ -1794,6 +2241,7 @@
       .value.trim();
 
     // Business context checkboxes and radios
+    const fits_in_hand = document.getElementById("slotted-fits-hand").checked;
     const fits_in_mailbox = document.getElementById(
       "slotted-fits-mailbox"
     ).checked;
@@ -1871,12 +2319,6 @@
 
     const volume_distribution =
       document.getElementById("slotted-volume-distribution")?.value || 50;
-    const weight_eaches =
-      document.getElementById("slotted-weight-eaches")?.value?.trim() || "";
-    const weight_cases =
-      document.getElementById("slotted-weight-cases")?.value?.trim() || "";
-    const weight_pallets =
-      document.getElementById("slotted-weight-pallets")?.value?.trim() || "";
 
     const hazardous_yes = document.getElementById(
       "slotted-hazardous-yes"
@@ -1885,16 +2327,33 @@
       "slotted-hazardous-no"
     )?.checked;
     const hazardous_products = hazardous_yes ? "yes" : hazardous_no ? "no" : "";
+    console.log({
+      monthly_orders,
+      avg_items,
+      avg_order_value,
+      sku_count,
+      selected_countries: state.outbound_profile?.selected_countries,
+      are_serialized,
+    });
+
+    // Check if countries have been selected
+    const hasSelectedCountries =
+      state.outbound_profile?.selected_countries &&
+      state.outbound_profile.selected_countries.length > 0;
 
     if (
       !monthly_orders ||
       !avg_items ||
       !avg_order_value ||
       !sku_count ||
-      !sell_location ||
+      !hasSelectedCountries ||
       !are_serialized
     ) {
-      alert("Please fill all required fields in the Outbound Profile.");
+      if (!hasSelectedCountries) {
+        alert("Please select at least one country where you sell.");
+      } else {
+        alert("Please fill all required fields in the Outbound Profile.");
+      }
       return;
     }
 
@@ -1910,55 +2369,182 @@
       return;
     }
 
-    state = {
-      ...state,
-      step: 2, // Move to Inbound Profile
-      outbound_profile: {
-        monthly_orders: parseInt(monthly_orders),
-        avg_items: parseFloat(avg_items),
-        avg_order_value: parseFloat(avg_order_value),
-        sku_count: parseInt(sku_count),
-        sell_location,
-        current_monthly_orders: parseInt(monthly_orders), // Use monthly_orders as current
-        year1_best_growth: year1_best_growth
-          ? parseInt(year1_best_growth)
+    // Prepare shipment types array with values
+    const shipmentTypes = [];
+    if (shipment_dtc_parcel) shipmentTypes.push("dtcParcelValue");
+    if (shipment_retail_cases) shipmentTypes.push("retailCasesValue");
+    if (shipment_retail_pallets) shipmentTypes.push("retailPalletValue");
+    if (shipment_marketplace_cases) shipmentTypes.push("marketplaceCasesValue");
+    if (shipment_marketplace_pallets)
+      shipmentTypes.push("marketplacePalletValue");
+
+    // Prepare typical order size array
+    const typicalOrderSize = [];
+    if (fits_in_hand) typicalOrderSize.push("Fits in your hand");
+    if (fits_on_porch) typicalOrderSize.push("Fits on the porch");
+    if (fits_in_mailbox) typicalOrderSize.push("Fits in your mailbox");
+    if (needs_two_people) typicalOrderSize.push("Needs two people to carry");
+
+    // Prepare seasonal peaks array (use selected months from state)
+    const seasonalPeaksArray = [];
+    if (seasonal_peaks && state.outbound_profile?.seasonal_months) {
+      // Use the selected months from the checkboxes
+      seasonalPeaksArray.push(...state.outbound_profile.seasonal_months);
+    }
+
+    // Prepare API payload
+    const apiPayload = {
+      monthlyOrders: parseInt(monthly_orders),
+      avgItemsPerOrder: parseFloat(avg_items),
+      avgOrderValue: parseFloat(avg_order_value),
+      numberOfSKUs: parseInt(sku_count),
+      bestCaseGrowthYear1: year1_best_growth
+        ? parseInt(year1_best_growth)
+        : null,
+      worstCaseGrowthYear1: year1_worst_growth
+        ? parseInt(year1_worst_growth)
+        : null,
+      bestCaseGrowthYear2: year2_best_growth
+        ? parseInt(year2_best_growth)
+        : null,
+      worstCaseGrowthYear2: year2_worst_growth
+        ? parseInt(year2_worst_growth)
+        : null,
+      fulfillmentType:
+        fulfillment_method === "3pl"
+          ? "threePlProvider"
+          : fulfillment_method === "inhouse"
+          ? "inHouseFulfillment"
+          : fulfillment_method === "dropship"
+          ? "dropshipping"
+          : fulfillment_method === "not_yet"
+          ? "notFulfillingYet"
           : null,
-        year1_worst_growth: year1_worst_growth
-          ? parseInt(year1_worst_growth)
-          : null,
-        year2_best_growth: year2_best_growth
-          ? parseInt(year2_best_growth)
-          : null,
-        year2_worst_growth: year2_worst_growth
-          ? parseInt(year2_worst_growth)
-          : null,
-        fits_in_mailbox,
-        fits_on_porch,
-        needs_two_people,
-        are_serialized,
-        shipment_dtc_parcel,
-        shipment_retail_cases,
-        shipment_retail_pallets,
-        shipment_marketplace_cases,
-        shipment_marketplace_pallets,
-        // Optional fields
-        fulfillment_method,
-        start_month,
-        start_year,
-        ship_from_location,
-        seasonal_peaks,
-        single_sku_orders,
-        volume_distribution: parseInt(volume_distribution),
-        weight_eaches: weight_eaches ? parseFloat(weight_eaches) : null,
-        weight_cases: weight_cases ? parseFloat(weight_cases) : null,
-        weight_pallets: weight_pallets ? parseFloat(weight_pallets) : null,
-        hazardous_products,
-      },
+      contractExpiryMonth: start_month ? parseInt(start_month) : null,
+      contractExpiryYear: start_year ? parseInt(start_year) : null,
+      shippingStartMonth: start_month ? parseInt(start_month) : null,
+      shippingStartYear: start_year ? parseInt(start_year) : null,
+      shippingZip: ship_from_location || null,
+      seasonalPeaks: seasonalPeaksArray,
+      isSingleSKU: single_sku_orders === "yes",
+      typicalOrderSize: typicalOrderSize,
+      isSerialized: are_serialized === "yes",
+      isHazardousProducts: hazardous_products === "yes",
+      shipmentTypes: shipmentTypes,
+      percentEaches: parseInt(volume_distribution) || 50,
+      percentCasePallet: 100 - (parseInt(volume_distribution) || 50),
+      whereDoYouSell: getCountryShortCodes(
+        state.outbound_profile?.selected_countries
+      ),
+      // Weight data for selected shipment types (include all, let backend handle nulls)
+      dtcParcelValue: state.outbound_profile?.dtcParcelValue || null,
+      dtcParcelUnit: state.outbound_profile?.dtcParcelUnit || null,
+      retailCasesValue: state.outbound_profile?.retailCasesValue || null,
+      retailCasesUnit: state.outbound_profile?.retailCasesUnit || null,
+      retailPalletValue: state.outbound_profile?.retailPalletValue || null,
+      retailPalletUnit: state.outbound_profile?.retailPalletUnit || null,
+      marketplaceCasesValue:
+        state.outbound_profile?.marketplaceCasesValue || null,
+      marketplaceCasesUnit:
+        state.outbound_profile?.marketplaceCasesUnit || null,
+      marketplacePalletValue:
+        state.outbound_profile?.marketplacePalletValue || null,
+      marketplacePalletUnit:
+        state.outbound_profile?.marketplacePalletUnit || null,
+      leadContactId: state.lead_id,
     };
 
-    saveState();
-    render();
-    console.log("Outbound profile completed:", state.outbound_profile);
+    // API integration for outbound profile
+    try {
+      // Determine if this is an update (PUT) or create (POST)
+      const isUpdate = state.outbound_profile?.dataLoaded;
+      const method = isUpdate ? "PUT" : "POST";
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/brand/volume/outbound-profile`,
+        {
+          method: method,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(apiPayload),
+        }
+      );
+
+      const outboundResponse = await response.json();
+
+      if (!response.ok) {
+        alert(
+          outboundResponse.message ||
+            `Failed to ${
+              isUpdate ? "update" : "submit"
+            } outbound profile. Please try again.`
+        );
+        return;
+      }
+
+      console.log(
+        `Outbound profile ${isUpdate ? "updated" : "created"} successfully:`,
+        outboundResponse
+      );
+
+      // Update state with form data
+      state = {
+        ...state,
+        step: 2, // Move to Inbound Profile
+        outbound_profile: {
+          monthly_orders: parseInt(monthly_orders),
+          avg_items: parseFloat(avg_items),
+          avg_order_value: parseFloat(avg_order_value),
+          sku_count: parseInt(sku_count),
+          sell_location:
+            state.outbound_profile?.selected_countries?.join(", ") || "",
+          selected_countries: state.outbound_profile?.selected_countries || [],
+          current_monthly_orders: parseInt(monthly_orders), // Use monthly_orders as current
+          year1_best_growth: year1_best_growth
+            ? parseInt(year1_best_growth)
+            : null,
+          year1_worst_growth: year1_worst_growth
+            ? parseInt(year1_worst_growth)
+            : null,
+          year2_best_growth: year2_best_growth
+            ? parseInt(year2_best_growth)
+            : null,
+          year2_worst_growth: year2_worst_growth
+            ? parseInt(year2_worst_growth)
+            : null,
+          fits_in_hand,
+          fits_in_mailbox,
+          fits_on_porch,
+          needs_two_people,
+          are_serialized,
+          shipment_dtc_parcel,
+          shipment_retail_cases,
+          shipment_retail_pallets,
+          shipment_marketplace_cases,
+          shipment_marketplace_pallets,
+          // Optional fields
+          fulfillment_method,
+          start_month,
+          start_year,
+          ship_from_location,
+          seasonal_peaks,
+          seasonal_months: state.outbound_profile?.seasonal_months || [],
+          single_sku_orders,
+          volume_distribution: parseInt(volume_distribution),
+          hazardous_products,
+          // API response data
+          api_response: outboundResponse,
+        },
+      };
+
+      saveState();
+      render();
+      console.log("Outbound profile completed:", state.outbound_profile);
+    } catch (err) {
+      alert("Network error. Please try again later.");
+      console.error("Outbound profile API error:", err);
+    }
   }
 
   // Step 2 handler - Inbound Profile
