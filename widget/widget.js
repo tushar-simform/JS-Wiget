@@ -1796,6 +1796,69 @@
       .filter(Boolean);
   }
 
+  // Fetch existing inbound profile data
+  async function fetchInboundProfile(leadId) {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/brand/volume/inbound-profile?leadId=${leadId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data && result.data.data) {
+          const profileData = result.data.data;
+
+          // Map API data to state format
+          const mappedData = {
+            inbound_frequency: profileData.inventoryFrequency?.toLowerCase(),
+            storage_type: profileData.storageType,
+            avg_pallets: profileData.averagePalletsPerMonth,
+            return_rate: profileData.averageReturnRate,
+            single_sku_case: profileData.isSingleSkuPerCase,
+            case_barcoding: profileData.hasCaseLevelBarcoding,
+
+            // Map inbound formats to checkboxes
+            palletized:
+              profileData.inboundFormats?.includes("Palletized") || false,
+            floor_loaded:
+              profileData.inboundFormats?.includes("Floor Loaded") || false,
+            parcel: profileData.inboundFormats?.includes("Parcels") || false,
+
+            dataLoaded: true,
+            hasExistingData: true,
+          };
+
+          // Update state with fetched data
+          state.inbound_profile = {
+            ...state.inbound_profile,
+            ...mappedData,
+          };
+
+          console.log("Inbound profile fetched successfully:", mappedData);
+          return true;
+        } else {
+          // No data found, set flag to indicate no existing data
+          state.inbound_profile = {
+            ...state.inbound_profile,
+            dataLoaded: true,
+            hasExistingData: false,
+          };
+          console.log("No inbound profile found");
+          return false;
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching inbound profile:", error);
+    }
+    return false;
+  }
+
   // Events
   function bindEvents() {
     if (state.step === 0) {
@@ -2004,6 +2067,16 @@
       updateWeightSection();
     }
     if (state.step === 2) {
+      // Fetch existing inbound profile data if available
+      if (state.lead_id && !state.inbound_profile?.dataLoaded) {
+        fetchInboundProfile(state.lead_id).then((loaded) => {
+          if (loaded) {
+            state.inbound_profile.dataLoaded = true;
+            render(); // Re-render to populate form with fetched data
+          }
+        });
+      }
+
       // New navigation buttons
       const nextBtn = document.getElementById("slotted-next-step-2");
       if (nextBtn) nextBtn.onclick = handleInboundProfileSubmit;
@@ -2548,7 +2621,7 @@
   }
 
   // Step 2 handler - Inbound Profile
-  function handleInboundProfileSubmit() {
+  async function handleInboundProfileSubmit() {
     // Required fields
     const inbound_frequency_weekly = document.getElementById(
       "slotted-freq-weekly"
@@ -2602,26 +2675,88 @@
       return;
     }
 
-    state = {
-      ...state,
-      step: 3, // Move to final review
-      inbound_profile: {
-        inbound_frequency,
-        storage_type,
-        avg_pallets: parseInt(avg_pallets),
-        return_rate: parseFloat(return_rate),
-        palletized,
-        floor_loaded,
-        parcel,
-        // Optional fields
-        single_sku_case,
-        case_barcoding,
-      },
+    // Build inbound formats array
+    const inboundFormats = [];
+    if (palletized) inboundFormats.push("Palletized");
+    if (floor_loaded) inboundFormats.push("Floor Loaded");
+    if (parcel) inboundFormats.push("Parcels");
+
+    // Prepare API payload
+    const apiPayload = {
+      inventoryFrequency: inbound_frequency.toUpperCase(),
+      storageType: storage_type,
+      averagePalletsPerMonth: parseInt(avg_pallets),
+      inboundFormats: inboundFormats,
+      averageReturnRate: parseFloat(return_rate),
+      isSingleSkuPerCase: single_sku_case,
+      hasCaseLevelBarcoding: case_barcoding,
+      leadContactId: state.lead_id,
     };
 
-    saveState();
-    render();
-    console.log("Inbound profile completed:", state.inbound_profile);
+    // API integration for inbound profile
+    try {
+      // Determine if this is an update (PUT) or create (POST)
+      console.log("Has existing data:", state.inbound_profile?.hasExistingData);
+      const isUpdate = state.inbound_profile?.hasExistingData;
+      const method = isUpdate ? "PUT" : "POST";
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/brand/volume/inbound-profile`,
+        {
+          method: method,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(apiPayload),
+        }
+      );
+
+      const inboundResponse = await response.json();
+
+      if (!response.ok) {
+        alert(
+          inboundResponse.message ||
+            `Failed to ${
+              isUpdate ? "update" : "submit"
+            } inbound profile. Please try again.`
+        );
+        return;
+      }
+
+      console.log(
+        `Inbound profile ${isUpdate ? "updated" : "created"} successfully:`,
+        inboundResponse
+      );
+
+      // Update state with form data
+      state = {
+        ...state,
+        step: 3, // Move to final review
+        inbound_profile: {
+          inbound_frequency,
+          storage_type,
+          avg_pallets: parseInt(avg_pallets),
+          return_rate: parseFloat(return_rate),
+          palletized,
+          floor_loaded,
+          parcel,
+          // Optional fields
+          single_sku_case,
+          case_barcoding,
+          // API response data
+          api_response: inboundResponse,
+          dataLoaded: true,
+          hasExistingData: true,
+        },
+      };
+
+      saveState();
+      render();
+      console.log("Inbound profile completed:", state.inbound_profile);
+    } catch (err) {
+      alert("Network error. Please try again later.");
+      console.error("Inbound profile API error:", err);
+    }
   }
 
   // Step 3 handler - Final Submit
