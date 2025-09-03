@@ -94,6 +94,139 @@
     ).join("");
   }
 
+  // Render selected countries for sell location
+  function renderSelectedCountries() {
+    if (
+      !state.outbound_profile.selected_countries ||
+      state.outbound_profile.selected_countries.length === 0
+    ) {
+      return ""; // Return empty string instead of placeholder
+    }
+
+    return state.outbound_profile.selected_countries
+      .map((countryName) => {
+        const country = COUNTRY_CODES.find((c) => c.name === countryName);
+        return `
+        <div class="slotted-selected-country" data-country="${countryName}">
+          <span class="slotted-country-flag">${
+            country ? country.flag : "🌍"
+          }</span>
+          <span class="slotted-country-name">${countryName}</span>
+          <button type="button" class="slotted-remove-country" onclick="removeSelectedCountry('${countryName}')">×</button>
+        </div>
+      `;
+      })
+      .join("");
+  }
+
+  // Filter countries based on search query
+  function filterCountries(query) {
+    if (!query || query.length < 1) return [];
+
+    const searchQuery = query.toLowerCase();
+    const filtered = COUNTRY_CODES.filter(
+      (country) =>
+        country.name.toLowerCase().includes(searchQuery) ||
+        country.code.toLowerCase().includes(searchQuery)
+    );
+
+    // Sort results: exact matches first, then starts with, then contains
+    filtered.sort((a, b) => {
+      const aName = a.name.toLowerCase();
+      const bName = b.name.toLowerCase();
+
+      // Exact match
+      if (aName === searchQuery) return -1;
+      if (bName === searchQuery) return 1;
+
+      // Starts with
+      if (aName.startsWith(searchQuery) && !bName.startsWith(searchQuery))
+        return -1;
+      if (bName.startsWith(searchQuery) && !aName.startsWith(searchQuery))
+        return 1;
+
+      // Alphabetical order for similar matches
+      return aName.localeCompare(bName);
+    });
+
+    return filtered.slice(0, 8); // Limit to 8 results
+  }
+
+  // Render search dropdown results
+  function renderSearchResults(countries) {
+    if (countries.length === 0) {
+      return '<div class="slotted-search-no-results">No countries found</div>';
+    }
+
+    return countries
+      .map(
+        (country) => `
+      <div class="slotted-search-result" data-country="${country.name}" onclick="selectCountry('${country.name}')">
+        <span class="slotted-result-flag">${country.flag}</span>
+        <span class="slotted-result-name">${country.name}</span>
+      </div>
+    `
+      )
+      .join("");
+  }
+
+  // Global functions for country selection (accessible from onclick)
+  window.selectCountry = function (countryName) {
+    if (!state.outbound_profile.selected_countries) {
+      state.outbound_profile.selected_countries = [];
+    }
+
+    // Don't add if already selected
+    if (!state.outbound_profile.selected_countries.includes(countryName)) {
+      state.outbound_profile.selected_countries.push(countryName);
+
+      // Update the selected countries display
+      const selectedCountriesContainer = document.getElementById(
+        "slotted-selected-countries"
+      );
+      if (selectedCountriesContainer) {
+        selectedCountriesContainer.innerHTML = renderSelectedCountries();
+      }
+
+      // Clear the search input
+      const sellLocationInput = document.getElementById(
+        "slotted-sell-location"
+      );
+      if (sellLocationInput) {
+        sellLocationInput.value = "";
+      }
+
+      // Hide the dropdown
+      const countryDropdown = document.getElementById(
+        "slotted-country-dropdown"
+      );
+      if (countryDropdown) {
+        countryDropdown.style.display = "none";
+      }
+
+      saveState();
+    }
+  };
+
+  window.removeSelectedCountry = function (countryName) {
+    if (state.outbound_profile.selected_countries) {
+      state.outbound_profile.selected_countries =
+        state.outbound_profile.selected_countries.filter(
+          (country) => country !== countryName
+        );
+
+      // Update the selected countries display
+      const selectedCountriesContainer = document.getElementById(
+        "slotted-selected-countries"
+      );
+      if (selectedCountriesContainer) {
+        selectedCountriesContainer.innerHTML = renderSelectedCountries();
+      }
+
+      saveState();
+    }
+  };
+
   // Read widget key from data attribute on container div
   function getWidgetKey() {
     const el = document.getElementById("slotted-easyrfp");
@@ -120,65 +253,6 @@
   let PROVIDER = null;
   let isAuthenticated = false;
   let providerError = null;
-
-  // Static provider response for development (remove when API is ready)
-  function getStaticProviderResponse(widgetKey) {
-    const staticProviders = {
-      abc123: {
-        success: true,
-        data: {
-          id: "provider-123",
-          name: "Demo 3PL Provider",
-          widget_key: "abc123",
-          subscription_status: "active",
-          theme: THEME,
-          settings: {
-            allowed_domains: ["*"],
-            max_submissions_per_day: 100,
-          },
-        },
-      },
-      def456: {
-        success: true,
-        data: {
-          id: "provider-456",
-          name: "Test Provider",
-          widget_key: "def456",
-          subscription_status: "active",
-          theme: THEME2,
-          settings: {
-            allowed_domains: ["localhost", "testdomain.com"],
-            max_submissions_per_day: 50,
-          },
-        },
-      },
-      inactive123: {
-        success: true,
-        data: {
-          id: "provider-inactive",
-          name: "Inactive Provider",
-          widget_key: "inactive123",
-          subscription_status: "inactive",
-          theme: THEME2,
-          settings: {},
-        },
-      },
-    };
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        if (staticProviders[widgetKey]) {
-          resolve(staticProviders[widgetKey]);
-        } else {
-          resolve({
-            success: false,
-            error: "Invalid widget key",
-            message: "The provided widget key is not valid or does not exist.",
-          });
-        }
-      }, 500); // Simulate API delay
-    });
-  }
 
   // Fetch provider data from API
   async function fetchProviderData(widgetKey) {
@@ -454,11 +528,17 @@
           
           <div class="slotted-form-section">
             <label class="slotted-label">Where do you sell? *</label>
+            <div class="slotted-selected-countries" id="slotted-selected-countries">
+              ${renderSelectedCountries()}
+            </div>
             <div class="slotted-search-input">
               <span class="slotted-search-icon">🔍</span>
               <input class="slotted-input" id="slotted-sell-location" placeholder="Search countries..." value="${
                 state.outbound_profile.sell_location || ""
-              }"/>
+              }" autocomplete="off"/>
+              <div class="slotted-search-dropdown" id="slotted-country-dropdown" style="display: none;">
+                <!-- Dynamic search results will appear here -->
+              </div>
             </div>
           </div>
           
@@ -1412,6 +1492,58 @@
             labels.innerHTML = `<span>${eachesPercent}% Eaches</span><span>${casesPalletPercent}% Case/Pallet</span>`;
           }
         };
+      }
+
+      // Bind country search functionality
+      const sellLocationInput = document.getElementById(
+        "slotted-sell-location"
+      );
+      const countryDropdown = document.getElementById(
+        "slotted-country-dropdown"
+      );
+
+      if (sellLocationInput && countryDropdown) {
+        // Initialize selected countries array if not exists
+        if (!state.outbound_profile.selected_countries) {
+          state.outbound_profile.selected_countries = [];
+        }
+
+        sellLocationInput.oninput = function (e) {
+          const query = e.target.value;
+          if (query.length >= 1) {
+            const filteredCountries = filterCountries(query);
+            countryDropdown.innerHTML = renderSearchResults(filteredCountries);
+            countryDropdown.style.display = "block";
+          } else {
+            countryDropdown.style.display = "none";
+          }
+        };
+
+        sellLocationInput.onfocus = function (e) {
+          const query = e.target.value;
+          if (query.length >= 1) {
+            const filteredCountries = filterCountries(query);
+            countryDropdown.innerHTML = renderSearchResults(filteredCountries);
+            countryDropdown.style.display = "block";
+          }
+        };
+
+        sellLocationInput.onblur = function () {
+          // Delay hiding to allow click on dropdown items
+          setTimeout(() => {
+            countryDropdown.style.display = "none";
+          }, 200);
+        };
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function (e) {
+          if (
+            !sellLocationInput.contains(e.target) &&
+            !countryDropdown.contains(e.target)
+          ) {
+            countryDropdown.style.display = "none";
+          }
+        });
       }
     }
     if (state.step === 2) {
