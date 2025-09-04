@@ -1012,6 +1012,31 @@ select.slotted-input {
   background: #b91c1c;
 }
 
+/* Form field error states */
+.slotted-input-error {
+  border-color: #dc2626 !important;
+}
+
+.slotted-input-error:focus {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+}
+
+.slotted-field-error {
+  color: #dc2626;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: none;
+}
+
+.slotted-field-error.show {
+  display: block;
+}
+
+.slotted-input-wrapper {
+  margin-bottom: 1rem;
+}
+
 /* Loading state styling */
 .slotted-loading-container {
   max-width: 500px;
@@ -1084,14 +1109,83 @@ select.slotted-input {
   color: #6b7280;
 }
 
-.slotted-volume-slider {
+.slotted-volume-slider-wrapper {
+  position: relative;
   width: 100%;
-  height: 6px;
-  border-radius: 3px;
+  height: 8px;
+  margin: 1rem 0;
+}
+
+.slotted-volume-slider-track {
+  position: absolute;
+  width: 100%;
+  height: 8px;
   background: #e5e7eb;
+  border-radius: 4px;
+  top: 0;
+  left: 0;
+}
+
+.slotted-volume-slider-fill {
+  position: absolute;
+  height: 8px;
+  background: var(--slotted-primary, #4f8cff);
+  border-radius: 4px;
+  top: 0;
+  left: 0;
+  transition: width 0.15s ease;
+  z-index: 1;
+}
+
+.slotted-volume-slider {
+  position: absolute;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: transparent;
   outline: none;
   -webkit-appearance: none;
   appearance: none;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.slotted-volume-slider::-webkit-slider-track {
+  background: transparent;
+  height: 8px;
+  border-radius: 4px;
+}
+
+.slotted-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: var(--slotted-primary, #4f8cff);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(79, 140, 255, 0.3);
+  border: 3px solid #ffffff;
+  margin-top: -6px;
+}
+
+.slotted-volume-slider::-moz-range-track {
+  background: transparent;
+  height: 8px;
+  border-radius: 4px;
+  border: none;
+}
+
+.slotted-volume-slider::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: var(--slotted-primary, #4f8cff);
+  cursor: pointer;
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(79, 140, 255, 0.3);
 }
 
 /* Weight input labels */

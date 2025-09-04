@@ -481,36 +481,59 @@
           PROVIDER.theme?.logo || "assets/logo.png"
         }" class="slotted-logo" alt="Provider Logo"/>
         <h3>Contact Info</h3>
-        <label class="slotted-label">Name*</label>
-        <input class="slotted-input" id="slotted-name" value="${
-          state.contact.name || ""
-        }"/>
-        <label class="slotted-label">Email*</label>
-        <input class="slotted-input" id="slotted-email" type="email" value="${
-          state.contact.email || ""
-        }"/>
-        <label class="slotted-label">Company*</label>
-        <input class="slotted-input" id="slotted-company" value="${
-          state.contact.company || ""
-        }"/>
-        <label class="slotted-label">Website URL*</label>
-        <input class="slotted-input" id="slotted-website" value="${
-          state.contact.website_url || ""
-        }"/>
-        <label class="slotted-label">Phone</label>
-        <div class="slotted-phone-container">
-          <select class="slotted-country-code" id="slotted-country-code">
-            ${generateCountryOptions(state.contact.countryCode)}
-          </select>
-          <input class="slotted-input slotted-phone-input" id="slotted-phone" placeholder="123-456-7890" value="${
-            state.contact.phone || ""
-          }"/>
-        </div>
-        <div class="slotted-gdpr-container">
-          <input type="checkbox" id="slotted-gdpr" required/>
-          <label for="slotted-gdpr" class="slotted-gdpr-label">I consent to data processing (GDPR/CCPA)</label>
-        </div>
-        <button class="slotted-btn" id="slotted-next">Start RFP Process</button>
+        <form id="slotted-contact-form" novalidate>
+          <div class="slotted-input-wrapper">
+            <label class="slotted-label">Name*</label>
+            <input class="slotted-input" id="slotted-name" name="name" required value="${
+              state.contact.name || ""
+            }"/>
+            <div class="slotted-field-error" id="slotted-name-error">Name is required</div>
+          </div>
+          
+          <div class="slotted-input-wrapper">
+            <label class="slotted-label">Email*</label>
+            <input class="slotted-input" id="slotted-email" name="email" type="email" required value="${
+              state.contact.email || ""
+            }"/>
+            <div class="slotted-field-error" id="slotted-email-error">Please enter a valid email</div>
+          </div>
+          
+          <div class="slotted-input-wrapper">
+            <label class="slotted-label">Company*</label>
+            <input class="slotted-input" id="slotted-company" name="company" required value="${
+              state.contact.company || ""
+            }"/>
+            <div class="slotted-field-error" id="slotted-company-error">Company is required</div>
+          </div>
+          
+          <div class="slotted-input-wrapper">
+            <label class="slotted-label">Website URL*</label>
+            <input class="slotted-input" id="slotted-website" name="website" type="url" required value="${
+              state.contact.website_url || ""
+            }"/>
+            <div class="slotted-field-error" id="slotted-website-error">Please enter a valid website URL</div>
+          </div>
+          
+          <div class="slotted-input-wrapper">
+            <label class="slotted-label">Phone</label>
+            <div class="slotted-phone-container">
+              <select class="slotted-country-code" id="slotted-country-code">
+                ${generateCountryOptions(state.contact.countryCode)}
+              </select>
+              <input class="slotted-input slotted-phone-input" id="slotted-phone" name="phone" placeholder="123-456-7890" value="${
+                state.contact.phone || ""
+              }"/>
+            </div>
+          </div>
+          
+          <div class="slotted-gdpr-container">
+            <input type="checkbox" id="slotted-gdpr" name="gdpr" required/>
+            <label for="slotted-gdpr" class="slotted-gdpr-label">I consent to data processing (GDPR/CCPA)</label>
+            <div class="slotted-field-error" id="slotted-gdpr-error">You must consent to data processing to continue</div>
+          </div>
+          
+          <button type="submit" class="slotted-btn" id="slotted-next">Start RFP Process</button>
+        </form>
       </div>
     `;
   }
@@ -527,32 +550,36 @@
         <p class="slotted-section-description">Essential information needed for all provider matches</p>
         
         <div class="slotted-grid-2 slotted-grid-spacing">
-          <div>
+          <div class="slotted-input-wrapper">
             <label class="slotted-label">Monthly Orders *</label>
-            <input class="slotted-input" id="slotted-monthly-orders" type="number" placeholder="e.g. 1,500" value="${
+            <input class="slotted-input" id="slotted-monthly-orders" name="monthly_orders" type="number" placeholder="e.g. 1,500" required value="${
               state.outbound_profile.monthly_orders || ""
             }"/>
+            <div class="slotted-field-error" id="slotted-monthly-orders-error">Monthly orders is required</div>
           </div>
-          <div>
+          <div class="slotted-input-wrapper">
             <label class="slotted-label">Avg Items/Order *</label>
-            <input class="slotted-input" id="slotted-avg-items" type="number" step="0.1" placeholder="e.g. 2.5" value="${
+            <input class="slotted-input" id="slotted-avg-items" name="avg_items" type="number" step="0.1" placeholder="e.g. 2.5" required value="${
               state.outbound_profile.avg_items || ""
             }"/>
+            <div class="slotted-field-error" id="slotted-avg-items-error">Average items per order is required</div>
           </div>
         </div>
         
         <div class="slotted-grid-2">
-          <div>
+          <div class="slotted-input-wrapper">
             <label class="slotted-label">Avg Order Value *</label>
-            <input class="slotted-input" id="slotted-avg-order-value" type="number" step="0.01" placeholder="$78.50" value="${
+            <input class="slotted-input" id="slotted-avg-order-value" name="avg_order_value" type="number" step="0.01" placeholder="$78.50" required value="${
               state.outbound_profile.avg_order_value || ""
             }"/>
+            <div class="slotted-field-error" id="slotted-avg-order-value-error">Average order value is required</div>
           </div>
-          <div>
+          <div class="slotted-input-wrapper">
             <label class="slotted-label">How many SKUs *</label>
-            <input class="slotted-input" id="slotted-sku-count" type="number" placeholder="e.g. 250" value="${
+            <input class="slotted-input" id="slotted-sku-count" name="sku_count" type="number" placeholder="e.g. 250" required value="${
               state.outbound_profile.sku_count || ""
             }"/>
+            <div class="slotted-field-error" id="slotted-sku-count-error">Number of SKUs is required</div>
           </div>
         </div>
       </div>
@@ -950,17 +977,23 @@
         <label class="slotted-label">What percentage of your outbound volume is in eaches vs case or pallet?</label>
         <div class="slotted-volume-container">
           <div class="slotted-volume-labels">
-            <span>${
+            <span id="slotted-eaches-label">${
               state.outbound_profile.volume_distribution || 50
             }% Eaches</span>
-            <span>${
+            <span id="slotted-case-label">${
               100 - (state.outbound_profile.volume_distribution || 50)
             }% Case/Pallet</span>
           </div>
-          <input type="range" id="slotted-volume-distribution" min="0" max="100" value="${
-            state.outbound_profile.volume_distribution || 50
-          }" 
-                 class="slotted-volume-slider" />
+          <div class="slotted-volume-slider-wrapper">
+            <div class="slotted-volume-slider-track"></div>
+            <div class="slotted-volume-slider-fill" id="slotted-volume-fill" style="width: ${
+              state.outbound_profile.volume_distribution || 50
+            }%"></div>
+            <input type="range" id="slotted-volume-distribution" min="0" max="100" value="${
+              state.outbound_profile.volume_distribution || 50
+            }" 
+                   class="slotted-volume-slider" />
+          </div>
         </div>
       </div>
     `;
@@ -1878,11 +1911,262 @@
     return false;
   }
 
+  // Form validation helper functions
+  function showFieldError(fieldId, message) {
+    const input = document.getElementById(fieldId);
+    const errorElement = document.getElementById(`${fieldId}-error`);
+
+    if (input) {
+      input.classList.add("slotted-input-error");
+    }
+
+    if (errorElement) {
+      errorElement.textContent = message;
+      errorElement.classList.add("show");
+    }
+  }
+
+  function hideFieldError(fieldId) {
+    const input = document.getElementById(fieldId);
+    const errorElement = document.getElementById(`${fieldId}-error`);
+
+    if (input) {
+      input.classList.remove("slotted-input-error");
+    }
+
+    if (errorElement) {
+      errorElement.classList.remove("show");
+    }
+  }
+
+  function validateContactForm() {
+    let isValid = true;
+
+    // Clear all previous errors
+    [
+      "slotted-name",
+      "slotted-email",
+      "slotted-company",
+      "slotted-website",
+      "slotted-gdpr",
+    ].forEach((fieldId) => {
+      hideFieldError(fieldId);
+    });
+
+    // Validate Name
+    const name = document.getElementById("slotted-name").value.trim();
+    if (!name) {
+      showFieldError("slotted-name", "Name is required");
+      isValid = false;
+    }
+
+    // Validate Email
+    const email = document.getElementById("slotted-email").value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      showFieldError("slotted-email", "Email is required");
+      isValid = false;
+    } else if (!emailRegex.test(email)) {
+      showFieldError("slotted-email", "Please enter a valid email address");
+      isValid = false;
+    }
+
+    // Validate Company
+    const company = document.getElementById("slotted-company").value.trim();
+    if (!company) {
+      showFieldError("slotted-company", "Company is required");
+      isValid = false;
+    }
+
+    // Validate Website URL
+    const website = document.getElementById("slotted-website").value.trim();
+    if (!website) {
+      showFieldError("slotted-website", "Website URL is required");
+      isValid = false;
+    } else {
+      try {
+        new URL(website.startsWith("http") ? website : `https://${website}`);
+      } catch {
+        showFieldError("slotted-website", "Please enter a valid website URL");
+        isValid = false;
+      }
+    }
+
+    // Validate GDPR consent
+    const gdpr = document.getElementById("slotted-gdpr").checked;
+    if (!gdpr) {
+      showFieldError(
+        "slotted-gdpr",
+        "You must consent to data processing to continue"
+      );
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  function validateOutboundProfile() {
+    let isValid = true;
+
+    // Clear all previous errors
+    [
+      "slotted-monthly-orders",
+      "slotted-avg-items",
+      "slotted-avg-order-value",
+      "slotted-sku-count",
+    ].forEach((fieldId) => {
+      hideFieldError(fieldId);
+    });
+
+    // Validate Monthly Orders
+    const monthlyOrders = document
+      .getElementById("slotted-monthly-orders")
+      .value.trim();
+    if (!monthlyOrders) {
+      showFieldError("slotted-monthly-orders", "Monthly orders is required");
+      isValid = false;
+    } else if (isNaN(monthlyOrders) || parseInt(monthlyOrders) <= 0) {
+      showFieldError(
+        "slotted-monthly-orders",
+        "Please enter a valid number greater than 0"
+      );
+      isValid = false;
+    }
+
+    // Validate Avg Items/Order
+    const avgItems = document.getElementById("slotted-avg-items").value.trim();
+    if (!avgItems) {
+      showFieldError(
+        "slotted-avg-items",
+        "Average items per order is required"
+      );
+      isValid = false;
+    } else if (isNaN(avgItems) || parseFloat(avgItems) <= 0) {
+      showFieldError(
+        "slotted-avg-items",
+        "Please enter a valid number greater than 0"
+      );
+      isValid = false;
+    }
+
+    // Validate Avg Order Value
+    const avgOrderValue = document
+      .getElementById("slotted-avg-order-value")
+      .value.trim();
+    if (!avgOrderValue) {
+      showFieldError(
+        "slotted-avg-order-value",
+        "Average order value is required"
+      );
+      isValid = false;
+    } else if (isNaN(avgOrderValue) || parseFloat(avgOrderValue) <= 0) {
+      showFieldError(
+        "slotted-avg-order-value",
+        "Please enter a valid amount greater than 0"
+      );
+      isValid = false;
+    }
+
+    // Validate SKU Count
+    const skuCount = document.getElementById("slotted-sku-count").value.trim();
+    if (!skuCount) {
+      showFieldError("slotted-sku-count", "Number of SKUs is required");
+      isValid = false;
+    } else if (isNaN(skuCount) || parseInt(skuCount) <= 0) {
+      showFieldError(
+        "slotted-sku-count",
+        "Please enter a valid number greater than 0"
+      );
+      isValid = false;
+    }
+
+    // Validate selected countries
+    const hasSelectedCountries =
+      state.outbound_profile?.selected_countries &&
+      state.outbound_profile.selected_countries.length > 0;
+    if (!hasSelectedCountries) {
+      // For country selection, we'll show an alert since it's not a simple input field
+      alert("Please select at least one country where you sell.");
+      isValid = false;
+    }
+
+    // Validate serialized products selection (required field)
+    const serializedYes = document.getElementById(
+      "slotted-serialized-yes"
+    )?.checked;
+    const serializedNo = document.getElementById(
+      "slotted-serialized-no"
+    )?.checked;
+    const areSerializedSelected = serializedYes || serializedNo;
+
+    if (!areSerializedSelected) {
+      alert("Please specify if your products are serialized.");
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
   // Events
   function bindEvents() {
     if (state.step === 0) {
-      const nextBtn = document.getElementById("slotted-next");
-      if (nextBtn) nextBtn.onclick = handleContactSubmit;
+      // Handle form submission
+      const contactForm = document.getElementById("slotted-contact-form");
+      if (contactForm) {
+        contactForm.onsubmit = function (e) {
+          e.preventDefault();
+          handleContactSubmit();
+        };
+      }
+
+      // Add real-time validation for form fields
+      const requiredFields = [
+        "slotted-name",
+        "slotted-email",
+        "slotted-company",
+        "slotted-website",
+      ];
+      requiredFields.forEach((fieldId) => {
+        const input = document.getElementById(fieldId);
+        if (input) {
+          // Clear error on input
+          input.addEventListener("input", () => {
+            hideFieldError(fieldId);
+          });
+
+          // Validate on blur
+          input.addEventListener("blur", () => {
+            const value = input.value.trim();
+            if (!value) {
+              const fieldName = input.previousElementSibling.textContent
+                .replace("*", "")
+                .trim();
+              showFieldError(fieldId, `${fieldName} is required`);
+            } else if (fieldId === "slotted-email") {
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              if (!emailRegex.test(value)) {
+                showFieldError(fieldId, "Please enter a valid email address");
+              }
+            } else if (fieldId === "slotted-website") {
+              try {
+                new URL(value.startsWith("http") ? value : `https://${value}`);
+              } catch {
+                showFieldError(fieldId, "Please enter a valid website URL");
+              }
+            }
+          });
+        }
+      });
+
+      // Handle GDPR checkbox
+      const gdprCheckbox = document.getElementById("slotted-gdpr");
+      if (gdprCheckbox) {
+        gdprCheckbox.addEventListener("change", () => {
+          if (gdprCheckbox.checked) {
+            hideFieldError("slotted-gdpr");
+          }
+        });
+      }
     }
     if (state.step === 1) {
       // Fetch existing outbound profile data if available
@@ -1946,24 +2230,72 @@
         "slotted-volume-distribution"
       );
       if (volumeRange) {
-        // Function to update labels
-        const updateVolumeLabels = () => {
-          const eachesPercent = volumeRange.value;
-          const casesPalletPercent = 100 - volumeRange.value;
-          const labels = volumeRange.parentElement.querySelector(
-            ".slotted-volume-labels"
-          );
-          if (labels) {
-            labels.innerHTML = `<span>${eachesPercent}% Eaches</span><span>${casesPalletPercent}% Case/Pallet</span>`;
+        // Function to update labels and fill
+        const updateVolumeSlider = () => {
+          const eachesPercent = parseInt(volumeRange.value);
+          const casesPalletPercent = 100 - eachesPercent;
+
+          // Update labels
+          const eachesLabel = document.getElementById("slotted-eaches-label");
+          const caseLabel = document.getElementById("slotted-case-label");
+          if (eachesLabel && caseLabel) {
+            eachesLabel.textContent = `${eachesPercent}% Eaches`;
+            caseLabel.textContent = `${casesPalletPercent}% Case/Pallet`;
           }
+
+          // Update blue fill
+          const fillElement = document.getElementById("slotted-volume-fill");
+          if (fillElement) {
+            fillElement.style.width = `${eachesPercent}%`;
+          }
+
+          // Update state
+          state.outbound_profile.volume_distribution = eachesPercent;
+          saveState();
         };
 
-        // Update labels on input
-        volumeRange.oninput = updateVolumeLabels;
+        // Update on input (while dragging)
+        volumeRange.oninput = updateVolumeSlider;
 
-        // Update labels immediately when binding (for loaded data)
-        updateVolumeLabels();
+        // Update on change (when finished dragging)
+        volumeRange.onchange = updateVolumeSlider;
+
+        // Update immediately when binding (for loaded data)
+        updateVolumeSlider();
       }
+
+      // Add real-time validation for Critical Volume Metrics fields
+      const criticalFields = [
+        "slotted-monthly-orders",
+        "slotted-avg-items",
+        "slotted-avg-order-value",
+        "slotted-sku-count",
+      ];
+      criticalFields.forEach((fieldId) => {
+        const input = document.getElementById(fieldId);
+        if (input) {
+          // Clear error on input
+          input.addEventListener("input", () => {
+            hideFieldError(fieldId);
+          });
+
+          // Validate on blur
+          input.addEventListener("blur", () => {
+            const value = input.value.trim();
+            if (!value) {
+              const fieldName = input.previousElementSibling.textContent
+                .replace("*", "")
+                .trim();
+              showFieldError(fieldId, `${fieldName} is required`);
+            } else if (isNaN(value) || parseFloat(value) <= 0) {
+              showFieldError(
+                fieldId,
+                "Please enter a valid number greater than 0"
+              );
+            }
+          });
+        }
+      });
 
       // Bind country search functionality
       const sellLocationInput = document.getElementById(
@@ -2250,6 +2582,11 @@
 
   // Step 1 handler - Contact Info
   async function handleContactSubmit() {
+    // Validate the form first
+    if (!validateContactForm()) {
+      return; // Stop if validation fails
+    }
+
     const name = document.getElementById("slotted-name").value.trim();
     const email = document.getElementById("slotted-email").value.trim();
     const company = document.getElementById("slotted-company").value.trim();
@@ -2260,11 +2597,6 @@
 
     // Log provider ID from script URL
     console.log("Provider ID from URL:", PROVIDER_WIDGET_KEY);
-
-    if (!name || !email || !company || !website_url || !gdpr) {
-      alert("Please fill all required fields and consent.");
-      return;
-    }
 
     // API integration for contact form
     try {
@@ -2315,6 +2647,11 @@
 
   // Step 2 handler - Outbound Profile
   async function handleOutboundProfileSubmit() {
+    // Validate the outbound profile form first
+    if (!validateOutboundProfile()) {
+      return; // Stop if validation fails
+    }
+
     const monthly_orders = document
       .getElementById("slotted-monthly-orders")
       .value.trim();
@@ -2436,27 +2773,6 @@
       selected_countries: state.outbound_profile?.selected_countries,
       are_serialized,
     });
-
-    // Check if countries have been selected
-    const hasSelectedCountries =
-      state.outbound_profile?.selected_countries &&
-      state.outbound_profile.selected_countries.length > 0;
-
-    if (
-      !monthly_orders ||
-      !avg_items ||
-      !avg_order_value ||
-      !sku_count ||
-      !hasSelectedCountries ||
-      !are_serialized
-    ) {
-      if (!hasSelectedCountries) {
-        alert("Please select at least one country where you sell.");
-      } else {
-        alert("Please fill all required fields in the Outbound Profile.");
-      }
-      return;
-    }
 
     // Check if at least one shipment type is selected
     if (
