@@ -60,6 +60,36 @@
     { code: "+254", flag: "🇰🇪", name: "Kenya", shortCode: "KEN" },
   ];
 
+  // Months data for dynamic rendering
+  const MONTHS = [
+    { value: "1", name: "January" },
+    { value: "2", name: "February" },
+    { value: "3", name: "March" },
+    { value: "4", name: "April" },
+    { value: "5", name: "May" },
+    { value: "6", name: "June" },
+    { value: "7", name: "July" },
+    { value: "8", name: "August" },
+    { value: "9", name: "September" },
+    { value: "10", name: "October" },
+    { value: "11", name: "November" },
+    { value: "12", name: "December" },
+  ];
+
+  // Years data for dynamic rendering (2025-2034)
+  const YEARS = [
+    { value: "2025", name: "2025" },
+    { value: "2026", name: "2026" },
+    { value: "2027", name: "2027" },
+    { value: "2028", name: "2028" },
+    { value: "2029", name: "2029" },
+    { value: "2030", name: "2030" },
+    { value: "2031", name: "2031" },
+    { value: "2032", name: "2032" },
+    { value: "2033", name: "2033" },
+    { value: "2034", name: "2034" },
+  ];
+
   // Step configuration - Updated for RFP flow after contact
   const STEPS_CONFIG = [
     {
@@ -485,6 +515,494 @@
     `;
   }
 
+  // Outbound Profile Sub-components
+  function renderCriticalVolumeMetrics() {
+    return `
+      <div class="slotted-critical-volume-card">
+        <div class="slotted-section-header">
+          <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-no-axes-column-increasing w-6 h-6" data-lov-id="src/components/ShippingProfileForm.tsx:238:14" data-lov-name="BarChart" data-component-path="src/components/ShippingProfileForm.tsx" data-component-line="238" data-component-file="ShippingProfileForm.tsx" data-component-name="BarChart" data-component-content="%7B%22className%22%3A%22w-6%20h-6%22%7D"><line x1="12" x2="12" y1="20" y2="10"></line><line x1="18" x2="18" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="16"></line></svg></span>
+          <h4>Critical Volume Metrics</h4>
+          <span class="slotted-required-badge">Required</span>
+        </div>
+        <p class="slotted-section-description">Essential information needed for all provider matches</p>
+        
+        <div class="slotted-grid-2 slotted-grid-spacing">
+          <div>
+            <label class="slotted-label">Monthly Orders *</label>
+            <input class="slotted-input" id="slotted-monthly-orders" type="number" placeholder="e.g. 1,500" value="${
+              state.outbound_profile.monthly_orders || ""
+            }"/>
+          </div>
+          <div>
+            <label class="slotted-label">Avg Items/Order *</label>
+            <input class="slotted-input" id="slotted-avg-items" type="number" step="0.1" placeholder="e.g. 2.5" value="${
+              state.outbound_profile.avg_items || ""
+            }"/>
+          </div>
+        </div>
+        
+        <div class="slotted-grid-2">
+          <div>
+            <label class="slotted-label">Avg Order Value *</label>
+            <input class="slotted-input" id="slotted-avg-order-value" type="number" step="0.01" placeholder="$78.50" value="${
+              state.outbound_profile.avg_order_value || ""
+            }"/>
+          </div>
+          <div>
+            <label class="slotted-label">How many SKUs *</label>
+            <input class="slotted-input" id="slotted-sku-count" type="number" placeholder="e.g. 250" value="${
+              state.outbound_profile.sku_count || ""
+            }"/>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderCountrySelection() {
+    return `
+      <div class="slotted-form-section">
+        <label class="slotted-label">Where do you sell? *</label>
+        <div class="slotted-selected-countries" id="slotted-selected-countries">
+          ${renderSelectedCountries()}
+        </div>
+        <div class="slotted-search-input">
+          <span class="slotted-search-icon">🔍</span>
+          <input class="slotted-input" id="slotted-sell-location" placeholder="Search countries..." value="" autocomplete="off"/>
+          <div class="slotted-search-dropdown" id="slotted-country-dropdown" style="display: none;">
+            <!-- Dynamic search results will appear here -->
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderGrowthExpectations() {
+    return `
+      <div class="slotted-growth-section">
+        <div class="slotted-growth-header">
+          <span class="slotted-growth-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-target w-5 h-5 text-blue-600" data-lov-id="src/components/GrowthScenarioPlanner.tsx:43:10" data-lov-name="Target" data-component-path="src/components/GrowthScenarioPlanner.tsx" data-component-line="43" data-component-file="GrowthScenarioPlanner.tsx" data-component-name="Target" data-component-content="%7B%22className%22%3A%22w-5%20h-5%20text-blue-600%22%7D"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></span>
+          <h5>Growth Expectations</h5>
+        </div>
+        <p class="slotted-growth-description">Plan for best and worst case scenarios to help providers understand your range</p>
+        
+        <div class="slotted-current-orders">
+          <label>Current Monthly Orders</label>
+          <div class="slotted-current-value" id="slotted-current-orders-display">${
+            state.outbound_profile.monthly_orders || "0"
+          }</div>
+        </div>
+        
+        <div class="slotted-growth-years">
+          <div class="slotted-year-section">
+            <h6>Year 1 Growth Expectations</h6>
+            <div class="slotted-growth-cards">
+              <div class="slotted-growth-card best-case">
+                <div class="slotted-growth-card-header">
+                  <span class="slotted-trend-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-4 h-4 text-green-600" data-lov-id="src/components/GrowthScenarioPlanner.tsx:71:16" data-lov-name="TrendingUp" data-component-path="src/components/GrowthScenarioPlanner.tsx" data-component-line="71" data-component-file="GrowthScenarioPlanner.tsx" data-component-name="TrendingUp" data-component-content="%7B%22className%22%3A%22w-4%20h-4%20text-green-600%22%7D"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
+                  Best Case
+                </div>
+                <div class="slotted-growth-input-group">
+                  <input class="slotted-growth-input" id="slotted-year1-best-growth" type="number" placeholder="50" value="${
+                    state.outbound_profile.year1_best_growth || ""
+                  }"/>
+                  <span>% growth</span>
+                </div>
+                <div class="slotted-growth-detail">~0 orders/month</div>
+              </div>
+              <div class="slotted-growth-card worst-case">
+                <div class="slotted-growth-card-header">
+                  <span class="slotted-trend-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-down w-4 h-4 text-red-600" data-lov-id="src/components/GrowthScenarioPlanner.tsx:94:16" data-lov-name="TrendingDown" data-component-path="src/components/GrowthScenarioPlanner.tsx" data-component-line="94" data-component-file="GrowthScenarioPlanner.tsx" data-component-name="TrendingDown" data-component-content="%7B%22className%22%3A%22w-4%20h-4%20text-red-600%22%7D"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline><polyline points="16 17 22 17 22 11"></polyline></svg></span>
+                  Worst Case
+                </div>
+                <div class="slotted-growth-input-group">
+                  <input class="slotted-growth-input" id="slotted-year1-worst-growth" type="number" placeholder="-10" value="${
+                    state.outbound_profile.year1_worst_growth || ""
+                  }"/>
+                  <span>% growth</span>
+                </div>
+                <div class="slotted-growth-detail">~0 orders/month</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="slotted-year-section">
+            <h6>Year 2 Growth Expectations</h6>
+            <div class="slotted-growth-cards">
+              <div class="slotted-growth-card best-case">
+                <div class="slotted-growth-card-header">
+                  <span class="slotted-trend-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-4 h-4 text-green-600" data-lov-id="src/components/GrowthScenarioPlanner.tsx:71:16" data-lov-name="TrendingUp" data-component-path="src/components/GrowthScenarioPlanner.tsx" data-component-line="71" data-component-file="GrowthScenarioPlanner.tsx" data-component-name="TrendingUp" data-component-content="%7B%22className%22%3A%22w-4%20h-4%20text-green-600%22%7D"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
+                  Best Case
+                </div>
+                <div class="slotted-growth-input-group">
+                  <input class="slotted-growth-input" id="slotted-year2-best-growth" type="number" placeholder="75" value="${
+                    state.outbound_profile.year2_best_growth || ""
+                  }"/>
+                  <span>% growth</span>
+                </div>
+                <div class="slotted-growth-detail">~0 orders/month</div>
+              </div>
+              <div class="slotted-growth-card worst-case">
+                <div class="slotted-growth-card-header">
+                  <span class="slotted-trend-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-down w-4 h-4 text-red-600" data-lov-id="src/components/GrowthScenarioPlanner.tsx:94:16" data-lov-name="TrendingDown" data-component-path="src/components/GrowthScenarioPlanner.tsx" data-component-line="94" data-component-file="GrowthScenarioPlanner.tsx" data-component-name="TrendingDown" data-component-content="%7B%22className%22%3A%22w-4%20h-4%20text-red-600%22%7D"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline><polyline points="16 17 22 17 22 11"></polyline></svg></span>
+                  Worst Case
+                </div>
+                <div class="slotted-growth-input-group">
+                  <input class="slotted-growth-input" id="slotted-year2-worst-growth" type="number" placeholder="5" value="${
+                    state.outbound_profile.year2_worst_growth || ""
+                  }"/>
+                  <span>% growth</span>
+                </div>
+                <div class="slotted-growth-detail">~0 orders/month</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="slotted-growth-note">
+          <strong>Note:</strong> Negative growth is okay - it helps providers understand your realistic expectations and plan appropriate pricing structures.
+        </div>
+      </div>
+    `;
+  }
+
+  function renderBusinessContextCard() {
+    return `
+      <div class="slotted-business-context-card">
+        <div class="slotted-section-header">
+          <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-6 h-6" data-lov-id="src/components/ShippingProfileForm.tsx:347:14" data-lov-name="TrendingUp" data-component-path="src/components/ShippingProfileForm.tsx" data-component-line="347" data-component-file="ShippingProfileForm.tsx" data-component-name="TrendingUp" data-component-content="%7B%22className%22%3A%22w-6%20h-6%22%7D"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
+          <h4>Important Business Context</h4>
+          <span class="slotted-required-badge">Required</span>
+        </div>
+        <p class="slotted-section-description">Help us find the best provider matches for your needs</p>
+        
+        ${renderCountrySelection()}
+        ${renderGrowthExpectations()}
+        
+        <div class="slotted-form-section">
+          <label class="slotted-label">How big is your typical customer order? *</label>
+          <div class="slotted-checkbox-grid">
+            <div class="slotted-checkbox-item">
+              <input type="checkbox" id="slotted-fits-hand" ${
+                state.outbound_profile.fits_in_hand ? "checked" : ""
+              }/>
+              <label for="slotted-fits-hand">Fits in your hand</label>
+            </div>
+            <div class="slotted-checkbox-item">
+              <input type="checkbox" id="slotted-fits-porch" ${
+                state.outbound_profile.fits_on_porch ? "checked" : ""
+              }/>
+              <label for="slotted-fits-porch">Fits on the porch</label>
+            </div>
+            <div class="slotted-checkbox-item">
+              <input type="checkbox" id="slotted-fits-mailbox" ${
+                state.outbound_profile.fits_in_mailbox ? "checked" : ""
+              }/>
+              <label for="slotted-fits-mailbox">Fits in your mailbox</label>
+            </div>
+            <div class="slotted-checkbox-item">
+              <input type="checkbox" id="slotted-needs-two-people" ${
+                state.outbound_profile.needs_two_people ? "checked" : ""
+              }/>
+              <label for="slotted-needs-two-people">Needs two people to carry</label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="slotted-form-section">
+          <label class="slotted-label">Are your SKUs serialized or batch controlled? *</label>
+          <div class="slotted-radio-group">
+            <div class="slotted-radio-item">
+              <input type="radio" id="slotted-serialized-yes" name="serialized" value="yes" ${
+                state.outbound_profile.are_serialized === "yes" ? "checked" : ""
+              }/>
+              <label for="slotted-serialized-yes">Yes</label>
+            </div>
+            <div class="slotted-radio-item">
+              <input type="radio" id="slotted-serialized-no" name="serialized" value="no" ${
+                state.outbound_profile.are_serialized === "no" ? "checked" : ""
+              }/>
+              <label for="slotted-serialized-no">No</label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="slotted-form-section">
+          <label class="slotted-label">What types of shipments do you fulfill? *</label>
+          <div class="slotted-checkbox-grid">
+            <div class="slotted-checkbox-item">
+              <input type="checkbox" id="slotted-dtc-parcel" ${
+                state.outbound_profile.shipment_dtc_parcel ? "checked" : ""
+              }/>
+              <label for="slotted-dtc-parcel">DTC (Parcel)</label>
+            </div>
+            <div class="slotted-checkbox-item">
+              <input type="checkbox" id="slotted-retail-cases" ${
+                state.outbound_profile.shipment_retail_cases ? "checked" : ""
+              }/>
+              <label for="slotted-retail-cases">Retail (Cases)</label>
+            </div>
+            <div class="slotted-checkbox-item">
+              <input type="checkbox" id="slotted-retail-pallets" ${
+                state.outbound_profile.shipment_retail_pallets ? "checked" : ""
+              }/>
+              <label for="slotted-retail-pallets">Retail (Pallets)</label>
+            </div>
+            <div class="slotted-checkbox-item">
+              <input type="checkbox" id="slotted-marketplace-cases" ${
+                state.outbound_profile.shipment_marketplace_cases
+                  ? "checked"
+                  : ""
+              }/>
+              <label for="slotted-marketplace-cases">Marketplace (Cases)</label>
+            </div>
+            <div class="slotted-checkbox-item">
+              <input type="checkbox" id="slotted-marketplace-pallets" ${
+                state.outbound_profile.shipment_marketplace_pallets
+                  ? "checked"
+                  : ""
+              }/>
+              <label for="slotted-marketplace-pallets">Marketplace (Pallets)</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderOptionalInformation() {
+    return `
+      <div class="slotted-optional-toggle" id="slotted-optional-toggle">
+        <span>Show Optional Information</span>
+        <span class="slotted-toggle-text">(helps determine fit)</span>
+        <span class="slotted-toggle-icon">▼</span>
+      </div>
+      
+      <div class="slotted-optional-content slotted-optional-hidden" id="slotted-optional-content">
+        <div class="slotted-business-context-card">
+          <div class="slotted-section-header">
+            <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-5 h-5" data-lov-id="src/components/ShippingProfileForm.tsx:448:18" data-lov-name="TrendingUp" data-component-path="src/components/ShippingProfileForm.tsx" data-component-line="448" data-component-file="ShippingProfileForm.tsx" data-component-name="TrendingUp" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
+            <h4>Additional Context</h4>
+          </div>
+          <p class="slotted-section-description">Optional information that can help improve provider matches</p>
+          
+          ${renderFulfillmentMethod()}
+          ${renderStartShippingDate()}
+          ${renderShippingLocation()}
+          ${renderSeasonalPeaks()}
+          ${renderSingleSkuOrders()}
+          ${renderVolumeDistribution()}
+          ${renderDynamicWeightSection()}
+          ${renderHazardousProducts()}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderFulfillmentMethod() {
+    return `
+      <div class="slotted-form-section">
+        <label class="slotted-label">How do you currently fulfill orders?</label>
+        <div class="slotted-radio-group" style="flex-direction: column; gap: 0.75rem;">
+          <div class="slotted-radio-item">
+            <input type="radio" id="slotted-fulfill-inhouse" name="fulfillment" value="inhouse" ${
+              state.outbound_profile.fulfillment_method === "inhouse"
+                ? "checked"
+                : ""
+            }/>
+            <label for="slotted-fulfill-inhouse">In house fulfillment</label>
+          </div>
+          <div class="slotted-radio-item">
+            <input type="radio" id="slotted-fulfill-3pl" name="fulfillment" value="3pl" ${
+              state.outbound_profile.fulfillment_method === "3pl"
+                ? "checked"
+                : ""
+            }/>
+            <label for="slotted-fulfill-3pl">3PL provider</label>
+          </div>
+          <div class="slotted-radio-item">
+            <input type="radio" id="slotted-fulfill-dropship" name="fulfillment" value="dropship" ${
+              state.outbound_profile.fulfillment_method === "dropship"
+                ? "checked"
+                : ""
+            }/>
+            <label for="slotted-fulfill-dropship">Dropshipping</label>
+          </div>
+          <div class="slotted-radio-item">
+            <input type="radio" id="slotted-fulfill-notyet" name="fulfillment" value="not_yet" ${
+              state.outbound_profile.fulfillment_method === "not_yet"
+                ? "checked"
+                : ""
+            }/>
+            <label for="slotted-fulfill-notyet">Not fulfilling yet</label>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderStartShippingDate() {
+    return `
+      <div class="slotted-form-section">
+        <label class="slotted-label">When do you hope to start shipping orders?</label>
+        <div class="slotted-grid-2">
+          <select class="slotted-input" id="slotted-start-month">
+            ${MONTHS.map(
+              (month) => `
+              <option value="${month.value}" ${
+                state.outbound_profile.start_month === month.value
+                  ? "selected"
+                  : ""
+              }>${month.name}</option>
+            `
+            ).join("")}
+          </select>
+          <select class="slotted-input" id="slotted-start-year">
+            ${YEARS.map(
+              (year) => `
+              <option value="${year.value}" ${
+                state.outbound_profile.start_year === year.value
+                  ? "selected"
+                  : ""
+              }>${year.name}</option>
+            `
+            ).join("")}
+          </select>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderShippingLocation() {
+    return `
+      <div class="slotted-form-section">
+        <label class="slotted-label">Where do you currently ship from?</label>
+        <input class="slotted-input" id="slotted-ship-from" placeholder="ZIP code or city" value="${
+          state.outbound_profile.ship_from_location || ""
+        }"/>
+      </div>
+    `;
+  }
+
+  function renderSeasonalPeaks() {
+    return `
+      <div class="slotted-form-section">
+        <div class="slotted-checkbox-item">
+          <input type="checkbox" id="slotted-seasonal-peaks" ${
+            state.outbound_profile.seasonal_peaks ? "checked" : ""
+          }/>
+          <label for="slotted-seasonal-peaks">Seasonal peaks in sales</label>
+        </div>
+        <div class="slotted-seasonal-months" id="slotted-seasonal-months" style="display: ${
+          state.outbound_profile.seasonal_peaks ? "block" : "none"
+        }">
+          <div class="slotted-months-grid">
+            ${MONTHS.map(
+              (month) => `
+              <div class="slotted-month-item">
+                <input type="checkbox" id="slotted-month-${
+                  month.value
+                }" value="${month.value}" ${
+                state.outbound_profile.seasonal_months &&
+                state.outbound_profile.seasonal_months.includes(
+                  parseInt(month.value)
+                )
+                  ? "checked"
+                  : ""
+              }/>
+                <label for="slotted-month-${month.value}">${month.name}</label>
+              </div>
+            `
+            ).join("")}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderSingleSkuOrders() {
+    return `
+      <div class="slotted-form-section">
+        <label class="slotted-label">Do most orders contain just one SKU?</label>
+        <div class="slotted-radio-group">
+          <div class="slotted-radio-item">
+            <input type="radio" id="slotted-single-sku-yes" name="single_sku" value="yes" ${
+              state.outbound_profile.single_sku_orders === "yes"
+                ? "checked"
+                : ""
+            }/>
+            <label for="slotted-single-sku-yes">Yes</label>
+          </div>
+          <div class="slotted-radio-item">
+            <input type="radio" id="slotted-single-sku-no" name="single_sku" value="no" ${
+              state.outbound_profile.single_sku_orders === "no" ? "checked" : ""
+            }/>
+            <label for="slotted-single-sku-no">No</label>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderVolumeDistribution() {
+    return `
+      <div class="slotted-form-section">
+        <label class="slotted-label">What percentage of your outbound volume is in eaches vs case or pallet?</label>
+        <div class="slotted-volume-container">
+          <div class="slotted-volume-labels">
+            <span>${
+              state.outbound_profile.volume_distribution || 50
+            }% Eaches</span>
+            <span>${
+              100 - (state.outbound_profile.volume_distribution || 50)
+            }% Case/Pallet</span>
+          </div>
+          <input type="range" id="slotted-volume-distribution" min="0" max="100" value="${
+            state.outbound_profile.volume_distribution || 50
+          }" 
+                 class="slotted-volume-slider" />
+        </div>
+      </div>
+    `;
+  }
+
+  function renderDynamicWeightSection() {
+    return `
+      <div class="slotted-form-section" id="slotted-weight-section" style="display: none;">
+        <label class="slotted-label">Average weight per shipment type</label>
+        <div class="slotted-weight-inputs" id="slotted-weight-inputs">
+          <!-- Dynamic weight inputs will be inserted here -->
+        </div>
+      </div>
+    `;
+  }
+
+  function renderHazardousProducts() {
+    return `
+      <div class="slotted-form-section">
+        <label class="slotted-label">Do you sell any hazardous products?</label>
+        <div class="slotted-radio-group">
+          <div class="slotted-radio-item">
+            <input type="radio" id="slotted-hazardous-yes" name="hazardous" value="yes" ${
+              state.outbound_profile.hazardous_products === "yes"
+                ? "checked"
+                : ""
+            }/>
+            <label for="slotted-hazardous-yes">Yes</label>
+          </div>
+          <div class="slotted-radio-item">
+            <input type="radio" id="slotted-hazardous-no" name="hazardous" value="no" ${
+              state.outbound_profile.hazardous_products === "no"
+                ? "checked"
+                : ""
+            }/>
+            <label for="slotted-hazardous-no">No</label>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   function renderOutboundProfileStep() {
     return `
       <div class="slotted-step${
@@ -493,576 +1011,9 @@
         <h3>Outbound Profile</h3>
         <p class="slotted-step-description">Tell us about your volume and business context to get the right provider matches.</p>
         
-        <div class="slotted-critical-volume-card">
-          <div class="slotted-section-header">
-            <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-no-axes-column-increasing w-6 h-6" data-lov-id="src/components/ShippingProfileForm.tsx:238:14" data-lov-name="BarChart" data-component-path="src/components/ShippingProfileForm.tsx" data-component-line="238" data-component-file="ShippingProfileForm.tsx" data-component-name="BarChart" data-component-content="%7B%22className%22%3A%22w-6%20h-6%22%7D"><line x1="12" x2="12" y1="20" y2="10"></line><line x1="18" x2="18" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="16"></line></svg></span>
-            <h4>Critical Volume Metrics</h4>
-            <span class="slotted-required-badge">Required</span>
-          </div>
-          <p class="slotted-section-description">Essential information needed for all provider matches</p>
-          
-          <div class="slotted-grid-2 slotted-grid-spacing">
-            <div>
-              <label class="slotted-label">Monthly Orders *</label>
-              <input class="slotted-input" id="slotted-monthly-orders" type="number" placeholder="e.g. 1,500" value="${
-                state.outbound_profile.monthly_orders || ""
-              }"/>
-            </div>
-            <div>
-              <label class="slotted-label">Avg Items/Order *</label>
-              <input class="slotted-input" id="slotted-avg-items" type="number" step="0.1" placeholder="e.g. 2.5" value="${
-                state.outbound_profile.avg_items || ""
-              }"/>
-            </div>
-          </div>
-          
-          <div class="slotted-grid-2">
-            <div>
-              <label class="slotted-label">Avg Order Value *</label>
-              <input class="slotted-input" id="slotted-avg-order-value" type="number" step="0.01" placeholder="$78.50" value="${
-                state.outbound_profile.avg_order_value || ""
-              }"/>
-            </div>
-            <div>
-              <label class="slotted-label">How many SKUs *</label>
-              <input class="slotted-input" id="slotted-sku-count" type="number" placeholder="e.g. 250" value="${
-                state.outbound_profile.sku_count || ""
-              }"/>
-            </div>
-          </div>
-        </div>
-
-        <div class="slotted-business-context-card">
-          <div class="slotted-section-header">
-            <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-6 h-6" data-lov-id="src/components/ShippingProfileForm.tsx:347:14" data-lov-name="TrendingUp" data-component-path="src/components/ShippingProfileForm.tsx" data-component-line="347" data-component-file="ShippingProfileForm.tsx" data-component-name="TrendingUp" data-component-content="%7B%22className%22%3A%22w-6%20h-6%22%7D"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
-            <h4>Important Business Context</h4>
-            <span class="slotted-required-badge">Required</span>
-          </div>
-          <p class="slotted-section-description">Help us find the best provider matches for your needs</p>
-          
-          <div class="slotted-form-section">
-            <label class="slotted-label">Where do you sell? *</label>
-            <div class="slotted-selected-countries" id="slotted-selected-countries">
-              ${renderSelectedCountries()}
-            </div>
-            <div class="slotted-search-input">
-              <span class="slotted-search-icon">🔍</span>
-              <input class="slotted-input" id="slotted-sell-location" placeholder="Search countries..." value="" autocomplete="off"/>
-              <div class="slotted-search-dropdown" id="slotted-country-dropdown" style="display: none;">
-                <!-- Dynamic search results will appear here -->
-              </div>
-            </div>
-          </div>
-          
-          <div class="slotted-growth-section">
-            <div class="slotted-growth-header">
-              <span class="slotted-growth-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-target w-5 h-5 text-blue-600" data-lov-id="src/components/GrowthScenarioPlanner.tsx:43:10" data-lov-name="Target" data-component-path="src/components/GrowthScenarioPlanner.tsx" data-component-line="43" data-component-file="GrowthScenarioPlanner.tsx" data-component-name="Target" data-component-content="%7B%22className%22%3A%22w-5%20h-5%20text-blue-600%22%7D"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></span>
-              <h5>Growth Expectations</h5>
-            </div>
-            <p class="slotted-growth-description">Plan for best and worst case scenarios to help providers understand your range</p>
-            
-            <div class="slotted-current-orders">
-              <label>Current Monthly Orders</label>
-              <div class="slotted-current-value" id="slotted-current-orders-display">${
-                state.outbound_profile.monthly_orders || "0"
-              }</div>
-            </div>
-            
-            <div class="slotted-growth-years">
-              <div class="slotted-year-section">
-                <h6>Year 1 Growth Expectations</h6>
-                <div class="slotted-growth-cards">
-                  <div class="slotted-growth-card best-case">
-                    <div class="slotted-growth-card-header">
-                      <span class="slotted-trend-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-4 h-4 text-green-600" data-lov-id="src/components/GrowthScenarioPlanner.tsx:71:16" data-lov-name="TrendingUp" data-component-path="src/components/GrowthScenarioPlanner.tsx" data-component-line="71" data-component-file="GrowthScenarioPlanner.tsx" data-component-name="TrendingUp" data-component-content="%7B%22className%22%3A%22w-4%20h-4%20text-green-600%22%7D"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
-                      Best Case
-                    </div>
-                    <div class="slotted-growth-input-group">
-                      <input class="slotted-growth-input" id="slotted-year1-best-growth" type="number" placeholder="50" value="${
-                        state.outbound_profile.year1_best_growth || ""
-                      }"/>
-                      <span>% growth</span>
-                    </div>
-                    <div class="slotted-growth-detail">~0 orders/month</div>
-                  </div>
-                  <div class="slotted-growth-card worst-case">
-                    <div class="slotted-growth-card-header">
-                      <span class="slotted-trend-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-down w-4 h-4 text-red-600" data-lov-id="src/components/GrowthScenarioPlanner.tsx:94:16" data-lov-name="TrendingDown" data-component-path="src/components/GrowthScenarioPlanner.tsx" data-component-line="94" data-component-file="GrowthScenarioPlanner.tsx" data-component-name="TrendingDown" data-component-content="%7B%22className%22%3A%22w-4%20h-4%20text-red-600%22%7D"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline><polyline points="16 17 22 17 22 11"></polyline></svg></span>
-                      Worst Case
-                    </div>
-                    <div class="slotted-growth-input-group">
-                      <input class="slotted-growth-input" id="slotted-year1-worst-growth" type="number" placeholder="-10" value="${
-                        state.outbound_profile.year1_worst_growth || ""
-                      }"/>
-                      <span>% growth</span>
-                    </div>
-                    <div class="slotted-growth-detail">~0 orders/month</div>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="slotted-year-section">
-                <h6>Year 2 Growth Expectations</h6>
-                <div class="slotted-growth-cards">
-                  <div class="slotted-growth-card best-case">
-                    <div class="slotted-growth-card-header">
-                      <span class="slotted-trend-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-4 h-4 text-green-600" data-lov-id="src/components/GrowthScenarioPlanner.tsx:71:16" data-lov-name="TrendingUp" data-component-path="src/components/GrowthScenarioPlanner.tsx" data-component-line="71" data-component-file="GrowthScenarioPlanner.tsx" data-component-name="TrendingUp" data-component-content="%7B%22className%22%3A%22w-4%20h-4%20text-green-600%22%7D"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
-                      Best Case
-                    </div>
-                    <div class="slotted-growth-input-group">
-                      <input class="slotted-growth-input" id="slotted-year2-best-growth" type="number" placeholder="75" value="${
-                        state.outbound_profile.year2_best_growth || ""
-                      }"/>
-                      <span>% growth</span>
-                    </div>
-                    <div class="slotted-growth-detail">~0 orders/month</div>
-                  </div>
-                  <div class="slotted-growth-card worst-case">
-                    <div class="slotted-growth-card-header">
-                      <span class="slotted-trend-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-down w-4 h-4 text-red-600" data-lov-id="src/components/GrowthScenarioPlanner.tsx:94:16" data-lov-name="TrendingDown" data-component-path="src/components/GrowthScenarioPlanner.tsx" data-component-line="94" data-component-file="GrowthScenarioPlanner.tsx" data-component-name="TrendingDown" data-component-content="%7B%22className%22%3A%22w-4%20h-4%20text-red-600%22%7D"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"></polyline><polyline points="16 17 22 17 22 11"></polyline></svg></span>
-                      Worst Case
-                    </div>
-                    <div class="slotted-growth-input-group">
-                      <input class="slotted-growth-input" id="slotted-year2-worst-growth" type="number" placeholder="5" value="${
-                        state.outbound_profile.year2_worst_growth || ""
-                      }"/>
-                      <span>% growth</span>
-                    </div>
-                    <div class="slotted-growth-detail">~0 orders/month</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div class="slotted-growth-note">
-              <strong>Note:</strong> Negative growth is okay - it helps providers understand your realistic expectations and plan appropriate pricing structures.
-            </div>
-          </div>
-          
-          <div class="slotted-form-section">
-            <label class="slotted-label">How big is your typical customer order? *</label>
-            <div class="slotted-checkbox-grid">
-              <div class="slotted-checkbox-item">
-                <input type="checkbox" id="slotted-fits-hand" ${
-                  state.outbound_profile.fits_in_hand ? "checked" : ""
-                }/>
-                <label for="slotted-fits-hand">Fits in your hand</label>
-              </div>
-              <div class="slotted-checkbox-item">
-                <input type="checkbox" id="slotted-fits-porch" ${
-                  state.outbound_profile.fits_on_porch ? "checked" : ""
-                }/>
-                <label for="slotted-fits-porch">Fits on the porch</label>
-              </div>
-              <div class="slotted-checkbox-item">
-                <input type="checkbox" id="slotted-fits-mailbox" ${
-                  state.outbound_profile.fits_in_mailbox ? "checked" : ""
-                }/>
-                <label for="slotted-fits-mailbox">Fits in your mailbox</label>
-              </div>
-              <div class="slotted-checkbox-item">
-                <input type="checkbox" id="slotted-needs-two-people" ${
-                  state.outbound_profile.needs_two_people ? "checked" : ""
-                }/>
-                <label for="slotted-needs-two-people">Needs two people to carry</label>
-              </div>
-            </div>
-          </div>
-          
-          <div class="slotted-form-section">
-            <label class="slotted-label">Are your SKUs serialized or batch controlled? *</label>
-            <div class="slotted-radio-group">
-              <div class="slotted-radio-item">
-                <input type="radio" id="slotted-serialized-yes" name="serialized" value="yes" ${
-                  state.outbound_profile.are_serialized === "yes"
-                    ? "checked"
-                    : ""
-                }/>
-                <label for="slotted-serialized-yes">Yes</label>
-              </div>
-              <div class="slotted-radio-item">
-                <input type="radio" id="slotted-serialized-no" name="serialized" value="no" ${
-                  state.outbound_profile.are_serialized === "no"
-                    ? "checked"
-                    : ""
-                }/>
-                <label for="slotted-serialized-no">No</label>
-              </div>
-            </div>
-          </div>
-          
-          <div class="slotted-form-section">
-            <label class="slotted-label">What types of shipments do you fulfill? *</label>
-            <div class="slotted-checkbox-grid">
-              <div class="slotted-checkbox-item">
-                <input type="checkbox" id="slotted-dtc-parcel" ${
-                  state.outbound_profile.shipment_dtc_parcel ? "checked" : ""
-                }/>
-                <label for="slotted-dtc-parcel">DTC (Parcel)</label>
-              </div>
-              <div class="slotted-checkbox-item">
-                <input type="checkbox" id="slotted-retail-cases" ${
-                  state.outbound_profile.shipment_retail_cases ? "checked" : ""
-                }/>
-                <label for="slotted-retail-cases">Retail (Cases)</label>
-              </div>
-              <div class="slotted-checkbox-item">
-                <input type="checkbox" id="slotted-retail-pallets" ${
-                  state.outbound_profile.shipment_retail_pallets
-                    ? "checked"
-                    : ""
-                }/>
-                <label for="slotted-retail-pallets">Retail (Pallets)</label>
-              </div>
-              <div class="slotted-checkbox-item">
-                <input type="checkbox" id="slotted-marketplace-cases" ${
-                  state.outbound_profile.shipment_marketplace_cases
-                    ? "checked"
-                    : ""
-                }/>
-                <label for="slotted-marketplace-cases">Marketplace (Cases)</label>
-              </div>
-              <div class="slotted-checkbox-item">
-                <input type="checkbox" id="slotted-marketplace-pallets" ${
-                  state.outbound_profile.shipment_marketplace_pallets
-                    ? "checked"
-                    : ""
-                }/>
-                <label for="slotted-marketplace-pallets">Marketplace (Pallets)</label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Optional Information Section - Separate Card -->
-        <div class="slotted-optional-toggle" id="slotted-optional-toggle">
-          <span>Show Optional Information</span>
-          <span class="slotted-toggle-text">(helps determine fit)</span>
-          <span class="slotted-toggle-icon">▼</span>
-        </div>
-        
-        <div class="slotted-optional-content slotted-optional-hidden" id="slotted-optional-content">
-          <div class="slotted-business-context-card">
-            <div class="slotted-section-header">
-              <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-5 h-5" data-lov-id="src/components/ShippingProfileForm.tsx:448:18" data-lov-name="TrendingUp" data-component-path="src/components/ShippingProfileForm.tsx" data-component-line="448" data-component-file="ShippingProfileForm.tsx" data-component-name="TrendingUp" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
-              <h4>Additional Context</h4>
-            </div>
-            <p class="slotted-section-description">Optional information that can help improve provider matches</p>
-            
-            <div class="slotted-form-section">
-              <label class="slotted-label">How do you currently fulfill orders?</label>
-              <div class="slotted-radio-group" style="flex-direction: column; gap: 0.75rem;">
-                <div class="slotted-radio-item">
-                  <input type="radio" id="slotted-fulfill-inhouse" name="fulfillment" value="inhouse" ${
-                    state.outbound_profile.fulfillment_method === "inhouse"
-                      ? "checked"
-                      : ""
-                  }/>
-                  <label for="slotted-fulfill-inhouse">In house fulfillment</label>
-                </div>
-                <div class="slotted-radio-item">
-                  <input type="radio" id="slotted-fulfill-3pl" name="fulfillment" value="3pl" ${
-                    state.outbound_profile.fulfillment_method === "3pl"
-                      ? "checked"
-                      : ""
-                  }/>
-                  <label for="slotted-fulfill-3pl">3PL provider</label>
-                </div>
-                <div class="slotted-radio-item">
-                  <input type="radio" id="slotted-fulfill-dropship" name="fulfillment" value="dropship" ${
-                    state.outbound_profile.fulfillment_method === "dropship"
-                      ? "checked"
-                      : ""
-                  }/>
-                  <label for="slotted-fulfill-dropship">Dropshipping</label>
-                </div>
-                <div class="slotted-radio-item">
-                  <input type="radio" id="slotted-fulfill-notyet" name="fulfillment" value="not_yet" ${
-                    state.outbound_profile.fulfillment_method === "not_yet"
-                      ? "checked"
-                      : ""
-                  }/>
-                  <label for="slotted-fulfill-notyet">Not fulfilling yet</label>
-                </div>
-              </div>
-            </div>
-            
-            <div class="slotted-form-section">
-              <label class="slotted-label">When do you hope to start shipping orders?</label>
-              <div class="slotted-grid-2">
-                <select class="slotted-input" id="slotted-start-month">
-                  <option value="">Month</option>
-                  <option value="1" ${
-                    state.outbound_profile.start_month === "1" ? "selected" : ""
-                  }>January</option>
-                  <option value="2" ${
-                    state.outbound_profile.start_month === "2" ? "selected" : ""
-                  }>February</option>
-                  <option value="3" ${
-                    state.outbound_profile.start_month === "3" ? "selected" : ""
-                  }>March</option>
-                  <option value="4" ${
-                    state.outbound_profile.start_month === "4" ? "selected" : ""
-                  }>April</option>
-                  <option value="5" ${
-                    state.outbound_profile.start_month === "5" ? "selected" : ""
-                  }>May</option>
-                  <option value="6" ${
-                    state.outbound_profile.start_month === "6" ? "selected" : ""
-                  }>June</option>
-                  <option value="7" ${
-                    state.outbound_profile.start_month === "7" ? "selected" : ""
-                  }>July</option>
-                  <option value="8" ${
-                    state.outbound_profile.start_month === "8" ? "selected" : ""
-                  }>August</option>
-                  <option value="9" ${
-                    state.outbound_profile.start_month === "9" ? "selected" : ""
-                  }>September</option>
-                  <option value="10" ${
-                    state.outbound_profile.start_month === "10"
-                      ? "selected"
-                      : ""
-                  }>October</option>
-                  <option value="11" ${
-                    state.outbound_profile.start_month === "11"
-                      ? "selected"
-                      : ""
-                  }>November</option>
-                  <option value="12" ${
-                    state.outbound_profile.start_month === "12"
-                      ? "selected"
-                      : ""
-                  }>December</option>
-                </select>
-                <select class="slotted-input" id="slotted-start-year">
-                  <option value="">Year</option>
-                  <option value="2024" ${
-                    state.outbound_profile.start_year === "2024"
-                      ? "selected"
-                      : ""
-                  }>2024</option>
-                  <option value="2025" ${
-                    state.outbound_profile.start_year === "2025"
-                      ? "selected"
-                      : ""
-                  }>2025</option>
-                  <option value="2026" ${
-                    state.outbound_profile.start_year === "2026"
-                      ? "selected"
-                      : ""
-                  }>2026</option>
-                  <option value="2027" ${
-                    state.outbound_profile.start_year === "2027"
-                      ? "selected"
-                      : ""
-                  }>2027</option>
-                </select>
-              </div>
-            </div>
-            
-            <div class="slotted-form-section">
-              <label class="slotted-label">Where do you currently ship from?</label>
-              <input class="slotted-input" id="slotted-ship-from" placeholder="ZIP code or city" value="${
-                state.outbound_profile.ship_from_location || ""
-              }"/>
-            </div>
-            
-            <div class="slotted-form-section">
-              <div class="slotted-checkbox-item">
-                <input type="checkbox" id="slotted-seasonal-peaks" ${
-                  state.outbound_profile.seasonal_peaks ? "checked" : ""
-                }/>
-                <label for="slotted-seasonal-peaks">Seasonal peaks in sales</label>
-              </div>
-              <div class="slotted-seasonal-months" id="slotted-seasonal-months" style="display: ${
-                state.outbound_profile.seasonal_peaks ? "block" : "none"
-              }">
-                <div class="slotted-months-grid">
-                  <div class="slotted-month-item">
-                    <input type="checkbox" id="slotted-month-1" value="1" ${
-                      state.outbound_profile.seasonal_months &&
-                      state.outbound_profile.seasonal_months.includes(1)
-                        ? "checked"
-                        : ""
-                    }/>
-                    <label for="slotted-month-1">January</label>
-                  </div>
-                  <div class="slotted-month-item">
-                    <input type="checkbox" id="slotted-month-2" value="2" ${
-                      state.outbound_profile.seasonal_months &&
-                      state.outbound_profile.seasonal_months.includes(2)
-                        ? "checked"
-                        : ""
-                    }/>
-                    <label for="slotted-month-2">February</label>
-                  </div>
-                  <div class="slotted-month-item">
-                    <input type="checkbox" id="slotted-month-3" value="3" ${
-                      state.outbound_profile.seasonal_months &&
-                      state.outbound_profile.seasonal_months.includes(3)
-                        ? "checked"
-                        : ""
-                    }/>
-                    <label for="slotted-month-3">March</label>
-                  </div>
-                  <div class="slotted-month-item">
-                    <input type="checkbox" id="slotted-month-4" value="4" ${
-                      state.outbound_profile.seasonal_months &&
-                      state.outbound_profile.seasonal_months.includes(4)
-                        ? "checked"
-                        : ""
-                    }/>
-                    <label for="slotted-month-4">April</label>
-                  </div>
-                  <div class="slotted-month-item">
-                    <input type="checkbox" id="slotted-month-5" value="5" ${
-                      state.outbound_profile.seasonal_months &&
-                      state.outbound_profile.seasonal_months.includes(5)
-                        ? "checked"
-                        : ""
-                    }/>
-                    <label for="slotted-month-5">May</label>
-                  </div>
-                  <div class="slotted-month-item">
-                    <input type="checkbox" id="slotted-month-6" value="6" ${
-                      state.outbound_profile.seasonal_months &&
-                      state.outbound_profile.seasonal_months.includes(6)
-                        ? "checked"
-                        : ""
-                    }/>
-                    <label for="slotted-month-6">June</label>
-                  </div>
-                  <div class="slotted-month-item">
-                    <input type="checkbox" id="slotted-month-7" value="7" ${
-                      state.outbound_profile.seasonal_months &&
-                      state.outbound_profile.seasonal_months.includes(7)
-                        ? "checked"
-                        : ""
-                    }/>
-                    <label for="slotted-month-7">July</label>
-                  </div>
-                  <div class="slotted-month-item">
-                    <input type="checkbox" id="slotted-month-8" value="8" ${
-                      state.outbound_profile.seasonal_months &&
-                      state.outbound_profile.seasonal_months.includes(8)
-                        ? "checked"
-                        : ""
-                    }/>
-                    <label for="slotted-month-8">August</label>
-                  </div>
-                  <div class="slotted-month-item">
-                    <input type="checkbox" id="slotted-month-9" value="9" ${
-                      state.outbound_profile.seasonal_months &&
-                      state.outbound_profile.seasonal_months.includes(9)
-                        ? "checked"
-                        : ""
-                    }/>
-                    <label for="slotted-month-9">September</label>
-                  </div>
-                  <div class="slotted-month-item">
-                    <input type="checkbox" id="slotted-month-10" value="10" ${
-                      state.outbound_profile.seasonal_months &&
-                      state.outbound_profile.seasonal_months.includes(10)
-                        ? "checked"
-                        : ""
-                    }/>
-                    <label for="slotted-month-10">October</label>
-                  </div>
-                  <div class="slotted-month-item">
-                    <input type="checkbox" id="slotted-month-11" value="11" ${
-                      state.outbound_profile.seasonal_months &&
-                      state.outbound_profile.seasonal_months.includes(11)
-                        ? "checked"
-                        : ""
-                    }/>
-                    <label for="slotted-month-11">November</label>
-                  </div>
-                  <div class="slotted-month-item">
-                    <input type="checkbox" id="slotted-month-12" value="12" ${
-                      state.outbound_profile.seasonal_months &&
-                      state.outbound_profile.seasonal_months.includes(12)
-                        ? "checked"
-                        : ""
-                    }/>
-                    <label for="slotted-month-12">December</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div class="slotted-form-section">
-              <label class="slotted-label">Do most orders contain just one SKU?</label>
-              <div class="slotted-radio-group">
-                <div class="slotted-radio-item">
-                  <input type="radio" id="slotted-single-sku-yes" name="single_sku" value="yes" ${
-                    state.outbound_profile.single_sku_orders === "yes"
-                      ? "checked"
-                      : ""
-                  }/>
-                  <label for="slotted-single-sku-yes">Yes</label>
-                </div>
-                <div class="slotted-radio-item">
-                  <input type="radio" id="slotted-single-sku-no" name="single_sku" value="no" ${
-                    state.outbound_profile.single_sku_orders === "no"
-                      ? "checked"
-                      : ""
-                  }/>
-                  <label for="slotted-single-sku-no">No</label>
-                </div>
-              </div>
-            </div>
-            
-            <div class="slotted-form-section">
-              <label class="slotted-label">What percentage of your outbound volume is in eaches vs case or pallet?</label>
-              <div class="slotted-volume-container">
-                <div class="slotted-volume-labels">
-                  <span>${
-                    state.outbound_profile.volume_distribution || 50
-                  }% Eaches</span>
-                  <span>${
-                    100 - (state.outbound_profile.volume_distribution || 50)
-                  }% Case/Pallet</span>
-                </div>
-                <input type="range" id="slotted-volume-distribution" min="0" max="100" value="${
-                  state.outbound_profile.volume_distribution || 50
-                }" 
-                       class="slotted-volume-slider" />
-              </div>
-            </div>
-            
-            <!-- Dynamic Average Weight Section -->
-            <div class="slotted-form-section" id="slotted-weight-section" style="display: none;">
-              <label class="slotted-label">Average weight per shipment type</label>
-              <div class="slotted-weight-inputs" id="slotted-weight-inputs">
-                <!-- Dynamic weight inputs will be inserted here -->
-              </div>
-            </div>
-            
-            <div class="slotted-form-section">
-              <label class="slotted-label">Do you sell any hazardous products?</label>
-              <div class="slotted-radio-group">
-                <div class="slotted-radio-item">
-                  <input type="radio" id="slotted-hazardous-yes" name="hazardous" value="yes" ${
-                    state.outbound_profile.hazardous_products === "yes"
-                      ? "checked"
-                      : ""
-                  }/>
-                  <label for="slotted-hazardous-yes">Yes</label>
-                </div>
-                <div class="slotted-radio-item">
-                  <input type="radio" id="slotted-hazardous-no" name="hazardous" value="no" ${
-                    state.outbound_profile.hazardous_products === "no"
-                      ? "checked"
-                      : ""
-                  }/>
-                  <label for="slotted-hazardous-no">No</label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
+        ${renderCriticalVolumeMetrics()}
+        ${renderBusinessContextCard()}
+        ${renderOptionalInformation()}
         ${renderNavigationButtons(1)}
       </div>
     `;
@@ -1548,8 +1499,6 @@
 
     return footer;
   }
-  // Simulated DB
-  let leads = [];
 
   // Inject widget CSS from external file
   function injectWidgetCSS() {
@@ -2841,53 +2790,15 @@
   // Step 3 handler - Final Submit
   function handleFinalSubmit() {
     // Simulate RFP save
-    let lead = leads.find((l) => l.lead_id === state.lead_id);
-    if (lead) {
-      lead.status = "complete";
-      lead.outbound_profile = state.outbound_profile;
-      lead.icp_score = calcICPScore(state.outbound_profile);
-      lead.updated_at = Date.now();
-    }
-
-    state = {
-      ...state,
-      status: "complete",
-      icp_score: lead ? lead.icp_score : calcICPScore(state.outbound_profile),
-    };
-
-    saveState();
-    render();
-    // Notify parent window of form submission (for embedding)
-    window.postMessage(
-      { type: "slotted-rfp-form-submitted", leadId: state.lead_id },
-      "*"
-    );
-    // Simulate provider notification
-    console.log("Provider notified: New lead with ICP score available.");
-  }
-
-  // Mock ICP scoring based on outbound profile
-  function calcICPScore(outbound_profile) {
-    if (!outbound_profile) return 50;
-
-    let score = 50;
-
-    // Score based on monthly orders
-    if (outbound_profile.monthly_orders) {
-      score += Math.min(outbound_profile.monthly_orders / 100, 20);
-    }
-
-    // Score based on average order value
-    if (outbound_profile.avg_order_value) {
-      score += Math.min(outbound_profile.avg_order_value / 10, 15);
-    }
-
-    // Score based on SKU count
-    if (outbound_profile.sku_count) {
-      score += Math.min(outbound_profile.sku_count / 50, 15);
-    }
-
-    return Math.round(Math.min(score, 100));
+    // saveState();
+    // render();
+    // // Notify parent window of form submission (for embedding)
+    // window.postMessage(
+    //   { type: "slotted-rfp-form-submitted", leadId: state.lead_id },
+    //   "*"
+    // );
+    // // Simulate provider notification
+    // console.log("Provider notified: New lead with ICP score available.");
   }
 
   // Main initialization function
