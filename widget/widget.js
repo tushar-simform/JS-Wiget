@@ -90,6 +90,13 @@
     { value: "2034", name: "2034" },
   ];
 
+  // Storage type options for inbound profile
+  const STORAGE_TYPES = [
+    { value: "ambientStorage", name: "Ambient (Room Temperature)" },
+    { value: "coldStorage", name: "Cold Storage" },
+    { value: "frozenStorage", name: "Frozen (Below 32°F)" },
+  ];
+
   // Step configuration - Updated for RFP flow after contact
   const STEPS_CONFIG = [
     {
@@ -122,6 +129,22 @@
         ${country.flag} ${country.code}
       </option>`
     ).join("");
+  }
+
+  // Generate storage type options dynamically
+  function generateStorageTypeOptions(selectedType) {
+    return STORAGE_TYPES.map(
+      (storageType) =>
+        `<option value="${storageType.value}" ${
+          selectedType === storageType.value ? "selected" : ""
+        }>${storageType.name}</option>`
+    ).join("");
+  }
+
+  // Get storage type display name
+  function getStorageTypeDisplayName(value) {
+    const storageType = STORAGE_TYPES.find((type) => type.value === value);
+    return storageType ? storageType.name : "Not specified";
   }
 
   // Render selected countries for sell location
@@ -1101,31 +1124,7 @@
             <label class="slotted-label">Storage Type Required *</label>
             <select class="slotted-input" id="slotted-storage-type">
               <option value="">Select storage temperature requirements</option>
-              <option value="ambient" ${
-                state.inbound_profile?.storage_type === "ambient"
-                  ? "selected"
-                  : ""
-              }>Ambient Temperature</option>
-              <option value="refrigerated" ${
-                state.inbound_profile?.storage_type === "refrigerated"
-                  ? "selected"
-                  : ""
-              }>Refrigerated (32-40°F)</option>
-              <option value="frozen" ${
-                state.inbound_profile?.storage_type === "frozen"
-                  ? "selected"
-                  : ""
-              }>Frozen (Below 0°F)</option>
-              <option value="climate_controlled" ${
-                state.inbound_profile?.storage_type === "climate_controlled"
-                  ? "selected"
-                  : ""
-              }>Climate Controlled</option>
-              <option value="multiple" ${
-                state.inbound_profile?.storage_type === "multiple"
-                  ? "selected"
-                  : ""
-              }>Multiple Temperature Zones</option>
+              ${generateStorageTypeOptions(state.inbound_profile?.storage_type)}
             </select>
           </div>
           
@@ -1420,7 +1419,7 @@
             <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-package w-5 h-5" data-lov-id="src/components/ReviewSummary.tsx:190:18" data-lov-name="Package" data-component-path="src/components/ReviewSummary.tsx" data-component-line="190" data-component-file="ReviewSummary.tsx" data-component-name="Package" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12"></path><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path><path d="m7.5 4.27 9 5.15"></path></svg></span>
             <div style="flex: 1;">
               <h4 style="margin: 0;">Inbound Profile</h4>
-              <p style="margin: 0; color: #6b7280; font-size: 0.85rem;">Product and operational requirements</p>
+              <p>Product and operational requirements</p>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
               <span style="background: #d1fae5; color: #065f46; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500;">✓ Complete</span>
@@ -1433,21 +1432,11 @@
             </div>
           </div>
           
-          <div class="slotted-grid-2" style="gap: 2rem;">
+          <div class="slotted-inbound-grid">
             <div>
-              <div style="margin-bottom: 1rem;">
-                <strong style="color: #374151; font-size: 0.9rem;">Storage Type</strong>
-                <div style="color: #6b7280; font-size: 0.9rem;">${
-                  state.inbound_profile?.storage_type
-                    ? state.inbound_profile.storage_type
-                        .replace("_", " ")
-                        .replace(/\b\w/g, (l) => l.toUpperCase())
-                    : "Not specified"
-                }</div>
-              </div>
-              <div style="margin-bottom: 1rem;">
-                <strong style="color: #374151; font-size: 0.9rem;">Inbound Frequency</strong>
-                <div style="color: #6b7280; font-size: 0.9rem;">${
+              <div class="slotted-field-item">
+                <span class="slotted-field-label">Inbound Frequency</span>
+                <div class="slotted-field-value">${
                   state.inbound_profile?.inbound_frequency
                     ? state.inbound_profile.inbound_frequency
                         .charAt(0)
@@ -1456,27 +1445,37 @@
                     : "Not specified"
                 }</div>
               </div>
-              <div style="margin-bottom: 1rem;">
-                <strong style="color: #374151; font-size: 0.9rem;">Average Pallets/Month</strong>
-                <div style="color: #6b7280; font-size: 0.9rem;">${
+              <div class="slotted-field-item">
+                <span class="slotted-field-label">Storage Type</span>
+                <div class="slotted-field-value">${
+                  state.inbound_profile?.storage_type
+                    ? getStorageTypeDisplayName(
+                        state.inbound_profile.storage_type
+                      )
+                    : "Not specified"
+                }</div>
+              </div>
+              <div class="slotted-field-item">
+                <span class="slotted-field-label">Pallets per Month</span>
+                <div class="slotted-field-value">${
                   state.inbound_profile?.avg_pallets || "Not specified"
                 }</div>
               </div>
-              <div>
-                <strong style="color: #374151; font-size: 0.9rem;">Single SKU per Case</strong>
-                <div style="color: #6b7280; font-size: 0.9rem;">${
-                  state.inbound_profile?.single_sku_case === true
+              <div class="slotted-field-item">
+                <span class="slotted-field-label">Case-level barcoding</span>
+                <div class="slotted-field-value">${
+                  state.inbound_profile?.case_barcoding === true
                     ? "Yes"
-                    : state.inbound_profile?.single_sku_case === false
+                    : state.inbound_profile?.case_barcoding === false
                     ? "No"
                     : "Not specified"
                 }</div>
               </div>
             </div>
             <div>
-              <div style="margin-bottom: 1rem;">
-                <strong style="color: #374151; font-size: 0.9rem;">Shipment Types</strong>
-                <div style="color: #6b7280; font-size: 0.9rem;">${
+              <div class="slotted-field-item">
+                <span class="slotted-field-label">Shipment Types</span>
+                <div class="slotted-field-value">${
                   [
                     state.inbound_profile?.palletized ? "Palletized" : null,
                     state.inbound_profile?.floor_loaded ? "Floor Loaded" : null,
@@ -1486,21 +1485,21 @@
                     .join(", ") || "Not specified"
                 }</div>
               </div>
-              <div style="margin-bottom: 1rem;">
-                <strong style="color: #374151; font-size: 0.9rem;">Return Rate</strong>
-                <div style="color: #6b7280; font-size: 0.9rem;">${
-                  state.inbound_profile?.return_rate
-                    ? state.inbound_profile.return_rate + "%"
+              <div class="slotted-field-item">
+                <span class="slotted-field-label">Single SKU per case</span>
+                <div class="slotted-field-value">${
+                  state.inbound_profile?.single_sku_case === true
+                    ? "Yes"
+                    : state.inbound_profile?.single_sku_case === false
+                    ? "No"
                     : "Not specified"
                 }</div>
               </div>
-              <div>
-                <strong style="color: #374151; font-size: 0.9rem;">Case Level Barcoding</strong>
-                <div style="color: #6b7280; font-size: 0.9rem;">${
-                  state.inbound_profile?.case_barcoding === true
-                    ? "Yes"
-                    : state.inbound_profile?.case_barcoding === false
-                    ? "No"
+              <div class="slotted-field-item">
+                <span class="slotted-field-label">Return Rate</span>
+                <div class="slotted-field-value">${
+                  state.inbound_profile?.return_rate
+                    ? state.inbound_profile.return_rate + "%"
                     : "Not specified"
                 }</div>
               </div>

@@ -1319,3 +1319,38 @@ select.slotted-input {
     min-width: 0;
   }
 }
+
+/* Inbound Profile Content Grid Styles */
+.slotted-inbound-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.slotted-field-item {
+  margin-bottom: 1rem;
+}
+
+.slotted-field-item:last-child {
+  margin-bottom: 0;
+}
+
+.slotted-field-label {
+  color: #374151;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.slotted-field-value {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .slotted-inbound-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
