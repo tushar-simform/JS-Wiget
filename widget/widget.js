@@ -547,9 +547,7 @@
             </div>
             <div class="slotted-search-input">
               <span class="slotted-search-icon">🔍</span>
-              <input class="slotted-input" id="slotted-sell-location" placeholder="Search countries..." value="${
-                state.outbound_profile.sell_location || ""
-              }" autocomplete="off"/>
+              <input class="slotted-input" id="slotted-sell-location" placeholder="Search countries..." value="" autocomplete="off"/>
               <div class="slotted-search-dropdown" id="slotted-country-dropdown" style="display: none;">
                 <!-- Dynamic search results will appear here -->
               </div>
@@ -1019,8 +1017,12 @@
               <label class="slotted-label">What percentage of your outbound volume is in eaches vs case or pallet?</label>
               <div class="slotted-volume-container">
                 <div class="slotted-volume-labels">
-                  <span>50% Eaches</span>
-                  <span>50% Case/Pallet</span>
+                  <span>${
+                    state.outbound_profile.volume_distribution || 50
+                  }% Eaches</span>
+                  <span>${
+                    100 - (state.outbound_profile.volume_distribution || 50)
+                  }% Case/Pallet</span>
                 </div>
                 <input type="range" id="slotted-volume-distribution" min="0" max="100" value="${
                   state.outbound_profile.volume_distribution || 50
@@ -1328,7 +1330,19 @@
               <div style="margin-bottom: 1rem;">
                 <strong style="color: #374151; font-size: 0.9rem;">Sales Regions</strong>
                 <div style="color: #6b7280; font-size: 0.9rem;">${
-                  state.outbound_profile?.sell_location || "Not specified"
+                  state.outbound_profile?.selected_countries?.length > 0
+                    ? state.outbound_profile.selected_countries.join(", ")
+                    : state.outbound_profile?.sell_location || "Not specified"
+                }</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Volume Distribution</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${
+                  state.outbound_profile?.volume_distribution
+                    ? `${state.outbound_profile.volume_distribution}% Eaches, ${
+                        100 - state.outbound_profile.volume_distribution
+                      }% Case/Pallet`
+                    : "Not specified"
                 }</div>
               </div>
               <div>
@@ -1365,8 +1379,52 @@
                 }</div>
               </div>
               <div style="margin-bottom: 1rem;">
-                <strong style="color: #374151; font-size: 0.9rem;">Return Rate</strong>
-                <div style="color: #6b7280; font-size: 0.9rem;">Not specified</div>
+                <strong style="color: #374151; font-size: 0.9rem;">Shipment Types</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${
+                  [
+                    state.outbound_profile?.shipment_dtc_parcel
+                      ? "DTC (Parcel)"
+                      : null,
+                    state.outbound_profile?.shipment_retail_cases
+                      ? "Retail (Cases)"
+                      : null,
+                    state.outbound_profile?.shipment_retail_pallets
+                      ? "Retail (Pallet)"
+                      : null,
+                    state.outbound_profile?.shipment_marketplace_cases
+                      ? "MarketPlace (Cases)"
+                      : null,
+                    state.outbound_profile?.shipment_marketplace_pallets
+                      ? "MarketPlace (Pallet)"
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(", ") || "Not specified"
+                }</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Serialized/Batch-Controlled</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${
+                  state.outbound_profile?.are_serialized === "yes"
+                    ? "Yes"
+                    : state.outbound_profile?.are_serialized === "no"
+                    ? "No"
+                    : "Not specified"
+                }</div>
+              </div>
+              <div>
+                <strong style="color: #374151; font-size: 0.9rem;">Fulfillment Method</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${
+                  state.outbound_profile?.fulfillment_method === "3pl"
+                    ? "3PL Provider"
+                    : state.outbound_profile?.fulfillment_method === "inhouse"
+                    ? "In-house Fulfillment"
+                    : state.outbound_profile?.fulfillment_method === "dropship"
+                    ? "Dropshipping"
+                    : state.outbound_profile?.fulfillment_method === "not_yet"
+                    ? "Not Fulfilling Yet"
+                    : "Not specified"
+                }</div>
               </div>
             </div>
           </div>
@@ -1415,12 +1473,20 @@
                 }</div>
               </div>
               <div style="margin-bottom: 1rem;">
-                <strong style="color: #374151; font-size: 0.9rem;">Special Storage Requirements</strong>
-                <div style="color: #6b7280; font-size: 0.9rem;">Not specified</div>
+                <strong style="color: #374151; font-size: 0.9rem;">Average Pallets/Month</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${
+                  state.inbound_profile?.avg_pallets || "Not specified"
+                }</div>
               </div>
               <div>
-                <strong style="color: #374151; font-size: 0.9rem;">Eaches vs Case/Pallet</strong>
-                <div style="color: #6b7280; font-size: 0.9rem;">50% Eaches</div>
+                <strong style="color: #374151; font-size: 0.9rem;">Single SKU per Case</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${
+                  state.inbound_profile?.single_sku_case === true
+                    ? "Yes"
+                    : state.inbound_profile?.single_sku_case === false
+                    ? "No"
+                    : "Not specified"
+                }</div>
               </div>
             </div>
             <div>
@@ -1444,12 +1510,12 @@
                     : "Not specified"
                 }</div>
               </div>
-              <div style="margin-bottom: 1rem;">
-                <strong style="color: #374151; font-size: 0.9rem;">Serialized/Batch-Controlled</strong>
+              <div>
+                <strong style="color: #374151; font-size: 0.9rem;">Case Level Barcoding</strong>
                 <div style="color: #6b7280; font-size: 0.9rem;">${
-                  state.outbound_profile?.are_serialized === "yes"
+                  state.inbound_profile?.case_barcoding === true
                     ? "Yes"
-                    : state.outbound_profile?.are_serialized === "no"
+                    : state.inbound_profile?.case_barcoding === false
                     ? "No"
                     : "Not specified"
                 }</div>
@@ -1711,8 +1777,12 @@
                 ? "not_yet"
                 : "",
 
-            start_month: profileData.contractExpiryMonth,
-            start_year: profileData.contractExpiryYear,
+            start_month: profileData.shippingStartMonth
+              ? String(profileData.shippingStartMonth)
+              : null,
+            start_year: profileData.shippingStartYear
+              ? String(profileData.shippingStartYear)
+              : null,
             ship_from_location: profileData.shippingZip,
             seasonal_peaks:
               profileData.seasonalPeaks && profileData.seasonalPeaks.length > 0,
@@ -1927,14 +1997,23 @@
         "slotted-volume-distribution"
       );
       if (volumeRange) {
-        volumeRange.oninput = function () {
-          const eachesPercent = this.value;
-          const casesPalletPercent = 100 - this.value;
-          const labels = this.parentElement.querySelector("div");
+        // Function to update labels
+        const updateVolumeLabels = () => {
+          const eachesPercent = volumeRange.value;
+          const casesPalletPercent = 100 - volumeRange.value;
+          const labels = volumeRange.parentElement.querySelector(
+            ".slotted-volume-labels"
+          );
           if (labels) {
             labels.innerHTML = `<span>${eachesPercent}% Eaches</span><span>${casesPalletPercent}% Case/Pallet</span>`;
           }
         };
+
+        // Update labels on input
+        volumeRange.oninput = updateVolumeLabels;
+
+        // Update labels immediately when binding (for loaded data)
+        updateVolumeLabels();
       }
 
       // Bind country search functionality
