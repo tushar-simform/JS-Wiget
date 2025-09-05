@@ -608,10 +608,12 @@
       <div class="slotted-critical-volume-card">
         <div class="slotted-section-header">
           <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-no-axes-column-increasing w-6 h-6" data-lov-id="src/components/ShippingProfileForm.tsx:238:14" data-lov-name="BarChart" data-component-path="src/components/ShippingProfileForm.tsx" data-component-line="238" data-component-file="ShippingProfileForm.tsx" data-component-name="BarChart" data-component-content="%7B%22className%22%3A%22w-6%20h-6%22%7D"><line x1="12" x2="12" y1="20" y2="10"></line><line x1="18" x2="18" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="16"></line></svg></span>
+          <div>
           <h4>Critical Volume Metrics</h4>
-          <span class="slotted-required-badge">Required</span>
-        </div>
-        <p class="slotted-section-description">Essential information needed for all provider matches</p>
+           <p class="slotted-section-description">Essential information needed for all provider matches</p>
+          </div>
+           <span class="slotted-required-badge">Required</span>
+           </div>
         
         <div class="slotted-grid-2 slotted-grid-spacing">
           <div class="slotted-input-wrapper">
@@ -766,10 +768,12 @@
       <div class="slotted-business-context-card">
         <div class="slotted-section-header">
           <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-6 h-6" data-lov-id="src/components/ShippingProfileForm.tsx:347:14" data-lov-name="TrendingUp" data-component-path="src/components/ShippingProfileForm.tsx" data-component-line="347" data-component-file="ShippingProfileForm.tsx" data-component-name="TrendingUp" data-component-content="%7B%22className%22%3A%22w-6%20h-6%22%7D"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
-          <h4>Important Business Context</h4>
+         <div>
+         <h4>Important Business Context</h4>
+         <p class="slotted-section-description">Help us find the best provider matches for your needs</p>
+         </div>
           <span class="slotted-required-badge">Required</span>
         </div>
-        <p class="slotted-section-description">Help us find the best provider matches for your needs</p>
         
         ${renderCountrySelection()}
         ${renderGrowthExpectations()}
@@ -877,9 +881,11 @@
         <div class="slotted-business-context-card">
           <div class="slotted-section-header">
             <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-5 h-5" data-lov-id="src/components/ShippingProfileForm.tsx:448:18" data-lov-name="TrendingUp" data-component-path="src/components/ShippingProfileForm.tsx" data-component-line="448" data-component-file="ShippingProfileForm.tsx" data-component-name="TrendingUp" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
-            <h4>Additional Context</h4>
+          <div>
+          <h4>Additional Context</h4>
+           <p class="slotted-section-description">Optional information that can help improve provider matches</p>
+          </div> 
           </div>
-          <p class="slotted-section-description">Optional information that can help improve provider matches</p>
           
           ${renderFulfillmentMethod()}
           ${renderStartShippingDate()}
@@ -1406,8 +1412,8 @@
           <div class="slotted-section-header" style="margin-bottom: 1.5rem;">
             <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin w-5 h-5" data-lov-id="src/components/ReviewSummary.tsx:106:18" data-lov-name="MapPin" data-component-path="src/components/ReviewSummary.tsx" data-component-line="106" data-component-file="ReviewSummary.tsx" data-component-name="MapPin" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
             <div style="flex: 1;">
-              <h4 style="margin: 0;">Shipping Profile</h4>
-              <p style="margin: 0; color: #6b7280; font-size: 0.85rem;">Volume metrics and business context</p>
+              <h4 >Shipping Profile</h4>
+              <p class="slotted-section-description">Volume metrics and business context</p>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
               <span style="background: #d1fae5; color: #065f46; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500;">✓ Complete</span>
@@ -1651,8 +1657,8 @@
           <div class="slotted-section-header" style="margin-bottom: 1.5rem;">
             <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-package w-5 h-5" data-lov-id="src/components/ReviewSummary.tsx:190:18" data-lov-name="Package" data-component-path="src/components/ReviewSummary.tsx" data-component-line="190" data-component-file="ReviewSummary.tsx" data-component-name="Package" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12"></path><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path><path d="m7.5 4.27 9 5.15"></path></svg></span>
             <div style="flex: 1;">
-              <h4 style="margin: 0;">Inbound Profile</h4>
-              <p>Product and operational requirements</p>
+              <h4 >Inbound Profile</h4>
+              <p class="slotted-section-description">Product and operational requirements</p>
             </div>
             <div style="display: flex; align-items: center; gap: 0.5rem;">
               <span style="background: #d1fae5; color: #065f46; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500;">✓ Complete</span>

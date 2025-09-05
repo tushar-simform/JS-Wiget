@@ -104,6 +104,8 @@
   font-size: 0.8rem;
   color: #6b7280;
   line-height: 1.3;
+  text-align: center;
+  margin-bottom: 8px;
 }
 
 /* Logo styling for a beautiful, balanced look */
@@ -139,7 +141,7 @@
   border-radius: 10px;
   box-shadow: 0 8px 32px rgba(80, 112, 255, 0.1),
     0 1.5px 6px rgba(0, 0, 0, 0.04);
-  padding: 2rem 2.5rem;
+  padding: 15px 2.5rem;
   margin-bottom: 1.5rem;
   width: 100%;
   max-width: 100%;
@@ -182,13 +184,6 @@
   letter-spacing: 0.01em;
 }
 
-.slotted-step p {
-  font-size: 1rem;
-  color: #6b7280;
-  text-align: center;
-  margin-bottom: 2rem;
-  line-height: 1.5;
-}
 .slotted-btn {
   background: var(--slotted-primary, #4f8cff);
   color: #fff;
@@ -407,7 +402,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .slotted-section-icon {
@@ -419,7 +414,7 @@
 }
 
 .slotted-section-header h4 {
-  margin: 0;
+  margin: 0 0 4px 0;
   font-size: 1.1rem;
   color: #374151;
   font-weight: 600;
@@ -436,9 +431,9 @@
 }
 
 .slotted-section-description {
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 2px 0;
   color: #6b7280;
-  font-size: 0.9rem;
+  font-size: 14px;
 }
 
 .slotted-form-section {
@@ -1110,7 +1105,7 @@ select.slotted-input {
 
 /* Step description styling */
 .slotted-step-description {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1px;
   color: #6b7280;
   font-size: 0.95rem;
 }
