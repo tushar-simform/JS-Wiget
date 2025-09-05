@@ -663,6 +663,25 @@
   border-color: #fecaca;
 }
 
+/* Dynamic styling based on growth value */
+.slotted-growth-card.slotted-growth-positive {
+  background: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+}
+
+.slotted-growth-card.slotted-growth-positive .slotted-growth-card-header {
+  color: #166534 !important;
+}
+
+.slotted-growth-card.slotted-growth-negative {
+  background: #fef2f2 !important;
+  border-color: #fecaca !important;
+}
+
+.slotted-growth-card.slotted-growth-negative .slotted-growth-card-header {
+  color: #dc2626 !important;
+}
+
 .slotted-growth-card-header {
   display: flex;
   align-items: center;
@@ -709,6 +728,16 @@
 .slotted-growth-detail {
   font-size: 0.75rem;
   color: #6b7280;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.slotted-growth-error {
+  font-size: 0.75rem;
+  color: #dc2626;
+  margin-top: 0.25rem;
+  padding: 0.25rem 0;
+  font-weight: 500;
 }
 
 .slotted-growth-note {

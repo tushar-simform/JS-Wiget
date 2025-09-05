@@ -699,7 +699,8 @@
                   }"/>
                   <span>% growth</span>
                 </div>
-                <div class="slotted-growth-detail">~0 orders/month</div>
+                <div class="slotted-growth-error" id="slotted-year1-best-error" style="display: none;"></div>
+                <div class="slotted-growth-detail" id="slotted-year1-best-detail">~0 orders/month</div>
               </div>
               <div class="slotted-growth-card worst-case">
                 <div class="slotted-growth-card-header">
@@ -712,7 +713,8 @@
                   }"/>
                   <span>% growth</span>
                 </div>
-                <div class="slotted-growth-detail">~0 orders/month</div>
+                <div class="slotted-growth-error" id="slotted-year1-worst-error" style="display: none;"></div>
+                <div class="slotted-growth-detail" id="slotted-year1-worst-detail">~0 orders/month</div>
               </div>
             </div>
           </div>
@@ -731,7 +733,8 @@
                   }"/>
                   <span>% growth</span>
                 </div>
-                <div class="slotted-growth-detail">~0 orders/month</div>
+                <div class="slotted-growth-error" id="slotted-year2-best-error" style="display: none;"></div>
+                <div class="slotted-growth-detail" id="slotted-year2-best-detail">~0 orders/month</div>
               </div>
               <div class="slotted-growth-card worst-case">
                 <div class="slotted-growth-card-header">
@@ -744,7 +747,8 @@
                   }"/>
                   <span>% growth</span>
                 </div>
-                <div class="slotted-growth-detail">~0 orders/month</div>
+                <div class="slotted-growth-error" id="slotted-year2-worst-error" style="display: none;"></div>
+                <div class="slotted-growth-detail" id="slotted-year2-worst-detail">~0 orders/month</div>
               </div>
             </div>
           </div>
@@ -1330,13 +1334,13 @@
            <svg class="slotted-nav-icon slotted-nav-icon-left" viewBox="0 0 24 24" fill="none">
              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m0 0l7 7m-7-7l7-7"/>
            </svg>
-           Back
+           Previous
          </button>`
       : `<button class="slotted-btn-back" id="slotted-back-step-${currentStep}">
            <svg class="slotted-nav-icon slotted-nav-icon-left" viewBox="0 0 24 24" fill="none">
              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m0 0l7 7m-7-7l7-7"/>
            </svg>
-           Back
+           Previous
          </button>`;
 
     const nextButton = isLastStep
@@ -2389,6 +2393,163 @@
   }
 
   // Events
+  // Growth calculation functions
+  function updateGrowthCalculations() {
+    const currentOrders = parseInt(state.outbound_profile.monthly_orders) || 0;
+
+    // Update Year 1 calculations
+    updateGrowthDetail("slotted-year1-best-growth", currentOrders);
+    updateGrowthDetail("slotted-year1-worst-growth", currentOrders);
+
+    // Update Year 2 calculations (based on Year 1 results)
+    const year1Best =
+      parseFloat(document.getElementById("slotted-year1-best-growth")?.value) ||
+      0;
+    const year1Worst =
+      parseFloat(
+        document.getElementById("slotted-year1-worst-growth")?.value
+      ) || 0;
+
+    const year1BestOrders = Math.round(currentOrders * (1 + year1Best / 100));
+    const year1WorstOrders = Math.round(currentOrders * (1 + year1Worst / 100));
+
+    updateGrowthDetail("slotted-year2-best-growth", year1BestOrders);
+    updateGrowthDetail("slotted-year2-worst-growth", year1WorstOrders);
+  }
+
+  function updateGrowthDetail(inputId, baseOrders) {
+    const input = document.getElementById(inputId);
+    const card = input?.closest(".slotted-growth-card");
+    const detailElement = card?.querySelector(".slotted-growth-detail");
+
+    if (input && detailElement && baseOrders > 0) {
+      const growthPercent = parseFloat(input.value) || 0;
+      const projectedOrders = Math.round(
+        baseOrders * (1 + growthPercent / 100)
+      );
+      detailElement.textContent = `~${projectedOrders.toLocaleString()} orders/month`;
+    } else if (detailElement) {
+      detailElement.textContent = "~0 orders/month";
+    }
+  }
+
+  function updateGrowthCardStyling(input) {
+    const card = input.closest(".slotted-growth-card");
+    const value = parseFloat(input.value);
+
+    if (!card || isNaN(value)) {
+      // Reset to default styling if no value
+      card?.classList.remove(
+        "slotted-growth-positive",
+        "slotted-growth-negative"
+      );
+      return;
+    }
+
+    // Remove existing dynamic classes
+    card.classList.remove("slotted-growth-positive", "slotted-growth-negative");
+
+    // Add appropriate class based on value
+    if (value > 0) {
+      card.classList.add("slotted-growth-positive");
+    } else if (value < 0) {
+      card.classList.add("slotted-growth-negative");
+    }
+  }
+
+  // Growth validation functions
+  function validateGrowthInput(inputId, skipPairValidation = false) {
+    const input = document.getElementById(inputId);
+    const value = parseFloat(input.value);
+
+    if (isNaN(value) || input.value.trim() === "") {
+      hideGrowthError(inputId);
+      return true;
+    }
+
+    let isValid = true;
+    let errorMessage = "";
+
+    // Determine the year and type
+    const isBestCase = inputId.includes("best");
+    const isYear1 = inputId.includes("year1");
+
+    if (isBestCase) {
+      // Best case validation
+      const worstInputId = isYear1
+        ? "slotted-year1-worst-growth"
+        : "slotted-year2-worst-growth";
+      const worstInput = document.getElementById(worstInputId);
+      const worstValue = parseFloat(worstInput.value);
+
+      if (
+        !isNaN(worstValue) &&
+        worstInput.value.trim() !== "" &&
+        value < worstValue
+      ) {
+        isValid = false;
+        errorMessage = "Best case growth cannot be less than worst case growth";
+      }
+    } else {
+      // Worst case validation
+      const bestInputId = isYear1
+        ? "slotted-year1-best-growth"
+        : "slotted-year2-best-growth";
+      const bestInput = document.getElementById(bestInputId);
+      const bestValue = parseFloat(bestInput.value);
+
+      if (
+        !isNaN(bestValue) &&
+        bestInput.value.trim() !== "" &&
+        value > bestValue
+      ) {
+        isValid = false;
+        errorMessage =
+          "Worst case growth cannot be greater than best case growth";
+      }
+    }
+
+    if (isValid) {
+      hideGrowthError(inputId);
+
+      // Also validate the paired input to clear any errors there, but prevent infinite recursion
+      if (!skipPairValidation) {
+        const pairedInputId = isBestCase
+          ? isYear1
+            ? "slotted-year1-worst-growth"
+            : "slotted-year2-worst-growth"
+          : isYear1
+          ? "slotted-year1-best-growth"
+          : "slotted-year2-best-growth";
+        validateGrowthInput(pairedInputId, true);
+      }
+    } else {
+      showGrowthError(inputId, errorMessage);
+    }
+
+    return isValid;
+  }
+
+  function showGrowthError(inputId, message) {
+    const errorId = inputId.replace("-growth", "-error");
+    const errorElement = document.getElementById(errorId);
+
+    if (errorElement) {
+      errorElement.textContent = message;
+      errorElement.style.display = "block";
+    }
+  }
+
+  function hideGrowthError(inputId) {
+    const errorId = inputId.replace("-growth", "-error");
+    const errorElement = document.getElementById(errorId);
+
+    if (errorElement) {
+      errorElement.style.display = "none";
+      errorElement.textContent = "";
+    }
+  }
+
   function bindEvents() {
     if (state.step === 0) {
       // Handle form submission
@@ -2464,7 +2625,7 @@
       const nextBtn = document.getElementById("slotted-next-step-1");
       if (nextBtn) nextBtn.onclick = handleOutboundProfileSubmit;
 
-      // Back button is disabled in step 1, no need to bind
+      // Previous button is disabled in step 1, no need to bind
 
       // Bind optional toggle
       const optionalToggle = document.getElementById("slotted-optional-toggle");
@@ -2490,7 +2651,7 @@
         };
       }
 
-      // Bind monthly orders input to update Current Monthly Orders display
+      // Bind monthly orders input to update Current Monthly Orders display and growth calculations
       const monthlyOrdersInput = document.getElementById(
         "slotted-monthly-orders"
       );
@@ -2502,9 +2663,54 @@
           const value = this.value.trim();
           currentOrdersDisplay.textContent = value || "0";
           state.outbound_profile.monthly_orders = value;
+          updateGrowthCalculations();
           saveState();
         };
       }
+
+      // Bind growth input fields to update calculations and styling
+      const growthInputs = [
+        "slotted-year1-best-growth",
+        "slotted-year1-worst-growth",
+        "slotted-year2-best-growth",
+        "slotted-year2-worst-growth",
+      ];
+
+      growthInputs.forEach((inputId) => {
+        const input = document.getElementById(inputId);
+        if (input) {
+          input.oninput = function () {
+            // Map input ID to state field name
+            const fieldMappings = {
+              "slotted-year1-best-growth": "year1_best_growth",
+              "slotted-year1-worst-growth": "year1_worst_growth",
+              "slotted-year2-best-growth": "year2_best_growth",
+              "slotted-year2-worst-growth": "year2_worst_growth",
+            };
+
+            const field = fieldMappings[inputId];
+            if (field) {
+              state.outbound_profile[field] = this.value;
+            }
+
+            // Validate input
+            validateGrowthInput(inputId);
+
+            updateGrowthCalculations();
+            updateGrowthCardStyling(this);
+            saveState();
+          };
+
+          // Initialize styling and validation for existing values
+          if (input.value) {
+            updateGrowthCardStyling(input);
+            validateGrowthInput(inputId);
+          }
+        }
+      });
+
+      // Initialize growth calculations on load
+      updateGrowthCalculations();
 
       // Bind range slider update
       const volumeRange = document.getElementById(
@@ -2860,7 +3066,7 @@
   function handleBackToOutbound() {
     state = {
       ...state,
-      step: 1, // Back to outbound profile
+      step: 1, // Previous to outbound profile
     };
     saveState();
     render();
@@ -2869,7 +3075,7 @@
   function handleBackToInbound() {
     state = {
       ...state,
-      step: 2, // Back to inbound profile
+      step: 2, // Previous to inbound profile
     };
     saveState();
     render();
