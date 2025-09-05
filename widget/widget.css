@@ -1450,6 +1450,27 @@ select.slotted-input {
   box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
 }
 
+.slotted-provider-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.slotted-provider-clear:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Provider Search Dropdown Styles */
 .slotted-provider-dropdown {
   position: absolute;
   top: 100%;
@@ -1459,38 +1480,87 @@ select.slotted-input {
   border: 1px solid #d1d5db;
   border-top: none;
   border-radius: 0 0 6px 6px;
-  max-height: 200px;
+  max-height: 250px;
   overflow-y: auto;
   z-index: 1000;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.slotted-provider-option {
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  border-bottom: 1px solid #f3f4f6;
-  transition: background-color 0.2s ease;
+.slotted-provider-loading {
+  padding: 1rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9rem;
 }
 
-.slotted-provider-option:hover {
+.slotted-provider-result {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.slotted-provider-result:hover {
   background-color: #f9fafb;
 }
 
-.slotted-provider-option:last-child {
+.slotted-provider-result:last-child {
   border-bottom: none;
 }
 
-.slotted-provider-option.selected {
-  background-color: #dbeafe;
-  color: #1e40af;
-  font-weight: 500;
-}
-
-.slotted-provider-option.highlighted {
-  background-color: #eff6ff;
-}
-
-.slotted-provider-option-name {
-  font-weight: 500;
+.slotted-provider-name {
+  font-size: 0.9rem;
   color: #374151;
+}
+
+.slotted-provider-no-results {
+  padding: 1rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.slotted-provider-error {
+  padding: 1rem;
+  text-align: center;
+  color: #dc2626;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.slotted-retry-btn {
+  background: var(--slotted-primary, #4f8cff);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.slotted-retry-btn:hover {
+  background: #3b82f6;
+}
+
+.slotted-provider-load-more {
+  padding: 0.75rem 1rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.85rem;
+  border-top: 1px solid #f3f4f6;
+  background: #f9fafb;
+}
+
+.slotted-load-more-spinner {
+  display: inline-block;
+  color: var(--slotted-primary, #4f8cff);
+}
+
+.slotted-load-more-text {
+  font-style: italic;
 }

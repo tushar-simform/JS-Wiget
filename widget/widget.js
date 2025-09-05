@@ -97,18 +97,136 @@
     { value: "frozenStorage", name: "Frozen (Below 32°F)" },
   ];
 
-  // Static 3PL provider options (to be replaced with API data)
-  const STATIC_3PL_PROVIDERS = [
-    { id: "bb5441ff-9ec8-4f36-b352-db2e65c963fb", name: "LOL by Riot Games" },
-    { id: "cc6552aa-8dc9-5e47-c463-ec3f76d074ac", name: "Riot Games Inc" },
-    { id: "dd7663bb-9ed0-6f58-d574-fd4a87e185bd", name: "Simforms" },
-    { id: "ee8774cc-0fe1-7g69-e685-ae5b98f296ce", name: "Angel Approved co." },
-    { id: "ff9885dd-1af2-8h70-f796-bf6c09a307df", name: "Major Rock Training" },
-    {
-      id: "aa0996ee-2bg3-9i81-a807-ca7d10b418ea",
-      name: "Harry Porter Company",
-    },
-  ];
+  // 3PL Providers - loaded from API with pagination
+  let THREE_PL_PROVIDERS = [];
+  let providersLoading = false;
+  let providersError = null;
+  let providersHasMore = true;
+  let providersCurrentPage = 1;
+  let providersCurrentSearch = "";
+
+  // Fetch 3PL providers from API with search and pagination
+  async function fetchThreePLProviders(
+    search = "",
+    page = 1,
+    limit = 20,
+    append = false
+  ) {
+    if (providersLoading) return { providers: [], hasMore: false };
+
+    providersLoading = true;
+    if (!append) {
+      providersError = null;
+    }
+
+    try {
+      console.log(
+        `Fetching 3PL providers: search="${search}", page=${page}, limit=${limit}`
+      );
+
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+
+      if (search.trim()) {
+        params.append("search", search.trim());
+      }
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/three-pl/homepage/active-providers?${params}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success && Array.isArray(data.data?.providerList)) {
+        const newProviders = data.data.providerList.map((provider) => ({
+          id: provider.id,
+          name: provider.name,
+        }));
+
+        if (append) {
+          THREE_PL_PROVIDERS = [...THREE_PL_PROVIDERS, ...newProviders];
+        } else {
+          THREE_PL_PROVIDERS = newProviders;
+        }
+
+        // Check if there are more results
+        const hasMore =
+          data.data?.pagination?.hasMore ||
+          data.data?.providerList?.length === limit;
+
+        providersHasMore = hasMore;
+        providersCurrentPage = page;
+        providersCurrentSearch = search;
+
+        return {
+          providers: newProviders,
+          hasMore,
+          total: data.data?.pagination?.total || THREE_PL_PROVIDERS.length,
+        };
+      }
+
+      return { providers: [], hasMore: false, total: 0 };
+    } catch (error) {
+      console.error("3PL Providers API error:", error);
+      providersError = error.message;
+
+      // For search/pagination errors, don't fallback to static data
+      if (search || page > 1) {
+        return { providers: [], hasMore: false, total: 0 };
+      }
+
+      // Only fallback on initial load
+      console.log("Falling back to static 3PL provider data");
+      providersError = null;
+
+      return { providers: [], hasMore: false, total: 0 };
+    } finally {
+      providersLoading = false;
+    }
+  }
+
+  // Load more providers for infinite scroll
+  async function loadMoreProviders() {
+    if (!providersHasMore || providersLoading) return;
+
+    const result = await fetchThreePLProviders(
+      providersCurrentSearch,
+      providersCurrentPage + 1,
+      20,
+      true // append to existing
+    );
+
+    // Update the provider dropdown if it's visible
+    updateProviderDropdown();
+
+    return result;
+  }
+
+  // Search providers
+  async function searchProviders(searchTerm) {
+    // Reset pagination for new search
+    providersCurrentPage = 1;
+    providersHasMore = true;
+
+    const result = await fetchThreePLProviders(searchTerm, 1, 20, false);
+
+    // Update the provider dropdown
+    updateProviderDropdown();
+
+    return result;
+  }
 
   // Step configuration - Updated for RFP flow after contact
   const STEPS_CONFIG = [
@@ -323,6 +441,193 @@
     if (dropdown) dropdown.style.display = "none";
 
     saveState();
+  };
+
+  // Update provider dropdown with current data
+  function updateProviderDropdown() {
+    const dropdown = document.getElementById("slotted-provider-dropdown");
+    const resultsContainer = document.getElementById(
+      "slotted-provider-results"
+    );
+    const loadingIndicator = document.getElementById(
+      "slotted-provider-loading"
+    );
+
+    if (!dropdown || !resultsContainer) return;
+
+    // Clear existing results except loading indicator
+    resultsContainer.innerHTML = "";
+
+    if (providersLoading && THREE_PL_PROVIDERS.length === 0) {
+      if (loadingIndicator) {
+        loadingIndicator.style.display = "block";
+        loadingIndicator.textContent = "Loading providers...";
+      }
+      return;
+    }
+
+    if (loadingIndicator) {
+      loadingIndicator.style.display = "none";
+    }
+
+    if (providersError && THREE_PL_PROVIDERS.length === 0) {
+      resultsContainer.innerHTML = `
+        <div class="slotted-provider-error">
+          <span>⚠️ ${providersError}</span>
+          <button onclick="retryLoadProviders()" class="slotted-retry-btn">Retry</button>
+        </div>
+      `;
+      return;
+    }
+
+    if (THREE_PL_PROVIDERS.length === 0) {
+      resultsContainer.innerHTML = `
+        <div class="slotted-provider-no-results">
+          No providers found${
+            providersCurrentSearch ? ` for "${providersCurrentSearch}"` : ""
+          }
+        </div>
+      `;
+      return;
+    }
+
+    // Render provider results
+    const providerHTML = THREE_PL_PROVIDERS.map(
+      (provider) => `
+      <div class="slotted-provider-result" onclick="selectProvider('${
+        provider.id
+      }', '${provider.name.replace(/'/g, "\\'")}')">
+        <span class="slotted-provider-name">${provider.name}</span>
+      </div>
+    `
+    ).join("");
+
+    resultsContainer.innerHTML = providerHTML;
+
+    // Add loading more indicator if needed
+    if (providersHasMore) {
+      const loadMoreHTML = `
+        <div class="slotted-provider-load-more" id="slotted-provider-load-more">
+          <span class="slotted-load-more-text">Scroll for more providers...</span>
+          <div class="slotted-load-more-spinner" style="display: none;">Loading...</div>
+        </div>
+      `;
+      resultsContainer.insertAdjacentHTML("beforeend", loadMoreHTML);
+    }
+
+    // Setup infinite scroll listener if not already added
+    setupInfiniteScroll();
+  }
+
+  // Setup infinite scroll listener
+  function setupInfiniteScroll() {
+    const dropdown = document.getElementById("slotted-provider-dropdown");
+
+    if (!dropdown || dropdown.hasInfiniteScrollListener) return;
+
+    console.log("Setting up infinite scroll for provider dropdown");
+
+    dropdown.addEventListener("scroll", function () {
+      const scrollTop = this.scrollTop;
+      const scrollHeight = this.scrollHeight;
+      const clientHeight = this.clientHeight;
+
+      console.log("Dropdown scroll event:", {
+        scrollTop,
+        scrollHeight,
+        clientHeight,
+        hasMore: providersHasMore,
+        loading: providersLoading,
+        threshold: scrollHeight - 30,
+      });
+
+      // Load more when near bottom (within 30px)
+      if (scrollTop + clientHeight >= scrollHeight - 30) {
+        if (providersHasMore && !providersLoading) {
+          console.log("Infinite scroll triggered - loading more providers...");
+
+          const loadMoreElement = document.getElementById(
+            "slotted-provider-load-more"
+          );
+          if (loadMoreElement) {
+            const spinner = loadMoreElement.querySelector(
+              ".slotted-load-more-spinner"
+            );
+            const text = loadMoreElement.querySelector(
+              ".slotted-load-more-text"
+            );
+
+            if (spinner && text) {
+              spinner.style.display = "inline-block";
+              text.style.display = "none";
+            }
+          }
+
+          loadMoreProviders()
+            .then(() => {
+              console.log("More providers loaded successfully");
+              // Hide spinner after loading
+              if (loadMoreElement) {
+                const spinner = loadMoreElement.querySelector(
+                  ".slotted-load-more-spinner"
+                );
+                const text = loadMoreElement.querySelector(
+                  ".slotted-load-more-text"
+                );
+
+                if (spinner && text) {
+                  spinner.style.display = "none";
+                  text.style.display = "inline-block";
+                }
+              }
+            })
+            .catch((error) => {
+              console.error("Error loading more providers:", error);
+            });
+        } else {
+          console.log("Cannot load more:", {
+            hasMore: providersHasMore,
+            loading: providersLoading,
+          });
+        }
+      }
+    });
+
+    // Mark as having the listener to avoid duplicates
+    dropdown.hasInfiniteScrollListener = true;
+    console.log("Infinite scroll listener attached successfully");
+  }
+
+  // Retry loading providers
+  window.retryLoadProviders = function () {
+    THREE_PL_PROVIDERS = [];
+    providersCurrentPage = 1;
+    providersHasMore = true;
+    fetchThreePLProviders(providersCurrentSearch, 1, 20, false).then(() => {
+      updateProviderDropdown();
+    });
+  };
+
+  // Clear provider search
+  window.clearProviderSearch = function () {
+    const searchInput = document.getElementById(
+      "slotted-current-provider-search"
+    );
+    const dropdown = document.getElementById("slotted-provider-dropdown");
+
+    if (searchInput) {
+      searchInput.value = "";
+      state.outbound_profile.current_provider = "";
+      state.outbound_profile.current_provider_name = "";
+      saveState();
+    }
+
+    if (dropdown) {
+      dropdown.style.display = "none";
+    }
+
+    // Reset search and reload
+    searchProviders("");
   };
 
   // Read widget key from data attribute on container div
@@ -948,18 +1253,28 @@
           
           <div class="slotted-3pl-form-section">
             <label class="slotted-3pl-label">Current 3PL Provider</label>
-            <select class="slotted-input" id="slotted-current-provider-select">
-              <option value="">Select your current provider...</option>
-              ${STATIC_3PL_PROVIDERS.map(
-                (provider) => `
-                <option value="${provider.id}" ${
-                  state.outbound_profile.current_provider === provider.id
-                    ? "selected"
-                    : ""
-                }>${provider.name}</option>
-              `
-              ).join("")}
-            </select>
+            <div class="slotted-provider-search-container">
+              <input 
+                class="slotted-input slotted-provider-search" 
+                id="slotted-current-provider-search" 
+                placeholder="Search for your current provider..."
+                value="${state.outbound_profile.current_provider_name || ""}"
+                autocomplete="off"
+              />
+              ${
+                state.outbound_profile.current_provider_name
+                  ? '<button type="button" class="slotted-provider-clear" onclick="clearProviderSearch()" title="Clear selection">×</button>'
+                  : ""
+              }
+              <div class="slotted-provider-dropdown" id="slotted-provider-dropdown" style="display: none;">
+                <div class="slotted-provider-loading" id="slotted-provider-loading" style="display: none;">
+                  Loading providers...
+                </div>
+                <div class="slotted-provider-results" id="slotted-provider-results">
+                  <!-- Dynamic provider results will appear here -->
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="slotted-3pl-form-section">
@@ -1491,9 +1806,9 @@
                     return providerName;
                   }
 
-                  // If we have an ID but no name, lookup from static data
+                  // If we have an ID but no name, lookup from providers data
                   if (providerId) {
-                    const provider = STATIC_3PL_PROVIDERS.find(
+                    const provider = THREE_PL_PROVIDERS.find(
                       (p) => p.id === providerId
                     );
 
@@ -1750,7 +2065,6 @@
         <div style="background: #f8fafc; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; text-align: center;">
           <h4 style="margin: 0 0 0.5rem 0; color: #374151;">Ready to create your volume profile?</h4>
           <p style="margin: 0 0 1.5rem 0; color: #6b7280; font-size: 0.9rem;">Generate a comprehensive analysis of your business volume and requirements.</p>
-          <button class="slotted-btn" id="slotted-create-profile" style="background: #4f46e5; padding: 0.75rem 2rem;">Create Volume Profile</button>
         </div>
 
         ${renderNavigationButtons(3)}
@@ -2015,9 +2329,9 @@
               if (profileData.currentProviderRef?.name) {
                 return profileData.currentProviderRef.name;
               }
-              // Fallback to lookup from STATIC_3PL_PROVIDERS if we have provider ID
+              // Fallback to lookup from THREE_PL_PROVIDERS if we have provider ID
               if (profileData.currentProvider) {
-                const provider = STATIC_3PL_PROVIDERS.find(
+                const provider = THREE_PL_PROVIDERS.find(
                   (p) => p.id === profileData.currentProvider
                 );
                 return provider?.name || "";
@@ -2376,6 +2690,36 @@
   }
 
   // 3PL Provider search and selection functions
+  function filterProviders(query) {
+    if (!query || query.length < 1) return [];
+
+    const searchQuery = query.toLowerCase();
+    const filtered = THREE_PL_PROVIDERS.filter((provider) =>
+      provider.name.toLowerCase().includes(searchQuery)
+    );
+
+    // Sort results: exact matches first, then starts with, then contains
+    filtered.sort((a, b) => {
+      const aName = a.name.toLowerCase();
+      const bName = b.name.toLowerCase();
+
+      // Exact match
+      if (aName === searchQuery) return -1;
+      if (bName === searchQuery) return 1;
+
+      // Starts with
+      if (aName.startsWith(searchQuery) && !bName.startsWith(searchQuery))
+        return -1;
+      if (bName.startsWith(searchQuery) && !aName.startsWith(searchQuery))
+        return 1;
+
+      // Alphabetical order for similar matches
+      return aName.localeCompare(bName);
+    });
+
+    return filtered.slice(0, 8); // Limit to 8 results
+  }
+
   function toggle3PLCard() {
     const card = document.getElementById("slotted-3pl-provider-card");
     const fulfillmentRadio = document.querySelector(
@@ -2769,30 +3113,62 @@
         });
       });
 
-      // Bind 3PL provider select functionality
-      const providerSelect = document.getElementById(
-        "slotted-current-provider-select"
+      // Bind 3PL provider search functionality
+      const providerSearchInput = document.getElementById(
+        "slotted-current-provider-search"
+      );
+      const providerDropdown = document.getElementById(
+        "slotted-provider-dropdown"
       );
 
-      if (providerSelect) {
-        providerSelect.addEventListener("change", function () {
-          console.log("3PL Provider selected:", this.value);
-          state.outbound_profile.current_provider = this.value;
+      if (providerSearchInput && providerDropdown) {
+        let searchTimeout;
 
-          // Find the provider name from STATIC_3PL_PROVIDERS
-          const selectedProvider = STATIC_3PL_PROVIDERS.find(
-            (provider) => provider.id === this.value
-          );
-          state.outbound_profile.current_provider_name = selectedProvider
-            ? selectedProvider.name
-            : "";
+        // Search input functionality
+        providerSearchInput.addEventListener("input", function () {
+          const searchTerm = this.value.trim();
 
-          console.log("Provider state updated:", {
-            current_provider: state.outbound_profile.current_provider,
-            current_provider_name: state.outbound_profile.current_provider_name,
-          });
+          // Clear existing timeout
+          if (searchTimeout) {
+            clearTimeout(searchTimeout);
+          }
 
-          saveState();
+          // Show dropdown when typing
+          if (searchTerm.length > 0 || this === document.activeElement) {
+            providerDropdown.style.display = "block";
+            updateProviderDropdown(); // Show current results immediately
+          }
+
+          // Debounce search API calls
+          searchTimeout = setTimeout(() => {
+            if (searchTerm.length >= 2 || searchTerm.length === 0) {
+              searchProviders(searchTerm);
+            }
+          }, 300);
+        });
+
+        // Show dropdown on focus
+        providerSearchInput.addEventListener("focus", function () {
+          providerDropdown.style.display = "block";
+
+          // Load initial data if not loaded yet
+          if (THREE_PL_PROVIDERS.length === 0 && !providersLoading) {
+            fetchThreePLProviders("", 1, 20, false).then(() => {
+              updateProviderDropdown();
+            });
+          } else {
+            updateProviderDropdown();
+          }
+        });
+
+        // Hide dropdown when clicking outside
+        document.addEventListener("click", function (e) {
+          if (
+            !providerSearchInput.contains(e.target) &&
+            !providerDropdown.contains(e.target)
+          ) {
+            providerDropdown.style.display = "none";
+          }
         });
       }
 
@@ -3711,8 +4087,11 @@
       </div>
     `;
 
-    // Initialize provider authentication
-    const authSuccess = await initializeProvider();
+    // Initialize provider authentication and fetch 3PL providers
+    const [authSuccess] = await Promise.all([
+      initializeProvider(),
+      fetchThreePLProviders("", 1, 20, false), // Initial load with no search
+    ]);
 
     if (authSuccess) {
       // Provider authenticated successfully, render the widget
