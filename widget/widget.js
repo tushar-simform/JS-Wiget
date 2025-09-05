@@ -97,6 +97,19 @@
     { value: "frozenStorage", name: "Frozen (Below 32°F)" },
   ];
 
+  // Static 3PL provider options (to be replaced with API data)
+  const STATIC_3PL_PROVIDERS = [
+    { id: "bb5441ff-9ec8-4f36-b352-db2e65c963fb", name: "LOL by Riot Games" },
+    { id: "cc6552aa-8dc9-5e47-c463-ec3f76d074ac", name: "Riot Games Inc" },
+    { id: "dd7663bb-9ed0-6f58-d574-fd4a87e185bd", name: "Simforms" },
+    { id: "ee8774cc-0fe1-7g69-e685-ae5b98f296ce", name: "Angel Approved co." },
+    { id: "ff9885dd-1af2-8h70-f796-bf6c09a307df", name: "Major Rock Training" },
+    {
+      id: "aa0996ee-2bg3-9i81-a807-ca7d10b418ea",
+      name: "Harry Porter Company",
+    },
+  ];
+
   // Step configuration - Updated for RFP flow after contact
   const STEPS_CONFIG = [
     {
@@ -294,6 +307,24 @@
     }
   };
 
+  // Global function for provider selection (accessible from onclick)
+  window.selectProvider = function (providerId, providerName) {
+    // Update state
+    state.outbound_profile.current_provider = providerId;
+    state.outbound_profile.current_provider_name = providerName;
+
+    // Update UI
+    const searchInput = document.getElementById(
+      "slotted-current-provider-search"
+    );
+    const dropdown = document.getElementById("slotted-provider-dropdown");
+
+    if (searchInput) searchInput.value = providerName;
+    if (dropdown) dropdown.style.display = "none";
+
+    saveState();
+  };
+
   // Read widget key from data attribute on container div
   function getWidgetKey() {
     const el = document.getElementById("slotted-easyrfp");
@@ -439,9 +470,19 @@
   // Restore from session
   if (sessionStorage.getItem("slotted_state")) {
     state = JSON.parse(sessionStorage.getItem("slotted_state"));
+    console.log("=== LOADING STATE ===");
+    console.log(
+      "Outbound profile loaded:",
+      JSON.stringify(state.outbound_profile, null, 2)
+    );
   }
 
   function saveState() {
+    console.log("=== SAVING STATE ===");
+    console.log(
+      "Outbound profile being saved:",
+      JSON.stringify(state.outbound_profile, null, 2)
+    );
     sessionStorage.setItem("slotted_state", JSON.stringify(state));
   }
 
@@ -887,6 +928,60 @@
             <label for="slotted-fulfill-notyet">Not fulfilling yet</label>
           </div>
         </div>
+
+        <!-- 3PL Provider Details Card -->
+        <div id="slotted-3pl-provider-card" class="slotted-3pl-provider-card ${
+          state.outbound_profile.fulfillment_method === "3pl"
+            ? "slotted-3pl-card-visible"
+            : "slotted-3pl-card-hidden"
+        }">
+          
+          <div class="slotted-3pl-form-section">
+            <label class="slotted-3pl-label">Current 3PL Provider</label>
+            <select class="slotted-input" id="slotted-current-provider-select">
+              <option value="">Select your current provider...</option>
+              ${STATIC_3PL_PROVIDERS.map(
+                (provider) => `
+                <option value="${provider.id}" ${
+                  state.outbound_profile.current_provider === provider.id
+                    ? "selected"
+                    : ""
+                }>${provider.name}</option>
+              `
+              ).join("")}
+            </select>
+          </div>
+
+          <div class="slotted-3pl-form-section">
+            <label class="slotted-3pl-label">When does your current contract expire?</label>
+            <div class="slotted-3pl-date-grid">
+              <select class="slotted-input" id="slotted-contract-end-month">
+                <option value="">Month</option>
+                ${MONTHS.map(
+                  (month) => `
+                  <option value="${month.value}" ${
+                    state.outbound_profile.contract_end_month === month.value
+                      ? "selected"
+                      : ""
+                  }>${month.name}</option>
+                `
+                ).join("")}
+              </select>
+              <select class="slotted-input" id="slotted-contract-end-year">
+                <option value="">Year</option>
+                ${YEARS.map(
+                  (year) => `
+                  <option value="${year.value}" ${
+                    state.outbound_profile.contract_end_year === year.value
+                      ? "selected"
+                      : ""
+                  }>${year.name}</option>
+                `
+                ).join("")}
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
     `;
   }
@@ -1270,6 +1365,31 @@
   }
 
   function renderFinalReviewStep() {
+    // Debug the entire state when rendering final review
+    console.log("=== FINAL REVIEW RENDER DEBUG ===");
+    console.log(
+      "Complete state.outbound_profile:",
+      JSON.stringify(state.outbound_profile, null, 2)
+    );
+    console.log(
+      "fulfillment_method:",
+      state.outbound_profile?.fulfillment_method
+    );
+    console.log("current_provider:", state.outbound_profile?.current_provider);
+    console.log(
+      "current_provider_name:",
+      state.outbound_profile?.current_provider_name
+    );
+    console.log(
+      "contract_end_month:",
+      state.outbound_profile?.contract_end_month
+    );
+    console.log(
+      "contract_end_year:",
+      state.outbound_profile?.contract_end_year
+    );
+    console.log("=====================================");
+
     return `
       <div class="slotted-step${
         state.step === 3 ? " active" : ""
@@ -1305,54 +1425,9 @@
                 }</div>
               </div>
               <div style="margin-bottom: 1rem;">
-                <strong style="color: #374151; font-size: 0.9rem;">Average Order Value</strong>
+                <strong style="color: #374151; font-size: 0.9rem;">Avg Order Value</strong>
                 <div style="color: #6b7280; font-size: 0.9rem;">$${
                   state.outbound_profile?.avg_order_value || "Not specified"
-                }</div>
-              </div>
-              <div style="margin-bottom: 1rem;">
-                <strong style="color: #374151; font-size: 0.9rem;">Sales Regions</strong>
-                <div style="color: #6b7280; font-size: 0.9rem;">${
-                  state.outbound_profile?.selected_countries?.length > 0
-                    ? state.outbound_profile.selected_countries.join(", ")
-                    : state.outbound_profile?.sell_location || "Not specified"
-                }</div>
-              </div>
-              <div style="margin-bottom: 1rem;">
-                <strong style="color: #374151; font-size: 0.9rem;">Volume Distribution</strong>
-                <div style="color: #6b7280; font-size: 0.9rem;">${
-                  state.outbound_profile?.volume_distribution
-                    ? `${state.outbound_profile.volume_distribution}% Eaches, ${
-                        100 - state.outbound_profile.volume_distribution
-                      }% Case/Pallet`
-                    : "Not specified"
-                }</div>
-              </div>
-              <div>
-                <strong style="color: #374151; font-size: 0.9rem;">Growth Expectations</strong>
-                <div style="color: #6b7280; font-size: 0.9rem;">
-                  ${
-                    state.outbound_profile?.year1_best_growth
-                      ? `Year 1: ${
-                          state.outbound_profile.year1_worst_growth || 0
-                        }% to ${state.outbound_profile.year1_best_growth}%`
-                      : "Not specified"
-                  }<br>
-                  ${
-                    state.outbound_profile?.year2_best_growth
-                      ? `Year 2: ${
-                          state.outbound_profile.year2_worst_growth || 0
-                        }% to ${state.outbound_profile.year2_best_growth}%`
-                      : ""
-                  }
-                </div>
-              </div>
-            </div>
-            <div>
-              <div style="margin-bottom: 1rem;">
-                <strong style="color: #374151; font-size: 0.9rem;">Avg Items/Order</strong>
-                <div style="color: #6b7280; font-size: 0.9rem;">${
-                  state.outbound_profile?.avg_items || "Not specified"
                 }</div>
               </div>
               <div style="margin-bottom: 1rem;">
@@ -1362,28 +1437,21 @@
                 }</div>
               </div>
               <div style="margin-bottom: 1rem;">
-                <strong style="color: #374151; font-size: 0.9rem;">Shipment Types</strong>
-                <div style="color: #6b7280; font-size: 0.9rem;">${
-                  [
-                    state.outbound_profile?.shipment_dtc_parcel
-                      ? "DTC (Parcel)"
-                      : null,
-                    state.outbound_profile?.shipment_retail_cases
-                      ? "Retail (Cases)"
-                      : null,
-                    state.outbound_profile?.shipment_retail_pallets
-                      ? "Retail (Pallet)"
-                      : null,
-                    state.outbound_profile?.shipment_marketplace_cases
-                      ? "MarketPlace (Cases)"
-                      : null,
-                    state.outbound_profile?.shipment_marketplace_pallets
-                      ? "MarketPlace (Pallet)"
-                      : null,
-                  ]
-                    .filter(Boolean)
-                    .join(", ") || "Not specified"
-                }</div>
+                <strong style="color: #374151; font-size: 0.9rem;">Growth Expectations</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">
+                  ${
+                    state.outbound_profile?.year1_best_growth !== undefined &&
+                    state.outbound_profile?.year1_worst_growth !== undefined
+                      ? `Year 1: ${state.outbound_profile.year1_worst_growth}% to ${state.outbound_profile.year1_best_growth}%`
+                      : "Not specified"
+                  }<br>
+                  ${
+                    state.outbound_profile?.year2_best_growth !== undefined &&
+                    state.outbound_profile?.year2_worst_growth !== undefined
+                      ? `Year 2: ${state.outbound_profile.year2_worst_growth}% to ${state.outbound_profile.year2_best_growth}%`
+                      : ""
+                  }
+                </div>
               </div>
               <div style="margin-bottom: 1rem;">
                 <strong style="color: #374151; font-size: 0.9rem;">Serialized/Batch-Controlled</strong>
@@ -1395,8 +1463,108 @@
                     : "Not specified"
                 }</div>
               </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Current 3PL Provider</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${(() => {
+                  const fulfillmentMethod =
+                    state.outbound_profile?.fulfillment_method;
+                  const providerId = state.outbound_profile?.current_provider;
+                  const providerName =
+                    state.outbound_profile?.current_provider_name;
+
+                  if (fulfillmentMethod !== "3pl") {
+                    return "Not applicable";
+                  }
+
+                  // If we have a name, use it
+                  if (providerName && providerName.trim()) {
+                    return providerName;
+                  }
+
+                  // If we have an ID but no name, lookup from static data
+                  if (providerId) {
+                    const provider = STATIC_3PL_PROVIDERS.find(
+                      (p) => p.id === providerId
+                    );
+
+                    if (provider) {
+                      return provider.name;
+                    }
+                  }
+
+                  return "Not specified";
+                })()}</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Shipping Start Date</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${
+                  state.outbound_profile?.start_month &&
+                  state.outbound_profile?.start_year
+                    ? new Date(
+                        parseInt(state.outbound_profile.start_year),
+                        parseInt(state.outbound_profile.start_month) - 1
+                      ).toLocaleDateString("en-US", {
+                        month: "long",
+                        year: "numeric",
+                      })
+                    : "Not specified"
+                }</div>
+              </div>
               <div>
-                <strong style="color: #374151; font-size: 0.9rem;">Fulfillment Method</strong>
+                <strong style="color: #374151; font-size: 0.9rem;">Contain Just One SKU</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${
+                  state.outbound_profile?.single_sku_orders === "yes"
+                    ? "Yes"
+                    : state.outbound_profile?.single_sku_orders === "no"
+                    ? "No"
+                    : "Not specified"
+                }</div>
+              </div>
+            </div>
+            <div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Avg Items/Order</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${
+                  state.outbound_profile?.avg_items || "Not specified"
+                }</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Number of SKUs</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${
+                  state.outbound_profile?.sku_count || "Not specified"
+                }</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Sales Channels</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${
+                  state.outbound_profile?.selected_countries?.length > 0
+                    ? state.outbound_profile.selected_countries.join(", ")
+                    : state.outbound_profile?.sell_location || "Not specified"
+                }</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Typical Order Size</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${
+                  [
+                    state.outbound_profile?.fits_in_hand
+                      ? "Fits in your hand"
+                      : null,
+                    state.outbound_profile?.fits_on_porch
+                      ? "Fits on the porch"
+                      : null,
+                    state.outbound_profile?.fits_in_mailbox
+                      ? "Fits in your mailbox"
+                      : null,
+                    state.outbound_profile?.needs_two_people
+                      ? "Needs two people to carry"
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(", ") || "Not specified"
+                }</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">How do you currently fulfill orders?</strong>
                 <div style="color: #6b7280; font-size: 0.9rem;">${
                   state.outbound_profile?.fulfillment_method === "3pl"
                     ? "3PL Provider"
@@ -1408,6 +1576,67 @@
                     ? "Not Fulfilling Yet"
                     : "Not specified"
                 }</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Current Contract End Date</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${(() => {
+                  const fulfillmentMethod =
+                    state.outbound_profile?.fulfillment_method;
+                  const contractMonth =
+                    state.outbound_profile?.contract_end_month;
+                  const contractYear =
+                    state.outbound_profile?.contract_end_year;
+
+                  console.log("Contract Date Display Logic:", {
+                    fulfillmentMethod,
+                    contractMonth,
+                    contractYear,
+                    monthType: typeof contractMonth,
+                    yearType: typeof contractYear,
+                  });
+
+                  if (fulfillmentMethod !== "3pl") {
+                    return "Not applicable";
+                  }
+
+                  if (contractMonth && contractYear) {
+                    try {
+                      const date = new Date(
+                        parseInt(contractYear),
+                        parseInt(contractMonth) - 1
+                      );
+                      const formatted = date.toLocaleDateString("en-US", {
+                        month: "long",
+                        year: "numeric",
+                      });
+                      console.log("Formatted date:", formatted);
+                      return formatted;
+                    } catch (error) {
+                      console.error("Date formatting error:", error);
+                      return "Invalid date";
+                    }
+                  }
+
+                  return "Not specified";
+                })()}</div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <strong style="color: #374151; font-size: 0.9rem;">Shipping Zip Code</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${
+                  state.outbound_profile?.ship_from_location || "Not specified"
+                }</div>
+              </div>
+              <div>
+                <strong style="color: #374151; font-size: 0.9rem;">Eaches vs Case/Pallet</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${
+                  state.outbound_profile?.volume_distribution !== undefined
+                    ? `${state.outbound_profile.volume_distribution}% Eaches`
+                    : "Not specified"
+                }<br>${
+      state.outbound_profile?.volume_distribution !== undefined
+        ? `${100 - state.outbound_profile.volume_distribution}% Case/Pallet`
+        : ""
+    }</div>
               </div>
             </div>
           </div>
@@ -1764,6 +1993,27 @@
             start_year: profileData.shippingStartYear
               ? String(profileData.shippingStartYear)
               : null,
+            contract_end_month: profileData.contractExpiryMonth
+              ? String(profileData.contractExpiryMonth)
+              : null,
+            contract_end_year: profileData.contractExpiryYear
+              ? String(profileData.contractExpiryYear)
+              : null,
+            current_provider: profileData.currentProvider,
+            current_provider_name: (() => {
+              // Try to get name from API first
+              if (profileData.currentProviderRef?.name) {
+                return profileData.currentProviderRef.name;
+              }
+              // Fallback to lookup from STATIC_3PL_PROVIDERS if we have provider ID
+              if (profileData.currentProvider) {
+                const provider = STATIC_3PL_PROVIDERS.find(
+                  (p) => p.id === profileData.currentProvider
+                );
+                return provider?.name || "";
+              }
+              return "";
+            })(),
             ship_from_location: profileData.shippingZip,
             seasonal_peaks:
               profileData.seasonalPeaks && profileData.seasonalPeaks.length > 0,
@@ -1826,6 +2076,15 @@
           saveState();
 
           console.log("Outbound profile data fetched and loaded:", mappedData);
+          console.log("3PL Provider debug info:", {
+            currentProvider: profileData.currentProvider,
+            currentProviderRef: profileData.currentProviderRef,
+            mapped_provider_id: mappedData.current_provider,
+            mapped_provider_name: mappedData.current_provider_name,
+            fulfillment_method: mappedData.fulfillment_method,
+            contract_end_month: mappedData.contract_end_month,
+            contract_end_year: mappedData.contract_end_year,
+          });
           return true;
         }
       }
@@ -2106,6 +2365,29 @@
     return isValid;
   }
 
+  // 3PL Provider search and selection functions
+  function toggle3PLCard() {
+    const card = document.getElementById("slotted-3pl-provider-card");
+    const fulfillmentRadio = document.querySelector(
+      'input[name="fulfillment"]:checked'
+    );
+
+    if (card && fulfillmentRadio) {
+      if (fulfillmentRadio.value === "3pl") {
+        card.classList.remove("slotted-3pl-card-hidden");
+        card.classList.add("slotted-3pl-card-visible");
+      } else {
+        card.classList.remove("slotted-3pl-card-visible");
+        card.classList.add("slotted-3pl-card-hidden");
+        // Clear 3PL data when not selected
+        state.outbound_profile.current_provider = null;
+        state.outbound_profile.current_provider_name = "";
+        state.outbound_profile.contract_end_month = null;
+        state.outbound_profile.contract_end_year = null;
+      }
+    }
+  }
+
   // Events
   function bindEvents() {
     if (state.step === 0) {
@@ -2263,7 +2545,66 @@
         updateVolumeSlider();
       }
 
-      // Add real-time validation for Critical Volume Metrics fields
+      // Bind fulfillment method radio changes
+      const fulfillmentRadios = document.querySelectorAll(
+        'input[name="fulfillment"]'
+      );
+      fulfillmentRadios.forEach((radio) => {
+        radio.addEventListener("change", function () {
+          state.outbound_profile.fulfillment_method = this.value;
+          toggle3PLCard();
+          saveState();
+        });
+      });
+
+      // Bind 3PL provider select functionality
+      const providerSelect = document.getElementById(
+        "slotted-current-provider-select"
+      );
+
+      if (providerSelect) {
+        providerSelect.addEventListener("change", function () {
+          console.log("3PL Provider selected:", this.value);
+          state.outbound_profile.current_provider = this.value;
+
+          // Find the provider name from STATIC_3PL_PROVIDERS
+          const selectedProvider = STATIC_3PL_PROVIDERS.find(
+            (provider) => provider.id === this.value
+          );
+          state.outbound_profile.current_provider_name = selectedProvider
+            ? selectedProvider.name
+            : "";
+
+          console.log("Provider state updated:", {
+            current_provider: state.outbound_profile.current_provider,
+            current_provider_name: state.outbound_profile.current_provider_name,
+          });
+
+          saveState();
+        });
+      }
+
+      // Bind contract end date selects
+      const contractMonthSelect = document.getElementById(
+        "slotted-contract-end-month"
+      );
+      const contractYearSelect = document.getElementById(
+        "slotted-contract-end-year"
+      );
+
+      if (contractMonthSelect) {
+        contractMonthSelect.addEventListener("change", function () {
+          state.outbound_profile.contract_end_month = this.value;
+          saveState();
+        });
+      }
+
+      if (contractYearSelect) {
+        contractYearSelect.addEventListener("change", function () {
+          state.outbound_profile.contract_end_year = this.value;
+          saveState();
+        });
+      } // Add real-time validation for Critical Volume Metrics fields
       const criticalFields = [
         "slotted-monthly-orders",
         "slotted-avg-items",
@@ -2477,6 +2818,18 @@
       }
     }
     if (state.step === 3) {
+      // Fetch existing outbound profile data if available and not already loaded
+      if (state.lead_id && !state.outbound_profile?.dataLoaded) {
+        console.log("Step 3: Loading outbound profile data...");
+        fetchOutboundProfile(state.lead_id).then((loaded) => {
+          if (loaded) {
+            state.outbound_profile.dataLoaded = true;
+            console.log("Step 3: Data loaded, re-rendering...");
+            render(); // Re-render to show the updated data
+          }
+        });
+      }
+
       // New navigation buttons
       const submitBtn = document.getElementById("slotted-submit-final");
       if (submitBtn) submitBtn.onclick = handleFinalSubmit;
@@ -2808,6 +3161,12 @@
       seasonalPeaksArray.push(...state.outbound_profile.seasonal_months);
     }
 
+    // Get 3PL provider data if fulfillment method is 3pl
+    const contract_end_month =
+      document.getElementById("slotted-contract-end-month")?.value || "";
+    const contract_end_year =
+      document.getElementById("slotted-contract-end-year")?.value || "";
+
     // Prepare API payload
     const apiPayload = {
       monthlyOrders: parseInt(monthly_orders),
@@ -2836,8 +3195,19 @@
           : fulfillment_method === "not_yet"
           ? "notFulfillingYet"
           : null,
-      contractExpiryMonth: start_month ? parseInt(start_month) : null,
-      contractExpiryYear: start_year ? parseInt(start_year) : null,
+      // 3PL provider specific fields
+      currentProvider:
+        fulfillment_method === "3pl"
+          ? state.outbound_profile?.current_provider
+          : null,
+      contractExpiryMonth:
+        fulfillment_method === "3pl" && contract_end_month
+          ? parseInt(contract_end_month)
+          : null,
+      contractExpiryYear:
+        fulfillment_method === "3pl" && contract_end_year
+          ? parseInt(contract_end_year)
+          : null,
       shippingStartMonth: start_month ? parseInt(start_month) : null,
       shippingStartYear: start_year ? parseInt(start_year) : null,
       shippingZip: ship_from_location || null,

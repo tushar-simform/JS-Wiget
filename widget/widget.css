@@ -1354,3 +1354,119 @@ select.slotted-input {
     gap: 1rem;
   }
 }
+
+/* 3PL Provider Card Styles */
+.slotted-3pl-provider-card {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  transition: all 0.3s ease;
+}
+
+.slotted-3pl-card-visible {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.slotted-3pl-card-hidden {
+  display: none;
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slotted-3pl-form-section {
+  margin-top: 1rem;
+}
+
+.slotted-3pl-form-section:first-child {
+  margin-top: 0;
+}
+
+.slotted-3pl-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.slotted-3pl-date-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.slotted-3pl-card-header {
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+/* Legacy styles for backwards compatibility */
+.slotted-provider-search-container {
+  position: relative;
+}
+
+.slotted-provider-search {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.slotted-provider-search:focus {
+  outline: none;
+  border-color: var(--slotted-primary, #4f8cff);
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+}
+
+.slotted-provider-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.slotted-provider-option {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s ease;
+}
+
+.slotted-provider-option:hover {
+  background-color: #f9fafb;
+}
+
+.slotted-provider-option:last-child {
+  border-bottom: none;
+}
+
+.slotted-provider-option.selected {
+  background-color: #dbeafe;
+  color: #1e40af;
+  font-weight: 500;
+}
+
+.slotted-provider-option.highlighted {
+  background-color: #eff6ff;
+}
+
+.slotted-provider-option-name {
+  font-weight: 500;
+  color: #374151;
+}
