@@ -3,6 +3,11 @@
   // API Configuration
   const API_BASE_URL = "https://api-develop.izba.co"; // Replace with your actual API base URL
 
+  // reCAPTCHA Configuration
+  const RECAPTCHA_SITE_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"; // Replace with your actual site key (this is a test key)
+  let recaptchaWidgetId = null;
+  let isRecaptchaLoaded = false;
+
   const THEME = {
     colors: { primary: "#447ecfff", background: "#ffffffff", text: "#222" },
     fonts: "Inter, Arial, sans-serif",
@@ -956,6 +961,137 @@
     sessionStorage.setItem("slotted_state", JSON.stringify(state));
   }
 
+  // reCAPTCHA Functions
+  function initializeRecaptcha() {
+    console.log("Initializing reCAPTCHA...");
+
+    // Check if grecaptcha is available
+    if (typeof grecaptcha === "undefined") {
+      console.error("reCAPTCHA library not loaded");
+      return false;
+    }
+
+    try {
+      // Wait for reCAPTCHA to be ready
+      grecaptcha.ready(function () {
+        console.log("reCAPTCHA is ready");
+        isRecaptchaLoaded = true;
+        renderRecaptchaWidget();
+      });
+      return true;
+    } catch (error) {
+      console.error("Error initializing reCAPTCHA:", error);
+      return false;
+    }
+  }
+
+  function renderRecaptchaWidget() {
+    const recaptchaContainer = document.getElementById(
+      "slotted-recaptcha-container"
+    );
+
+    if (!recaptchaContainer) {
+      console.log(
+        "reCAPTCHA container not found, will render when contact form is shown"
+      );
+      return;
+    }
+
+    if (!isRecaptchaLoaded) {
+      console.log("reCAPTCHA not loaded yet");
+      return;
+    }
+
+    try {
+      // Clear any existing widget
+      recaptchaContainer.innerHTML = "";
+
+      // Render the reCAPTCHA widget
+      recaptchaWidgetId = grecaptcha.render(recaptchaContainer, {
+        sitekey: RECAPTCHA_SITE_KEY,
+        theme: "light",
+        size: "normal",
+        callback: onRecaptchaSuccess,
+        "expired-callback": onRecaptchaExpired,
+        "error-callback": onRecaptchaError,
+      });
+
+      console.log("reCAPTCHA widget rendered with ID:", recaptchaWidgetId);
+    } catch (error) {
+      console.error("Error rendering reCAPTCHA widget:", error);
+    }
+  }
+
+  function onRecaptchaSuccess(token) {
+    console.log("reCAPTCHA solved successfully");
+    // Clear any error message
+    const errorElement = document.getElementById("slotted-recaptcha-error");
+    if (errorElement) {
+      errorElement.style.display = "none";
+    }
+  }
+
+  function onRecaptchaExpired() {
+    console.log("reCAPTCHA token expired");
+    // Show error message
+    const errorElement = document.getElementById("slotted-recaptcha-error");
+    if (errorElement) {
+      errorElement.textContent = "reCAPTCHA has expired. Please verify again.";
+      errorElement.style.display = "block";
+    }
+  }
+
+  function onRecaptchaError() {
+    console.error("reCAPTCHA error occurred");
+    // Show error message
+    const errorElement = document.getElementById("slotted-recaptcha-error");
+    if (errorElement) {
+      errorElement.textContent =
+        "reCAPTCHA verification failed. Please try again.";
+      errorElement.style.display = "block";
+    }
+  }
+
+  function validateRecaptcha() {
+    if (!isRecaptchaLoaded || recaptchaWidgetId === null) {
+      console.log("reCAPTCHA not initialized");
+      return false;
+    }
+
+    try {
+      const response = grecaptcha.getResponse(recaptchaWidgetId);
+      return response && response.length > 0;
+    } catch (error) {
+      console.error("Error validating reCAPTCHA:", error);
+      return false;
+    }
+  }
+
+  function getRecaptchaToken() {
+    if (!isRecaptchaLoaded || recaptchaWidgetId === null) {
+      return null;
+    }
+
+    try {
+      return grecaptcha.getResponse(recaptchaWidgetId);
+    } catch (error) {
+      console.error("Error getting reCAPTCHA token:", error);
+      return null;
+    }
+  }
+
+  function resetRecaptcha() {
+    if (!isRecaptchaLoaded || recaptchaWidgetId === null) {
+      return;
+    }
+
+    try {
+      grecaptcha.reset(recaptchaWidgetId);
+    } catch (error) {
+      console.error("Error resetting reCAPTCHA:", error);
+    }
+  }
+
   // Component Functions
   function renderStepProgress() {
     // Only show step progress if we're in RFP flow (step > 0)
@@ -1011,16 +1147,16 @@
       <div class="slotted-step${
         state.step === 0 ? " active" : ""
       }" id="slotted-step-0">
-        <img src="${
-          PROVIDER.theme?.logo || "assets/logo.png"
-        }" class="slotted-logo" alt="Provider Logo"/>
-        <h3>Contact Info</h3>
+        <img src="assets/slotted.png" class="slotted-logo" alt="Provider Logo"/>
+        <p class="slotted-section-description">Please fill out the required details below</p>
         <form id="slotted-contact-form" novalidate>
           <div class="slotted-input-wrapper">
             <label class="slotted-label">Name*</label>
             <input class="slotted-input" id="slotted-name" name="name" required value="${
               state.contact.name || ""
-            }"/>
+            }"
+            placeholder="Please enter your name"
+            />
             <div class="slotted-field-error" id="slotted-name-error">Name is required</div>
           </div>
           
@@ -1028,7 +1164,9 @@
             <label class="slotted-label">Email*</label>
             <input class="slotted-input" id="slotted-email" name="email" type="email" required value="${
               state.contact.email || ""
-            }"/>
+            }"
+            placeholder="Please enter your email"
+            />
             <div class="slotted-field-error" id="slotted-email-error">Please enter a valid email</div>
           </div>
           
@@ -1036,7 +1174,9 @@
             <label class="slotted-label">Company*</label>
             <input class="slotted-input" id="slotted-company" name="company" required value="${
               state.contact.company || ""
-            }"/>
+            }"
+            placeholder="Please enter your company name"
+            />
             <div class="slotted-field-error" id="slotted-company-error">Company is required</div>
           </div>
           
@@ -1044,7 +1184,9 @@
             <label class="slotted-label">Website URL*</label>
             <input class="slotted-input" id="slotted-website" name="website" type="url" required value="${
               state.contact.website_url || ""
-            }"/>
+            }"
+            placeholder="Please enter a valid website URL"
+            />
             <div class="slotted-field-error" id="slotted-website-error">Please enter a valid website URL</div>
           </div>
           
@@ -1062,8 +1204,13 @@
           
           <div class="slotted-gdpr-container">
             <input type="checkbox" id="slotted-gdpr" name="gdpr" required/>
-            <label for="slotted-gdpr" class="slotted-gdpr-label">I consent to data processing (GDPR/CCPA)</label>
+            <label for="slotted-gdpr" class="slotted-gdpr-label">I agree to the Privacy Policy</label>
             <div class="slotted-field-error" id="slotted-gdpr-error">You must consent to data processing to continue</div>
+          </div>
+          
+          <div class="slotted-recaptcha-wrapper">
+            <div id="slotted-recaptcha-container"></div>
+            <div class="slotted-field-error" id="slotted-recaptcha-error" style="display: none;">Please complete the reCAPTCHA verification</div>
           </div>
           
           <button type="submit" class="slotted-btn" id="slotted-next">Start RFP Process</button>
@@ -1083,7 +1230,7 @@
            <p class="slotted-section-description">Essential information needed for all provider matches</p>
           </div>
            <span class="slotted-required-badge">Required</span>
-           </div>
+        </div>
         
         <div class="slotted-grid-2 slotted-grid-spacing">
           <div class="slotted-input-wrapper">
@@ -1839,7 +1986,8 @@
     return `
       <div class="slotted-navigation-bar">
         <div class="slotted-powered-by">
-          Powered by Slotted. reCAPTCHA v3 protected.
+          <div class="slotted-powered-text">Powered by</div>
+          <img src="assets/slotted.png" alt="Logo" />
         </div>
         <div class="slotted-navigation-group">
           ${backButton}
@@ -1905,15 +2053,17 @@
         
         <!-- Shipping Profile Card -->
         <div class="slotted-business-context-card" style="margin-bottom: 1.5rem;">
-          <div class="slotted-section-header" style="margin-bottom: 1.5rem;">
-            <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin w-5 h-5" data-lov-id="src/components/ReviewSummary.tsx:106:18" data-lov-name="MapPin" data-component-path="src/components/ReviewSummary.tsx" data-component-line="106" data-component-file="ReviewSummary.tsx" data-component-name="MapPin" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
-            <div style="flex: 1;">
-              <h4 >Shipping Profile</h4>
-              <p class="slotted-section-description">Volume metrics and business context</p>
+          <div class="slotted-section-header-with-actions">
+            <div class="slotted-section-header-left">
+              <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin w-5 h-5" data-lov-id="src/components/ReviewSummary.tsx:106:18" data-lov-name="MapPin" data-component-path="src/components/ReviewSummary.tsx" data-component-line="106" data-component-file="ReviewSummary.tsx" data-component-name="MapPin" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
+              <div>
+                <h4>Shipping Profile</h4>
+                <p class="slotted-section-description">Volume metrics and business context</p>
+              </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span style="background: #d1fae5; color: #065f46; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500;">✓ Complete</span>
-              <button id="slotted-edit-outbound" style="background: none; border: none; color: #6b7280; cursor: pointer; padding: 0.25rem;" title="Edit Shipping Profile">
+            <div class="slotted-section-header-right">
+              <span class="slotted-complete-badge">✓ Complete</span>
+              <button id="slotted-edit-outbound" class="slotted-edit-button" title="Edit Shipping Profile">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                   <path d="m18.5 2.5 3 3L13 14l-4 1 1-4 8.5-8.5z"></path>
@@ -1921,6 +2071,7 @@
               </button>
             </div>
           </div>
+         
           
           <div class="slotted-grid-2" style="gap: 2rem;">
             <div>
@@ -2200,15 +2351,17 @@
 
         <!-- Inbound Profile Card -->
         <div class="slotted-business-context-card" style="margin-bottom: 2rem;">
-          <div class="slotted-section-header" style="margin-bottom: 1.5rem;">
-            <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-package w-5 h-5" data-lov-id="src/components/ReviewSummary.tsx:190:18" data-lov-name="Package" data-component-path="src/components/ReviewSummary.tsx" data-component-line="190" data-component-file="ReviewSummary.tsx" data-component-name="Package" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12"></path><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path><path d="m7.5 4.27 9 5.15"></path></svg></span>
-            <div style="flex: 1;">
-              <h4 >Inbound Profile</h4>
-              <p class="slotted-section-description">Product and operational requirements</p>
+          <div class="slotted-section-header-with-actions" style="margin-bottom: 1.5rem;">
+            <div class="slotted-section-header-left">
+              <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-package w-5 h-5" data-lov-id="src/components/ReviewSummary.tsx:190:18" data-lov-name="Package" data-component-path="src/components/ReviewSummary.tsx" data-component-line="190" data-component-file="ReviewSummary.tsx" data-component-name="Package" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12"></path><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path><path d="m7.5 4.27 9 5.15"></path></svg></span>
+              <div>
+                <h4>Inbound Profile</h4>
+                <p class="slotted-section-description">Product and operational requirements</p>
+              </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-              <span style="background: #d1fae5; color: #065f46; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500;">✓ Complete</span>
-              <button id="slotted-edit-inbound" style="background: none; border: none; color: #6b7280; cursor: pointer; padding: 0.25rem;" title="Edit Inbound Profile">
+            <div class="slotted-section-header-right">
+              <span class="slotted-complete-badge">✓ Complete</span>
+              <button id="slotted-edit-inbound" class="slotted-edit-button" title="Edit Inbound Profile">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                   <path d="m18.5 2.5 3 3L13 14l-4 1 1-4 8.5-8.5z"></path>
@@ -2293,9 +2446,12 @@
         </div>
 
         <!-- Create Volume Profile Section -->
-        <div style="background: #f8fafc; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; text-align: center;">
-          <h4 style="margin: 0 0 0.5rem 0; color: #374151;">Ready to create your volume profile?</h4>
+        <div style="display:flex;justify-content:space-between;align-items:center;background: #f8fafc; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; ">
+        <div >
+        <h4 style="margin: 0 0 0.5rem 0; color: #374151;">Ready to create your volume profile?</h4>
           <p style="margin: 0 0 1.5rem 0; color: #6b7280; font-size: 0.9rem;">Generate a comprehensive analysis of your business volume and requirements.</p>
+        </div> 
+        <img src="assets/slotted.png" alt="Slotted" style="width: 100%; max-width: 200px; display: block; "/>
         </div>
 
       </div>
@@ -2789,6 +2945,12 @@
       hideFieldError(fieldId);
     });
 
+    // Clear reCAPTCHA error
+    const recaptchaError = document.getElementById("slotted-recaptcha-error");
+    if (recaptchaError) {
+      recaptchaError.style.display = "none";
+    }
+
     // Validate Name
     const name = document.getElementById("slotted-name").value.trim();
     if (!name) {
@@ -2835,6 +2997,16 @@
         "slotted-gdpr",
         "You must consent to data processing to continue"
       );
+      isValid = false;
+    }
+
+    // Validate reCAPTCHA
+    if (!validateRecaptcha()) {
+      if (recaptchaError) {
+        recaptchaError.textContent =
+          "Please complete the reCAPTCHA verification";
+        recaptchaError.style.display = "block";
+      }
       isValid = false;
     }
 
@@ -3213,6 +3385,11 @@
           }
         });
       }
+
+      // Initialize reCAPTCHA when contact form is shown
+      setTimeout(() => {
+        initializeRecaptcha();
+      }, 100);
     }
     if (state.step === 1) {
       // Fetch existing outbound profile data if available
@@ -4601,3 +4778,22 @@
     initializeModalWidget();
   }
 })();
+
+// Global reCAPTCHA callback functions
+window.onRecaptchaLoad = function () {
+  console.log("reCAPTCHA library loaded globally");
+  // The reCAPTCHA will be initialized when the contact form is shown
+};
+
+// Make reCAPTCHA callback functions globally accessible
+window.onRecaptchaSuccess = function (token) {
+  console.log("reCAPTCHA solved successfully");
+};
+
+window.onRecaptchaExpired = function () {
+  console.log("reCAPTCHA token expired");
+};
+
+window.onRecaptchaError = function () {
+  console.error("reCAPTCHA error occurred");
+};

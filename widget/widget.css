@@ -1,4 +1,5 @@
 /* Step Progress UI */
+
 .slotted-step-progress {
   margin-bottom: 0;
   padding: 9px;
@@ -97,7 +98,7 @@
 }
 
 .slotted-step-item.active .slotted-step-title {
-  color: var(--slotted-primary, #4f8cff);
+  color: var(--slotted-primary, #216093);
 }
 
 .slotted-step-description {
@@ -255,7 +256,7 @@
 }
 
 .slotted-btn {
-  background: var(--slotted-primary, #4f8cff);
+  background: var(--slotted-primary, #216093);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -336,9 +337,22 @@
 }
 
 .slotted-powered-by {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.slotted-powered-text {
   font-size: 0.8rem;
   color: #6b7280;
   font-weight: 400;
+}
+
+.slotted-powered-by img {
+  height: 26px;
+  width: auto;
+  object-fit: contain;
 }
 
 .slotted-navigation-group {
@@ -486,6 +500,50 @@
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
+}
+
+.slotted-section-header-with-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.slotted-section-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.slotted-section-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.slotted-complete-badge {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.slotted-edit-button {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.slotted-edit-button:hover {
+  background-color: #f3f4f6;
+  color: #374151;
 }
 
 .slotted-section-icon {
@@ -1262,6 +1320,23 @@ select.slotted-input {
 
 .slotted-gdpr-label {
   font-size: 0.9em;
+}
+
+/* reCAPTCHA wrapper styling */
+.slotted-recaptcha-wrapper {
+  margin: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#slotted-recaptcha-container {
+  margin-bottom: 0.5rem;
+}
+
+.slotted-recaptcha-wrapper .slotted-field-error {
+  text-align: center;
+  margin-top: 0.5rem;
 }
 
 /* Step description styling */
