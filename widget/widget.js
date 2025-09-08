@@ -1550,12 +1550,11 @@
         state.step === 1 ? " active" : ""
       }" id="slotted-step-1">
         <h3>Outbound Profile</h3>
-        <p class="slotted-step-description">Tell us about your volume and business context to get the right provider matches.</p>
+        <p class="slotted-section-description">Tell us about your volume and business context to get the right provider matches.</p>
         
         ${renderCriticalVolumeMetrics()}
         ${renderBusinessContextCard()}
         ${renderOptionalInformation()}
-        ${renderNavigationButtons(1)}
       </div>
     `;
   }
@@ -1566,7 +1565,7 @@
         state.step === 2 ? " active" : ""
       }" id="slotted-step-2">
         <h3>Inbound Profile</h3>
-        <p class="slotted-step-description">Tell us about your inventory and storage needs.</p>
+        <p class="slotted-section-description">Tell us about your inventory and storage needs.</p>
         
         <div class="slotted-business-context-card">
           <div class="slotted-section-header">
@@ -1700,7 +1699,6 @@
           </div>
         </div>
 
-        ${renderNavigationButtons(2)}
       </div>
     `;
   }
@@ -1746,32 +1744,53 @@
     `;
   }
 
-  function renderFinalReviewStep() {
-    // Debug the entire state when rendering final review
-    console.log("=== FINAL REVIEW RENDER DEBUG ===");
-    console.log(
-      "Complete state.outbound_profile:",
-      JSON.stringify(state.outbound_profile, null, 2)
-    );
-    console.log(
-      "fulfillment_method:",
-      state.outbound_profile?.fulfillment_method
-    );
-    console.log("current_provider:", state.outbound_profile?.current_provider);
-    console.log(
-      "current_provider_name:",
-      state.outbound_profile?.current_provider_name
-    );
-    console.log(
-      "contract_end_month:",
-      state.outbound_profile?.contract_end_month
-    );
-    console.log(
-      "contract_end_year:",
-      state.outbound_profile?.contract_end_year
-    );
-    console.log("=====================================");
+  // Helper function to render weight summary in final review
+  function renderWeightSummary() {
+    // Define shipment types with their keys and display names
+    const shipmentTypes = [
+      { key: "dtcParcel", label: "DTC (Parcel)" },
+      { key: "retailPallet", label: "Retail (Pallet)" },
+      { key: "marketplacePallet", label: "Marketplace (Pallet)" },
+      { key: "retailCases", label: "Retail (Cases)" },
+      { key: "marketplaceCases", label: "Marketplace (Cases)" },
+    ];
 
+    // Check if any weight data exists
+    const weightData = shipmentTypes
+      .map((type) => {
+        const value = state.outbound_profile?.[type.key + "Value"];
+        const unit = state.outbound_profile?.[type.key + "Unit"];
+        if (value && unit) {
+          return `${type.label}: ${value}${unit}`;
+        }
+        return null;
+      })
+      .filter(Boolean);
+
+    // Only render if there's weight data
+    if (weightData.length === 0) {
+      return "";
+    }
+
+    return `
+      <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb;">
+        <h4 style="margin: 0 0 1rem 0; color: #374151; font-size: 1rem; font-weight: 600;">Average Weight per Shipment Type</h4>
+        <div style="background: #f8fafc; border-radius: 8px; padding: 1rem;">
+          ${weightData
+            .map(
+              (weight) => `
+            <div style="color: #6b7280; font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+              ${weight}
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderFinalReviewStep() {
     return `
       <div class="slotted-step${
         state.step === 3 ? " active" : ""
@@ -1892,7 +1911,7 @@
                     : "Not specified"
                 }</div>
               </div>
-              <div>
+              <div style="margin-bottom: 1rem;">
                 <strong style="color: #374151; font-size: 0.9rem;">Contain Just One SKU</strong>
                 <div style="color: #6b7280; font-size: 0.9rem;">${
                   state.outbound_profile?.single_sku_orders === "yes"
@@ -1901,6 +1920,55 @@
                     ? "No"
                     : "Not specified"
                 }</div>
+              </div>
+              <div >
+                <strong style="color: #374151; font-size: 0.9rem;">Average Weight per Shipment Type</strong>
+                <div style="color: #6b7280; font-size: 0.9rem;">${(() => {
+                  const weights = [];
+                  if (
+                    state.outbound_profile?.dtcParcelValue &&
+                    state.outbound_profile?.dtcParcelUnit
+                  ) {
+                    weights.push(
+                      `DTC (Parcel): ${state.outbound_profile.dtcParcelValue},${state.outbound_profile.dtcParcelUnit}`
+                    );
+                  }
+                  if (
+                    state.outbound_profile?.retailPalletValue &&
+                    state.outbound_profile?.retailPalletUnit
+                  ) {
+                    weights.push(
+                      `Retail (Pallet): ${state.outbound_profile.retailPalletValue},${state.outbound_profile.retailPalletUnit}`
+                    );
+                  }
+                  if (
+                    state.outbound_profile?.retailCasesValue &&
+                    state.outbound_profile?.retailCasesUnit
+                  ) {
+                    weights.push(
+                      `Retail (Cases): ${state.outbound_profile.retailCasesValue},${state.outbound_profile.retailCasesUnit}`
+                    );
+                  }
+                  if (
+                    state.outbound_profile?.marketplacePalletValue &&
+                    state.outbound_profile?.marketplacePalletUnit
+                  ) {
+                    weights.push(
+                      `MarketPlace (Pallet): ${state.outbound_profile.marketplacePalletValue},${state.outbound_profile.marketplacePalletUnit}`
+                    );
+                  }
+                  if (
+                    state.outbound_profile?.marketplaceCasesValue &&
+                    state.outbound_profile?.marketplaceCasesUnit
+                  ) {
+                    weights.push(
+                      `MarketPlace (Cases): ${state.outbound_profile.marketplaceCasesValue},${state.outbound_profile.marketplaceCasesUnit}`
+                    );
+                  }
+                  return weights.length > 0
+                    ? weights.join("<br>")
+                    : "Not specified";
+                })()}</div>
               </div>
             </div>
             <div>
@@ -1945,6 +2013,7 @@
                     .join(", ") || "Not specified"
                 }</div>
               </div>
+              
               <div style="margin-bottom: 1rem;">
                 <strong style="color: #374151; font-size: 0.9rem;">How do you currently fulfill orders?</strong>
                 <div style="color: #6b7280; font-size: 0.9rem;">${
@@ -2124,7 +2193,6 @@
           <p style="margin: 0 0 1.5rem 0; color: #6b7280; font-size: 0.9rem;">Generate a comprehensive analysis of your business volume and requirements.</p>
         </div>
 
-        ${renderNavigationButtons(3)}
       </div>
     `;
   }
@@ -2178,9 +2246,34 @@
   }
 
   // Main render function
-  function render() {
+  function render(containerId = null) {
     injectWidgetCSS();
-    const el = document.getElementById("slotted-easyrfp");
+
+    // Determine which container to use
+    let targetContainerId = containerId;
+    if (!targetContainerId) {
+      // Check if we're in modal mode
+      const modalContainer = document.getElementById("slotted-easyrfp-modal");
+
+      if (modalContainer && modalContainer.closest("#slotted-widget-modal")) {
+        // Modal exists and is active
+        const modal = document.getElementById("slotted-widget-modal");
+        if (modal && modal.style.display === "flex") {
+          targetContainerId = "slotted-easyrfp-modal";
+        } else {
+          targetContainerId = "slotted-easyrfp";
+        }
+      } else {
+        targetContainerId = "slotted-easyrfp";
+      }
+    }
+
+    const el = document.getElementById(targetContainerId);
+    if (!el) {
+      console.error("Widget container not found:", targetContainerId);
+      return; // Safety check
+    }
+
     el.innerHTML = "";
 
     // Auth check - if not authenticated, the error state should already be rendered by init()
@@ -2192,7 +2285,7 @@
     // If step 0 (contact form), render only contact form without step progress
     if (state.step === 0) {
       el.innerHTML = `
-        <div class="slotted-content-container">
+        <div class="slotted-content-container slotted-contact-only">
           ${renderBanner()}
           ${renderContactStep()}
         </div>
@@ -2209,6 +2302,7 @@
           ${renderInboundProfileStep()}
           ${renderFinalReviewStep()}
         </div>
+        ${renderNavigationButtons(state.step)}
       `;
     }
 
@@ -3596,7 +3690,7 @@
         status,
       };
       saveState();
-      render();
+      render(); // The render function will auto-detect the correct container
     } catch (err) {
       alert("Network error. Please try again later.");
       console.error(err);
@@ -4154,6 +4248,14 @@
     const container = document.getElementById("slotted-easyrfp");
     if (!container) return;
 
+    // Check if there's a trigger button for modal mode
+    const triggerBtn = document.getElementById("open-slotted-widget");
+    if (triggerBtn) {
+      // Hide the original container as we'll use modal mode
+      container.style.display = "none";
+      return;
+    }
+
     // Show loading state
     container.innerHTML = `
       <div class="slotted-loading-container">
@@ -4183,5 +4285,209 @@
     init();
   } else {
     document.addEventListener("DOMContentLoaded", init);
+  }
+
+  // Modal functionality for embedded widget
+  function initializeModalWidget() {
+    // Create modal HTML structure
+    const modalHTML = `
+      <div id="slotted-widget-modal" style="
+        display: none;
+        position: fixed;
+        z-index: 999999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        box-sizing: border-box;
+      ">
+        <div id="slotted-modal-content" style="
+          background: white;
+          border-radius: 12px;
+          max-width: 900px;
+          width: 100%;
+          max-height: 90vh;
+          position: relative;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+          display: flex;
+          flex-direction: column;
+          padding:20px
+        ">
+          <button id="slotted-modal-close" style="
+            position: absolute;
+            top: 8px;
+            right: 13px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            z-index: 1000000;
+            transition: all 0.2s;
+            font-family: Arial, sans-serif;
+            line-height: 1;
+          ">&times;</button>
+          <div id="slotted-easyrfp-modal"  style="
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+          "></div>
+        </div>
+      </div>
+    `;
+
+    // Add modal to body if it doesn't exist
+    if (!document.getElementById("slotted-widget-modal")) {
+      document.body.insertAdjacentHTML("beforeend", modalHTML);
+    }
+
+    // Modal control functions
+    function openModal() {
+      const modal = document.getElementById("slotted-widget-modal");
+      const modalContainer = document.getElementById("slotted-easyrfp-modal");
+
+      if (modal && modalContainer) {
+        // Copy widget key from original container
+        const originalContainer = document.getElementById("slotted-easyrfp");
+        if (originalContainer) {
+          const widgetKey = originalContainer.getAttribute("data-widget-key");
+          modalContainer.setAttribute("data-widget-key", widgetKey);
+        }
+
+        modal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+
+        // Initialize widget in modal if not already initialized
+        if (
+          !modalContainer.hasChildNodes() ||
+          modalContainer.innerHTML.trim() === ""
+        ) {
+          // Show loading state
+          modalContainer.innerHTML = `
+            <div class="slotted-loading-container">
+              <div class="slotted-loading-spinner"></div>
+              <p class="slotted-loading-text">Loading widget...</p>
+            </div>
+          `;
+
+          // Initialize widget in modal
+          initializeWidgetInContainer(modalContainer);
+        }
+      }
+    }
+
+    function closeModal() {
+      const modal = document.getElementById("slotted-widget-modal");
+      if (modal) {
+        modal.style.display = "none";
+        document.body.style.overflow = "auto";
+      }
+    }
+
+    // Initialize widget in specific container
+    async function initializeWidgetInContainer(container) {
+      if (!container) return;
+
+      // Initialize provider authentication and fetch 3PL providers
+      const [authSuccess] = await Promise.all([
+        initializeProvider(),
+        fetchThreePLProviders("", 1, 20, false),
+      ]);
+
+      if (authSuccess) {
+        // Render the widget directly in the modal container
+        render("slotted-easyrfp-modal");
+      } else {
+        container.innerHTML = renderErrorState();
+      }
+    }
+
+    // Add event listeners
+    const closeBtn = document.getElementById("slotted-modal-close");
+    const modal = document.getElementById("slotted-widget-modal");
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", closeModal);
+
+      // Hover effect for close button
+      closeBtn.addEventListener("mouseenter", function () {
+        this.style.background = "#e5e7eb";
+        this.style.color = "#374151";
+      });
+
+      closeBtn.addEventListener("mouseleave", function () {
+        this.style.background = "#f3f4f6";
+        this.style.color = "#6b7280";
+      });
+    }
+
+    if (modal) {
+      // Close when clicking outside
+      modal.addEventListener("click", function (e) {
+        if (e.target === this) {
+          closeModal();
+        }
+      });
+    }
+
+    // Close with Escape key
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        const modal = document.getElementById("slotted-widget-modal");
+        if (modal && modal.style.display === "flex") {
+          closeModal();
+        }
+      }
+    });
+
+    // Look for trigger button and add click event
+    function attachTriggerButton() {
+      const triggerBtn = document.getElementById("open-slotted-widget");
+      if (triggerBtn) {
+        triggerBtn.addEventListener("click", openModal);
+
+        // Add hover effect
+        triggerBtn.addEventListener("mouseenter", function () {
+          this.style.background = "#3b7ce0";
+          this.style.transform = "translateY(-2px)";
+          this.style.boxShadow = "0 6px 20px rgba(79, 140, 255, 0.4)";
+        });
+
+        triggerBtn.addEventListener("mouseleave", function () {
+          this.style.background = "#4f8cff";
+          this.style.transform = "translateY(0)";
+          this.style.boxShadow = "0 4px 12px rgba(79, 140, 255, 0.3)";
+        });
+      }
+    }
+
+    // Try to attach immediately or wait for DOM
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", attachTriggerButton);
+    } else {
+      attachTriggerButton();
+    }
+
+    // Also check periodically for dynamically added buttons (for React apps)
+    setInterval(attachTriggerButton, 1000);
+  }
+
+  // Initialize modal functionality
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initializeModalWidget);
+  } else {
+    initializeModalWidget();
   }
 })();
