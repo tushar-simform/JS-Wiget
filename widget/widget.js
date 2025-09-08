@@ -1,14 +1,12 @@
 // Slotted Easy-RFP Widget (Vanilla JS, static data)
 (function () {
+  // API Configuration
+  const API_BASE_URL = "https://api-develop.izba.co"; // Replace with your actual API base URL
+
   const THEME = {
     colors: { primary: "#447ecfff", background: "#ffffffff", text: "#222" },
     fonts: "Inter, Arial, sans-serif",
     logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThlbtKPH9W2wUhsMFRThundJCwEDaLRhjxoQ&s",
-  };
-  const THEME2 = {
-    colors: { primary: "#f36fe3ff", background: "#b5bbc9ff", text: "#222" },
-    fonts: "Inter, Arial, sans-serif",
-    logo: "assets/logo.png",
   };
 
   // Country codes data for phone number selector
@@ -299,55 +297,33 @@
       .join("");
   }
 
-  // Filter countries based on search query
-  function filterCountries(query) {
-    if (!query || query.length < 1) return [];
-
-    const searchQuery = query.toLowerCase();
-    const filtered = COUNTRY_CODES.filter(
-      (country) =>
-        country.name.toLowerCase().includes(searchQuery) ||
-        country.code.toLowerCase().includes(searchQuery)
-    );
-
-    // Sort results: exact matches first, then starts with, then contains
-    filtered.sort((a, b) => {
-      const aName = a.name.toLowerCase();
-      const bName = b.name.toLowerCase();
-
-      // Exact match
-      if (aName === searchQuery) return -1;
-      if (bName === searchQuery) return 1;
-
-      // Starts with
-      if (aName.startsWith(searchQuery) && !bName.startsWith(searchQuery))
-        return -1;
-      if (bName.startsWith(searchQuery) && !aName.startsWith(searchQuery))
-        return 1;
-
-      // Alphabetical order for similar matches
-      return aName.localeCompare(bName);
-    });
-
-    return filtered.slice(0, 8); // Limit to 8 results
-  }
-
-  // Render search dropdown results
-  function renderSearchResults(countries) {
-    if (countries.length === 0) {
-      return '<div class="slotted-search-no-results">No countries found</div>';
+  // Render country options with checkboxes
+  function renderCountryOptions() {
+    // Ensure selected_countries array exists
+    if (!state.outbound_profile.selected_countries) {
+      state.outbound_profile.selected_countries = [];
     }
 
-    return countries
-      .map(
-        (country) => `
-      <div class="slotted-search-result" data-country="${country.name}" onclick="selectCountry('${country.name}')">
-        <span class="slotted-result-flag">${country.flag}</span>
-        <span class="slotted-result-name">${country.name}</span>
-      </div>
-    `
-      )
-      .join("");
+    return COUNTRY_CODES.map((country, index) => {
+      const isSelected = state.outbound_profile.selected_countries.includes(
+        country.name
+      );
+      const checkboxId = `country-all-${country.shortCode}-${index}`;
+
+      return `
+        <div class="slotted-multiselect-option" data-country="${
+          country.name
+        }" onclick="event.stopPropagation()">
+          <input type="checkbox" id="${checkboxId}" ${
+        isSelected ? "checked" : ""
+      } onchange="toggleCountrySelection('${country.name}')"/>
+          <label for="${checkboxId}" class="slotted-country-option">
+            <span class="slotted-country-flag">${country.flag}</span>
+            <span class="slotted-country-name">${country.name}</span>
+          </label>
+        </div>
+      `;
+    }).join("");
   }
 
   // Convert country names to short codes for API payload
@@ -417,8 +393,134 @@
         selectedCountriesContainer.innerHTML = renderSelectedCountries();
       }
 
+      // Update the dropdown options to reflect new checkbox states
+      const countryOptions = document.getElementById("slotted-country-options");
+      if (countryOptions) {
+        countryOptions.innerHTML = renderCountryOptions();
+      }
+
       saveState();
     }
+  };
+
+  // Global functions for new multiselect dropdown
+  window.toggleCountryDropdown = function () {
+    const dropdown = document.getElementById("slotted-country-dropdown");
+    const arrow = document.getElementById("slotted-dropdown-arrow");
+    const searchInput = document.getElementById("slotted-sell-location");
+
+    if (dropdown.style.display === "none") {
+      dropdown.style.display = "block";
+      arrow.textContent = "▲";
+    } else {
+      dropdown.style.display = "none";
+      arrow.textContent = "▼";
+      // Clear search and reset options when closing
+      if (searchInput) {
+        searchInput.value = "";
+        const countryOptions = document.getElementById(
+          "slotted-country-options"
+        );
+        if (countryOptions) {
+          countryOptions.innerHTML = renderCountryOptions();
+        }
+      }
+    }
+  };
+
+  window.showCountryDropdown = function () {
+    const dropdown = document.getElementById("slotted-country-dropdown");
+    const arrow = document.getElementById("slotted-dropdown-arrow");
+    dropdown.style.display = "block";
+    arrow.textContent = "▲";
+  };
+
+  window.filterCountryDropdown = function (searchValue) {
+    const options = document.getElementById("slotted-country-options");
+    if (!options) return;
+
+    if (!searchValue || searchValue.trim() === "") {
+      // Show all options when search is empty
+      options.innerHTML = renderCountryOptions();
+      return;
+    }
+
+    const searchTerm = searchValue.toLowerCase();
+    const filteredCountries = COUNTRY_CODES.filter((country) =>
+      country.name.toLowerCase().includes(searchTerm)
+    );
+
+    // Ensure selected_countries array exists
+    if (!state.outbound_profile.selected_countries) {
+      state.outbound_profile.selected_countries = [];
+    }
+
+    // Render only filtered countries with correct checkbox states
+    options.innerHTML = filteredCountries
+      .map((country, index) => {
+        const isSelected = state.outbound_profile.selected_countries.includes(
+          country.name
+        );
+        // Use unique ID with search prefix to avoid conflicts
+        const checkboxId = `country-search-${country.shortCode}-${index}`;
+
+        return `
+        <div class="slotted-multiselect-option" data-country="${
+          country.name
+        }" onclick="event.stopPropagation()">
+          <input type="checkbox" id="${checkboxId}" ${
+          isSelected ? "checked" : ""
+        } onchange="toggleCountrySelection('${country.name}')"/>
+          <label for="${checkboxId}" class="slotted-country-option">
+            <span class="slotted-country-flag">${country.flag}</span>
+            <span class="slotted-country-name">${country.name}</span>
+          </label>
+        </div>
+      `;
+      })
+      .join("");
+  };
+
+  window.toggleCountrySelection = function (countryName) {
+    if (!state.outbound_profile.selected_countries) {
+      state.outbound_profile.selected_countries = [];
+    }
+
+    const index =
+      state.outbound_profile.selected_countries.indexOf(countryName);
+    if (index === -1) {
+      // Add country
+      state.outbound_profile.selected_countries.push(countryName);
+    } else {
+      // Remove country
+      state.outbound_profile.selected_countries.splice(index, 1);
+    }
+
+    // Update the selected countries display
+    const selectedCountriesContainer = document.getElementById(
+      "slotted-selected-countries"
+    );
+    if (selectedCountriesContainer) {
+      selectedCountriesContainer.innerHTML = renderSelectedCountries();
+    }
+
+    // Update the dropdown options to reflect new checkbox states
+    // Check if we're currently filtering
+    const searchInput = document.getElementById("slotted-sell-location");
+    const searchValue = searchInput ? searchInput.value : "";
+
+    if (searchValue && searchValue.trim() !== "") {
+      // Re-apply filter to maintain search results with updated checkbox states
+      filterCountryDropdown(searchValue);
+    } else {
+      // Update all options if not filtering
+      const countryOptions = document.getElementById("slotted-country-options");
+      if (countryOptions) {
+        countryOptions.innerHTML = renderCountryOptions();
+      }
+    }
+
+    saveState();
   };
 
   // Global function for provider selection (accessible from onclick)
@@ -714,8 +816,6 @@
 
   const SNIPPET_WIDGET_KEY = getWidgetKey();
   const PROVIDER_WIDGET_KEY = getProviderIdFromScript();
-  // API Configuration
-  const API_BASE_URL = "https://api-develop.izba.co"; // Replace with your actual API base URL
 
   // Provider state
   let PROVIDER = null;
@@ -1029,11 +1129,16 @@
         <div class="slotted-selected-countries" id="slotted-selected-countries">
           ${renderSelectedCountries()}
         </div>
-        <div class="slotted-search-input">
-          <span class="slotted-search-icon">🔍</span>
-          <input class="slotted-input" id="slotted-sell-location" placeholder="Search countries..." value="" autocomplete="off"/>
-          <div class="slotted-search-dropdown" id="slotted-country-dropdown" style="display: none;">
-            <!-- Dynamic search results will appear here -->
+        <div class="slotted-multiselect-container">
+          <div class="slotted-search-input" onclick="toggleCountryDropdown()">
+            <span class="slotted-search-icon">🔍</span>
+            <input class="slotted-input" id="slotted-sell-location" placeholder="Search countries..." value="" autocomplete="off" onclick="event.stopPropagation(); showCountryDropdown()" oninput="filterCountryDropdown(this.value)" onfocus="showCountryDropdown()"/>
+            <span class="slotted-dropdown-arrow" id="slotted-dropdown-arrow">▼</span>
+          </div>
+          <div class="slotted-multiselect-dropdown" id="slotted-country-dropdown" style="display: none;" onclick="event.stopPropagation()">
+            <div class="slotted-multiselect-options" id="slotted-country-options">
+              ${renderCountryOptions()}
+            </div>
           </div>
         </div>
       </div>
@@ -3388,43 +3493,48 @@
           state.outbound_profile.selected_countries = [];
         }
 
-        sellLocationInput.oninput = function (e) {
-          const query = e.target.value;
-          if (query.length >= 1) {
-            const filteredCountries = filterCountries(query);
-            countryDropdown.innerHTML = renderSearchResults(filteredCountries);
-            countryDropdown.style.display = "block";
-          } else {
-            countryDropdown.style.display = "none";
-          }
-        };
-
-        sellLocationInput.onfocus = function (e) {
-          const query = e.target.value;
-          if (query.length >= 1) {
-            const filteredCountries = filterCountries(query);
-            countryDropdown.innerHTML = renderSearchResults(filteredCountries);
-            countryDropdown.style.display = "block";
-          }
-        };
+        // Remove old event handlers - using new filterCountryDropdown system instead
+        // The HTML oninput="filterCountryDropdown(this.value)" will handle search
 
         sellLocationInput.onblur = function () {
           // Delay hiding to allow click on dropdown items
           setTimeout(() => {
             countryDropdown.style.display = "none";
+            const arrow = document.getElementById("slotted-dropdown-arrow");
+            if (arrow) arrow.textContent = "▼";
           }, 200);
         };
-
-        // Close dropdown when clicking outside
-        document.addEventListener("click", function (e) {
-          if (
-            !sellLocationInput.contains(e.target) &&
-            !countryDropdown.contains(e.target)
-          ) {
-            countryDropdown.style.display = "none";
-          }
-        });
       }
+
+      // Add click outside handler for multiselect dropdown
+      document.addEventListener("click", function (e) {
+        const multiselectContainer = document.querySelector(
+          ".slotted-multiselect-container"
+        );
+        const dropdown = document.getElementById("slotted-country-dropdown");
+        const arrow = document.getElementById("slotted-dropdown-arrow");
+        const searchInput = document.getElementById("slotted-sell-location");
+
+        if (
+          multiselectContainer &&
+          dropdown &&
+          arrow &&
+          !multiselectContainer.contains(e.target)
+        ) {
+          dropdown.style.display = "none";
+          arrow.textContent = "▼";
+          // Clear search and reset options when clicking outside
+          if (searchInput) {
+            searchInput.value = "";
+            const countryOptions = document.getElementById(
+              "slotted-country-options"
+            );
+            if (countryOptions) {
+              countryOptions.innerHTML = renderCountryOptions();
+            }
+          }
+        }
+      });
 
       // Bind seasonal peaks functionality
       const seasonalPeaksCheckbox = document.getElementById(

@@ -225,7 +225,7 @@
   border: 1px solid #e5e7eb !important;
   height: 100% !important;
   overflow-y: auto !important;
-  padding: 27px 2.5rem !important; /* Remove extra bottom padding for contact form */
+  padding: 27px 0px !important; /* Remove extra bottom padding for contact form */
 }
 
 /* body {
@@ -654,6 +654,84 @@
 .slotted-remove-country:hover {
   background: #f3f4f6;
   color: #6b7280;
+}
+
+/* Multiselect dropdown styles */
+.slotted-multiselect-container {
+  position: relative;
+}
+
+.slotted-search-input {
+  position: relative;
+  cursor: pointer;
+}
+
+.slotted-dropdown-arrow {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 0.8rem;
+  pointer-events: none;
+  transition: transform 0.2s;
+}
+
+.slotted-multiselect-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: 4px;
+}
+
+.slotted-multiselect-options {
+  padding: 0.5rem 0;
+}
+
+.slotted-multiselect-option {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.slotted-multiselect-option:hover {
+  background-color: #f8fafc;
+}
+
+.slotted-multiselect-option input[type="checkbox"] {
+  margin-right: 0.75rem;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--slotted-primary, #4f8cff);
+}
+
+.slotted-country-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  flex: 1;
+}
+
+.slotted-country-option .slotted-country-flag {
+  font-size: 1.2rem;
+}
+
+.slotted-country-option .slotted-country-name {
+  font-size: 0.9rem;
+  color: #374151;
+  font-weight: 500;
 }
 
 /* Growth Section Styles */
@@ -1141,7 +1219,7 @@ select.slotted-input {
 }
 
 .slotted-input-wrapper {
-  margin-bottom: 1rem;
+  margin-bottom: 1px;
 }
 
 /* Loading state styling */
