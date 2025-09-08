@@ -35,11 +35,7 @@
 
 .slotted-progress-fill {
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    var(--slotted-primary, #4f8cff) 0%,
-    #6366f1 100%
-  );
+  background: linear-gradient(90deg, #216093 0%, #6366f1 100%);
   border-radius: 3px;
   transition: width 0.3s ease;
 }
@@ -72,7 +68,7 @@
 }
 
 .slotted-step-item.active .slotted-step-number {
-  background: var(--slotted-primary, #4f8cff);
+  background: #216093;
   color: white;
 }
 
@@ -98,7 +94,7 @@
 }
 
 .slotted-step-item.active .slotted-step-title {
-  color: var(--slotted-primary, #216093);
+  color: #216093;
 }
 
 .slotted-step-description {
@@ -118,14 +114,8 @@
 /* Logo styling for a beautiful, balanced look */
 .slotted-logo {
   display: block;
-  margin: 0 auto 24px auto;
-  max-width: 110px;
-  max-height: 60px;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(80, 112, 255, 0.1);
-  background: #fff;
-  object-fit: contain;
-  padding: 8px 16px;
+  margin: 0 auto 16px auto;
+  max-width: 180px;
   transition: box-shadow 0.2s;
 }
 .slotted-logo:hover {
@@ -210,7 +200,6 @@
   border-radius: 0; /* No border radius for middle section */
   box-shadow: 0 8px 32px rgba(80, 112, 255, 0.1),
     0 1.5px 6px rgba(0, 0, 0, 0.04);
-  padding: 27px 5px 100px 5px; /* Extra bottom padding for sticky footer */
   width: 100%;
   max-width: 100%;
   flex: 1; /* Take up remaining space */
@@ -224,9 +213,6 @@
 .slotted-contact-only {
   border-radius: 10px !important;
   border: 1px solid #e5e7eb !important;
-  height: 100% !important;
-  overflow-y: auto !important;
-  padding: 27px 0px !important; /* Remove extra bottom padding for contact form */
 }
 
 /* body {
@@ -256,7 +242,7 @@
 }
 
 .slotted-btn {
-  background: var(--slotted-primary, #216093);
+  background: #216093;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -264,7 +250,6 @@
   font-size: 1.08em;
   font-weight: 500;
   cursor: pointer;
-  margin-top: 1em;
   box-shadow: 0 2px 8px rgba(80, 112, 255, 0.08);
   transition: background 0.2s;
 }
@@ -338,7 +323,6 @@
 
 .slotted-powered-by {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 1px;
 }
@@ -351,15 +335,14 @@
 
 .slotted-powered-by img {
   height: 26px;
-  width: auto;
-  object-fit: contain;
+  width: 100px;
+  object-fit: cover;
 }
 
 .slotted-navigation-group {
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-left: auto;
 }
 
 /* Consistent navigation button styling */
@@ -425,7 +408,7 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .slotted-input:focus {
-  border-color: var(--slotted-primary, #4f8cff);
+  border-color: #216093;
   outline: none;
   background: #fff;
   box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
@@ -452,7 +435,7 @@
 }
 
 .slotted-country-code:focus {
-  border-color: var(--slotted-primary, #4f8cff);
+  border-color: #216093;
   outline: none;
   box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
 }
@@ -572,7 +555,7 @@
 }
 
 .slotted-section-description {
-  margin: 0 0 2px 0;
+  margin: 0 0 16px 0;
   color: #6b7280;
   font-size: 14px;
 }
@@ -771,7 +754,7 @@
   margin-right: 0.75rem;
   width: 16px;
   height: 16px;
-  accent-color: var(--slotted-primary, #4f8cff);
+  accent-color: #216093;
 }
 
 .slotted-country-option {
@@ -935,7 +918,7 @@
 
 .slotted-growth-input:focus {
   outline: none;
-  border-color: var(--slotted-primary, #4f8cff);
+  border-color: #216093;
   box-shadow: 0 0 0 2px rgba(79, 140, 255, 0.1);
 }
 
@@ -1021,7 +1004,7 @@
 .slotted-radio-item input[type="radio"] {
   width: 16px;
   height: 16px;
-  accent-color: var(--slotted-primary, #4f8cff);
+  accent-color: #216093;
 }
 
 .slotted-checkbox-item label,
@@ -1096,7 +1079,7 @@ input[type="range"]::-webkit-slider-thumb {
   height: 18px;
   width: 18px;
   border-radius: 50%;
-  background: var(--slotted-primary, #4f8cff);
+  background: var(--slotted-primary, #216093);
   cursor: pointer;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -1105,7 +1088,7 @@ input[type="range"]::-moz-range-thumb {
   height: 18px;
   width: 18px;
   border-radius: 50%;
-  background: var(--slotted-primary, #4f8cff);
+  background: #216093;
   cursor: pointer;
   border: none;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -1193,14 +1176,10 @@ select.slotted-input {
   opacity: 0.85;
 }
 .slotted-banner {
-  background: var(--slotted-bg, #f1f5ff);
   color: var(--slotted-primary, #4f46e5);
-  padding: 0.7em 1.2em;
   border-radius: 7px;
-  margin-bottom: 1.2em;
   text-align: center;
   font-weight: 500;
-  box-shadow: 0 1px 4px rgba(80, 112, 255, 0.07);
 }
 
 /* Error state styling */
@@ -1324,19 +1303,13 @@ select.slotted-input {
 
 /* reCAPTCHA wrapper styling */
 .slotted-recaptcha-wrapper {
-  margin: 1.5rem 0;
+  margin: 16px 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
-}
-
-#slotted-recaptcha-container {
-  margin-bottom: 0.5rem;
 }
 
 .slotted-recaptcha-wrapper .slotted-field-error {
   text-align: center;
-  margin-top: 0.5rem;
 }
 
 /* Step description styling */
@@ -1389,7 +1362,7 @@ select.slotted-input {
 .slotted-volume-slider-fill {
   position: absolute;
   height: 8px;
-  background: var(--slotted-primary, #4f8cff);
+  background: #216093;
   border-radius: 4px;
   top: 0;
   left: 0;
@@ -1424,7 +1397,7 @@ select.slotted-input {
   height: 20px;
   width: 20px;
   border-radius: 50%;
-  background: var(--slotted-primary, #4f8cff);
+  background: #216093;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(79, 140, 255, 0.3);
   border: 3px solid #ffffff;
@@ -1442,7 +1415,7 @@ select.slotted-input {
   height: 20px;
   width: 20px;
   border-radius: 50%;
-  background: var(--slotted-primary, #4f8cff);
+  background: #216093;
   cursor: pointer;
   border: 3px solid #ffffff;
   box-shadow: 0 2px 6px rgba(79, 140, 255, 0.3);
@@ -1530,7 +1503,7 @@ select.slotted-input {
 
 .slotted-weight-value:focus {
   outline: none;
-  border-color: var(--slotted-primary, #4f8cff);
+  border-color: #216093;
   box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
 }
 
@@ -1547,7 +1520,7 @@ select.slotted-input {
 
 .slotted-weight-unit:focus {
   outline: none;
-  border-color: var(--slotted-primary, #4f8cff);
+  border-color: #216093;
   box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
 }
 
@@ -1682,7 +1655,7 @@ select.slotted-input {
 
 .slotted-provider-search:focus {
   outline: none;
-  border-color: var(--slotted-primary, #4f8cff);
+  border-color: #216093;
   box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
 }
 
@@ -1769,7 +1742,7 @@ select.slotted-input {
 }
 
 .slotted-retry-btn {
-  background: var(--slotted-primary, #4f8cff);
+  background: #216093;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -1794,7 +1767,7 @@ select.slotted-input {
 
 .slotted-load-more-spinner {
   display: inline-block;
-  color: var(--slotted-primary, #4f8cff);
+  color: #216093;
 }
 
 .slotted-load-more-text {
@@ -1892,4 +1865,19 @@ select.slotted-input {
   .slotted-navigation-bar {
     padding: 0.5rem 0.75rem;
   }
+}
+
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(158, 155, 155, 0.3);
+  background-color: #ececed;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #216093;
+  border-radius: 5px;
 }

@@ -1989,6 +1989,7 @@
           <div class="slotted-powered-text">Powered by</div>
           <img src="assets/slotted.png" alt="Logo" />
         </div>
+        ${renderBanner()}
         <div class="slotted-navigation-group">
           ${backButton}
           ${nextButton}
@@ -2049,12 +2050,12 @@
         state.step === 3 ? " active" : ""
       }" id="slotted-step-3">
         <h3>Final Review</h3>
-        <p style="margin-bottom: 2rem; color: #6b7280; text-align: center;">Please review your information before we submit your RFP to potential providers.</p>
+        <p style="margin-bottom: 16px; margin-top: 0; color: #6b7280; text-align: center;font-size: 14px">Please review your information before we submit your RFP to potential providers.</p>
         
         <!-- Shipping Profile Card -->
         <div class="slotted-business-context-card" style="margin-bottom: 1.5rem;">
           <div class="slotted-section-header-with-actions">
-            <div class="slotted-section-header-left">
+            <div class="slotted-section-header">
               <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin w-5 h-5" data-lov-id="src/components/ReviewSummary.tsx:106:18" data-lov-name="MapPin" data-component-path="src/components/ReviewSummary.tsx" data-component-line="106" data-component-file="ReviewSummary.tsx" data-component-name="MapPin" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
               <div>
                 <h4>Shipping Profile</h4>
@@ -2352,7 +2353,7 @@
         <!-- Inbound Profile Card -->
         <div class="slotted-business-context-card" style="margin-bottom: 2rem;">
           <div class="slotted-section-header-with-actions" style="margin-bottom: 1.5rem;">
-            <div class="slotted-section-header-left">
+            <div class="slotted-section-header">
               <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-package w-5 h-5" data-lov-id="src/components/ReviewSummary.tsx:190:18" data-lov-name="Package" data-component-path="src/components/ReviewSummary.tsx" data-component-line="190" data-component-file="ReviewSummary.tsx" data-component-name="Package" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12"></path><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path><path d="m7.5 4.27 9 5.15"></path></svg></span>
               <div>
                 <h4>Inbound Profile</h4>
@@ -2547,7 +2548,6 @@
     if (state.step === 0) {
       el.innerHTML = `
         <div class="slotted-content-container slotted-contact-only">
-          ${renderBanner()}
           ${renderContactStep()}
         </div>
       `;
@@ -2558,7 +2558,6 @@
           ${renderStepProgress()}
         </div>
         <div class="slotted-content-container">
-          ${renderBanner()}
           ${renderOutboundProfileStep()}
           ${renderInboundProfileStep()}
           ${renderFinalReviewStep()}
@@ -4603,7 +4602,7 @@
           box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
           display: flex;
           flex-direction: column;
-          padding:20px
+          padding: 36px
         ">
           <button id="slotted-modal-close" style="
             position: absolute;
@@ -4778,22 +4777,3 @@
     initializeModalWidget();
   }
 })();
-
-// Global reCAPTCHA callback functions
-window.onRecaptchaLoad = function () {
-  console.log("reCAPTCHA library loaded globally");
-  // The reCAPTCHA will be initialized when the contact form is shown
-};
-
-// Make reCAPTCHA callback functions globally accessible
-window.onRecaptchaSuccess = function (token) {
-  console.log("reCAPTCHA solved successfully");
-};
-
-window.onRecaptchaExpired = function () {
-  console.log("reCAPTCHA token expired");
-};
-
-window.onRecaptchaError = function () {
-  console.error("reCAPTCHA error occurred");
-};
