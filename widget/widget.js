@@ -97,6 +97,28 @@
     { value: "frozenStorage", name: "Frozen (Below 32°F)" },
   ];
 
+  // Step configuration - Updated for RFP flow after contact
+  const STEPS_CONFIG = [
+    {
+      id: 1,
+      title: "Outbound Profile",
+      description: "Volume & business context",
+      percentage: 33,
+    },
+    {
+      id: 2,
+      title: "Inbound Profile",
+      description: "Product & operational details",
+      percentage: 66,
+    },
+    {
+      id: 3,
+      title: "Final Review",
+      description: "Submit to providers",
+      percentage: 100,
+    },
+  ];
+
   // 3PL Providers - loaded from API with pagination
   let THREE_PL_PROVIDERS = [];
   let providersLoading = false;
@@ -120,10 +142,6 @@
     }
 
     try {
-      console.log(
-        `Fetching 3PL providers: search="${search}", page=${page}, limit=${limit}`
-      );
-
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
@@ -227,28 +245,6 @@
 
     return result;
   }
-
-  // Step configuration - Updated for RFP flow after contact
-  const STEPS_CONFIG = [
-    {
-      id: 1,
-      title: "Outbound Profile",
-      description: "Volume & business context",
-      percentage: 33,
-    },
-    {
-      id: 2,
-      title: "Inbound Profile",
-      description: "Product & operational details",
-      percentage: 66,
-    },
-    {
-      id: 3,
-      title: "Final Review",
-      description: "Submit to providers",
-      percentage: 100,
-    },
-  ];
 
   // Generate country code options dynamically
   function generateCountryOptions(selectedCode) {
@@ -629,6 +625,75 @@
     // Reset search and reload
     searchProviders("");
   };
+
+  // Loading spinner utility functions
+  function showButtonLoading(buttonId, loadingText = "Loading...") {
+    const button = document.getElementById(buttonId);
+    if (!button) return false;
+
+    // Store original content
+    button.dataset.originalContent = button.innerHTML;
+    button.disabled = true;
+
+    // Show loading spinner
+    button.innerHTML = `
+      <div class="slotted-button-loading">
+        <svg class="slotted-spinner" viewBox="0 0 24 24" fill="none">
+          <circle class="slotted-spinner-track" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="slotted-spinner-fill" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+        </svg>
+        <span>${loadingText}</span>
+      </div>
+    `;
+
+    return true;
+  }
+
+  function hideButtonLoading(buttonId) {
+    const button = document.getElementById(buttonId);
+    if (!button || !button.dataset.originalContent) return false;
+
+    // Restore original content
+    button.innerHTML = button.dataset.originalContent;
+    button.disabled = false;
+    delete button.dataset.originalContent;
+
+    return true;
+  }
+
+  function showButtonSuccess(
+    buttonId,
+    successText = "Success!",
+    duration = 2000
+  ) {
+    const button = document.getElementById(buttonId);
+    if (!button) return false;
+
+    // Store original content if not already storing loading state
+    if (!button.dataset.originalContent) {
+      button.dataset.originalContent = button.innerHTML;
+    }
+
+    // Show success state
+    button.innerHTML = `
+      <div class="slotted-button-success">
+        <svg class="slotted-success-icon" viewBox="0 0 24 24" fill="none">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        <span>${successText}</span>
+      </div>
+    `;
+    button.disabled = true;
+
+    // Reset after duration
+    if (duration > 0) {
+      setTimeout(() => {
+        hideButtonLoading(buttonId);
+      }, duration);
+    }
+
+    return true;
+  }
 
   // Read widget key from data attribute on container div
   function getWidgetKey() {
@@ -1633,11 +1698,6 @@
               </div>
             </div>
           </div>
-          
-          <!-- Centered Continue Button -->
-          <div style="text-align: center; margin: 2rem 0;">
-            <button class="slotted-btn" id="slotted-inbound-next-centered" style="padding: 0.8em 2em;">Continue to Review</button>
-          </div>
         </div>
 
         ${renderNavigationButtons(2)}
@@ -1675,14 +1735,11 @@
 
     return `
       <div class="slotted-navigation-bar">
-        ${backButton}
+        <div class="slotted-powered-by">
+          Powered by Slotted. reCAPTCHA v3 protected.
+        </div>
         <div class="slotted-navigation-group">
-          <button class="slotted-btn-secondary" id="slotted-save-progress">
-            <svg class="slotted-nav-icon slotted-nav-icon-left" viewBox="0 0 24 24" fill="none">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 0V4a2 2 0 00-2-2H9a2 2 0 00-2 2v3m1 0h4"/>
-            </svg>
-            Save Progress
-          </button>
+          ${backButton}
           ${nextButton}
         </div>
       </div>
@@ -2087,12 +2144,12 @@
 
   // Inject widget CSS from external file
   function injectWidgetCSS() {
-    // if (document.getElementById("slotted-widget-style")) return;
-    // const link = document.createElement("link");
-    // link.id = "slotted-widget-style";
-    // link.rel = "stylesheet";
-    // link.href = "http://localhost:3000/widget.css";
-    // document.head.appendChild(link);
+    if (document.getElementById("slotted-widget-style")) return;
+    const link = document.createElement("link");
+    link.id = "slotted-widget-style";
+    link.rel = "stylesheet";
+    link.href = "http://localhost:3000/widget.css";
+    document.head.appendChild(link);
   }
 
   // Theme
@@ -2138,7 +2195,6 @@
         <div class="slotted-content-container">
           ${renderBanner()}
           ${renderContactStep()}
-          ${renderFooter()}
         </div>
       `;
     } else {
@@ -2152,7 +2208,6 @@
           ${renderOutboundProfileStep()}
           ${renderInboundProfileStep()}
           ${renderFinalReviewStep()}
-          ${renderFooter()}
         </div>
       `;
     }
@@ -3437,12 +3492,6 @@
       const editInboundBtn = document.getElementById("slotted-edit-inbound");
       if (editInboundBtn) editInboundBtn.onclick = handleEditInbound;
     }
-
-    // Bind Save Progress button (available in all RFP steps)
-    if (state.step > 0) {
-      const saveProgressBtn = document.getElementById("slotted-save-progress");
-      if (saveProgressBtn) saveProgressBtn.onclick = handleSaveProgress;
-    }
   }
 
   function handleBackToOutbound() {
@@ -3487,37 +3536,6 @@
     // This could open a modal, redirect to another page, or trigger an API call
     console.log("Create Volume Profile clicked");
     alert("Volume Profile creation feature coming soon!");
-  }
-
-  // Save Progress handler
-  function handleSaveProgress() {
-    // Save current state to session storage
-    saveState();
-
-    // Show confirmation message
-    const button = document.getElementById("slotted-save-progress");
-    const originalText = button.innerHTML;
-
-    // Temporarily show success state
-    button.innerHTML = `
-      <svg class="slotted-nav-icon slotted-nav-icon-left" viewBox="0 0 24 24" fill="none">
-        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-      </svg>
-      Saved!
-    `;
-    button.style.background = "#d1fae5";
-    button.style.borderColor = "#a7f3d0";
-    button.style.color = "#065f46";
-
-    // Reset after 2 seconds
-    setTimeout(() => {
-      button.innerHTML = originalText;
-      button.style.background = "#f9fafb";
-      button.style.borderColor = "#e5e7eb";
-      button.style.color = "#6b7280";
-    }, 2000);
-
-    console.log("Progress saved:", state);
   }
 
   // Step 1 handler - Contact Info
@@ -3587,249 +3605,265 @@
 
   // Step 2 handler - Outbound Profile
   async function handleOutboundProfileSubmit() {
-    // Validate the outbound profile form first
-    if (!validateOutboundProfile()) {
-      return; // Stop if validation fails
-    }
+    const buttonId = "slotted-next-step-1";
 
-    const monthly_orders = document
-      .getElementById("slotted-monthly-orders")
-      .value.trim();
-    const avg_items = document.getElementById("slotted-avg-items").value.trim();
-    const avg_order_value = document
-      .getElementById("slotted-avg-order-value")
-      .value.trim();
-    const sku_count = document.getElementById("slotted-sku-count").value.trim();
-    const sell_location = document
-      .getElementById("slotted-sell-location")
-      .value.trim();
+    // Show loading spinner
+    if (!showButtonLoading(buttonId, "Saving...")) return;
 
-    // Growth expectations
-    const year1_best_growth = document
-      .getElementById("slotted-year1-best-growth")
-      .value.trim();
-    const year1_worst_growth = document
-      .getElementById("slotted-year1-worst-growth")
-      .value.trim();
-    const year2_best_growth = document
-      .getElementById("slotted-year2-best-growth")
-      .value.trim();
-    const year2_worst_growth = document
-      .getElementById("slotted-year2-worst-growth")
-      .value.trim();
-
-    // Business context checkboxes and radios
-    const fits_in_hand = document.getElementById("slotted-fits-hand").checked;
-    const fits_in_mailbox = document.getElementById(
-      "slotted-fits-mailbox"
-    ).checked;
-    const fits_on_porch = document.getElementById("slotted-fits-porch").checked;
-    const needs_two_people = document.getElementById(
-      "slotted-needs-two-people"
-    ).checked;
-
-    const serialized_yes = document.getElementById(
-      "slotted-serialized-yes"
-    ).checked;
-    const serialized_no = document.getElementById(
-      "slotted-serialized-no"
-    ).checked;
-    const are_serialized = serialized_yes ? "yes" : serialized_no ? "no" : "";
-
-    const shipment_dtc_parcel =
-      document.getElementById("slotted-dtc-parcel").checked;
-    const shipment_retail_cases = document.getElementById(
-      "slotted-retail-cases"
-    ).checked;
-    const shipment_retail_pallets = document.getElementById(
-      "slotted-retail-pallets"
-    ).checked;
-    const shipment_marketplace_cases = document.getElementById(
-      "slotted-marketplace-cases"
-    ).checked;
-    const shipment_marketplace_pallets = document.getElementById(
-      "slotted-marketplace-pallets"
-    ).checked;
-
-    // Optional fields
-    const fulfillment_inhouse = document.getElementById(
-      "slotted-fulfill-inhouse"
-    )?.checked;
-    const fulfillment_3pl = document.getElementById(
-      "slotted-fulfill-3pl"
-    )?.checked;
-    const fulfillment_dropship = document.getElementById(
-      "slotted-fulfill-dropship"
-    )?.checked;
-    const fulfillment_notyet = document.getElementById(
-      "slotted-fulfill-notyet"
-    )?.checked;
-    const fulfillment_method = fulfillment_inhouse
-      ? "inhouse"
-      : fulfillment_3pl
-      ? "3pl"
-      : fulfillment_dropship
-      ? "dropship"
-      : fulfillment_notyet
-      ? "not_yet"
-      : "";
-
-    const start_month =
-      document.getElementById("slotted-start-month")?.value || "";
-    const start_year =
-      document.getElementById("slotted-start-year")?.value || "";
-    const ship_from_location =
-      document.getElementById("slotted-ship-from")?.value?.trim() || "";
-    const seasonal_peaks =
-      document.getElementById("slotted-seasonal-peaks")?.checked || false;
-
-    const single_sku_yes = document.getElementById(
-      "slotted-single-sku-yes"
-    )?.checked;
-    const single_sku_no = document.getElementById(
-      "slotted-single-sku-no"
-    )?.checked;
-    const single_sku_orders = single_sku_yes
-      ? "yes"
-      : single_sku_no
-      ? "no"
-      : "";
-
-    const volume_distribution =
-      document.getElementById("slotted-volume-distribution")?.value || 50;
-
-    const hazardous_yes = document.getElementById(
-      "slotted-hazardous-yes"
-    )?.checked;
-    const hazardous_no = document.getElementById(
-      "slotted-hazardous-no"
-    )?.checked;
-    const hazardous_products = hazardous_yes ? "yes" : hazardous_no ? "no" : "";
-    console.log({
-      monthly_orders,
-      avg_items,
-      avg_order_value,
-      sku_count,
-      selected_countries: state.outbound_profile?.selected_countries,
-      are_serialized,
-    });
-
-    // Check if at least one shipment type is selected
-    if (
-      !shipment_dtc_parcel &&
-      !shipment_retail_cases &&
-      !shipment_retail_pallets &&
-      !shipment_marketplace_cases &&
-      !shipment_marketplace_pallets
-    ) {
-      alert("Please select at least one shipment type.");
-      return;
-    }
-
-    // Prepare shipment types array with values
-    const shipmentTypes = [];
-    if (shipment_dtc_parcel) shipmentTypes.push("dtcParcelValue");
-    if (shipment_retail_cases) shipmentTypes.push("retailCasesValue");
-    if (shipment_retail_pallets) shipmentTypes.push("retailPalletValue");
-    if (shipment_marketplace_cases) shipmentTypes.push("marketplaceCasesValue");
-    if (shipment_marketplace_pallets)
-      shipmentTypes.push("marketplacePalletValue");
-
-    // Prepare typical order size array
-    const typicalOrderSize = [];
-    if (fits_in_hand) typicalOrderSize.push("Fits in your hand");
-    if (fits_on_porch) typicalOrderSize.push("Fits on the porch");
-    if (fits_in_mailbox) typicalOrderSize.push("Fits in your mailbox");
-    if (needs_two_people) typicalOrderSize.push("Needs two people to carry");
-
-    // Prepare seasonal peaks array (use selected months from state)
-    const seasonalPeaksArray = [];
-    if (seasonal_peaks && state.outbound_profile?.seasonal_months) {
-      // Use the selected months from the checkboxes
-      seasonalPeaksArray.push(...state.outbound_profile.seasonal_months);
-    }
-
-    // Get 3PL provider data if fulfillment method is 3pl
-    const contract_end_month =
-      document.getElementById("slotted-contract-end-month")?.value || "";
-    const contract_end_year =
-      document.getElementById("slotted-contract-end-year")?.value || "";
-
-    // Prepare API payload
-    const apiPayload = {
-      monthlyOrders: parseInt(monthly_orders),
-      avgItemsPerOrder: parseFloat(avg_items),
-      avgOrderValue: parseFloat(avg_order_value),
-      numberOfSKUs: parseInt(sku_count),
-      bestCaseGrowthYear1: year1_best_growth
-        ? parseInt(year1_best_growth)
-        : null,
-      worstCaseGrowthYear1: year1_worst_growth
-        ? parseInt(year1_worst_growth)
-        : null,
-      bestCaseGrowthYear2: year2_best_growth
-        ? parseInt(year2_best_growth)
-        : null,
-      worstCaseGrowthYear2: year2_worst_growth
-        ? parseInt(year2_worst_growth)
-        : null,
-      fulfillmentType:
-        fulfillment_method === "3pl"
-          ? "threePlProvider"
-          : fulfillment_method === "inhouse"
-          ? "inHouseFulfillment"
-          : fulfillment_method === "dropship"
-          ? "dropshipping"
-          : fulfillment_method === "not_yet"
-          ? "notFulfillingYet"
-          : null,
-      // 3PL provider specific fields
-      currentProvider:
-        fulfillment_method === "3pl"
-          ? state.outbound_profile?.current_provider
-          : null,
-      contractExpiryMonth:
-        fulfillment_method === "3pl" && contract_end_month
-          ? parseInt(contract_end_month)
-          : null,
-      contractExpiryYear:
-        fulfillment_method === "3pl" && contract_end_year
-          ? parseInt(contract_end_year)
-          : null,
-      shippingStartMonth: start_month ? parseInt(start_month) : null,
-      shippingStartYear: start_year ? parseInt(start_year) : null,
-      shippingZip: ship_from_location || null,
-      seasonalPeaks: seasonalPeaksArray,
-      isSingleSKU: single_sku_orders === "yes",
-      typicalOrderSize: typicalOrderSize,
-      isSerialized: are_serialized === "yes",
-      isHazardousProducts: hazardous_products === "yes",
-      shipmentTypes: shipmentTypes,
-      percentEaches: parseInt(volume_distribution) || 50,
-      percentCasePallet: 100 - (parseInt(volume_distribution) || 50),
-      whereDoYouSell: getCountryShortCodes(
-        state.outbound_profile?.selected_countries
-      ),
-      // Weight data for selected shipment types (include all, let backend handle nulls)
-      dtcParcelValue: state.outbound_profile?.dtcParcelValue || null,
-      dtcParcelUnit: state.outbound_profile?.dtcParcelUnit || null,
-      retailCasesValue: state.outbound_profile?.retailCasesValue || null,
-      retailCasesUnit: state.outbound_profile?.retailCasesUnit || null,
-      retailPalletValue: state.outbound_profile?.retailPalletValue || null,
-      retailPalletUnit: state.outbound_profile?.retailPalletUnit || null,
-      marketplaceCasesValue:
-        state.outbound_profile?.marketplaceCasesValue || null,
-      marketplaceCasesUnit:
-        state.outbound_profile?.marketplaceCasesUnit || null,
-      marketplacePalletValue:
-        state.outbound_profile?.marketplacePalletValue || null,
-      marketplacePalletUnit:
-        state.outbound_profile?.marketplacePalletUnit || null,
-      leadContactId: state.lead_id,
-    };
-
-    // API integration for outbound profile
     try {
+      // Validate the outbound profile form first
+      if (!validateOutboundProfile()) {
+        hideButtonLoading(buttonId);
+        return; // Stop if validation fails
+      }
+
+      const monthly_orders = document
+        .getElementById("slotted-monthly-orders")
+        .value.trim();
+      const avg_items = document
+        .getElementById("slotted-avg-items")
+        .value.trim();
+      const avg_order_value = document
+        .getElementById("slotted-avg-order-value")
+        .value.trim();
+      const sku_count = document
+        .getElementById("slotted-sku-count")
+        .value.trim();
+      const sell_location = document
+        .getElementById("slotted-sell-location")
+        .value.trim();
+
+      // Growth expectations
+      const year1_best_growth = document
+        .getElementById("slotted-year1-best-growth")
+        .value.trim();
+      const year1_worst_growth = document
+        .getElementById("slotted-year1-worst-growth")
+        .value.trim();
+      const year2_best_growth = document
+        .getElementById("slotted-year2-best-growth")
+        .value.trim();
+      const year2_worst_growth = document
+        .getElementById("slotted-year2-worst-growth")
+        .value.trim();
+
+      // Business context checkboxes and radios
+      const fits_in_hand = document.getElementById("slotted-fits-hand").checked;
+      const fits_in_mailbox = document.getElementById(
+        "slotted-fits-mailbox"
+      ).checked;
+      const fits_on_porch =
+        document.getElementById("slotted-fits-porch").checked;
+      const needs_two_people = document.getElementById(
+        "slotted-needs-two-people"
+      ).checked;
+
+      const serialized_yes = document.getElementById(
+        "slotted-serialized-yes"
+      ).checked;
+      const serialized_no = document.getElementById(
+        "slotted-serialized-no"
+      ).checked;
+      const are_serialized = serialized_yes ? "yes" : serialized_no ? "no" : "";
+
+      const shipment_dtc_parcel =
+        document.getElementById("slotted-dtc-parcel").checked;
+      const shipment_retail_cases = document.getElementById(
+        "slotted-retail-cases"
+      ).checked;
+      const shipment_retail_pallets = document.getElementById(
+        "slotted-retail-pallets"
+      ).checked;
+      const shipment_marketplace_cases = document.getElementById(
+        "slotted-marketplace-cases"
+      ).checked;
+      const shipment_marketplace_pallets = document.getElementById(
+        "slotted-marketplace-pallets"
+      ).checked;
+
+      // Optional fields
+      const fulfillment_inhouse = document.getElementById(
+        "slotted-fulfill-inhouse"
+      )?.checked;
+      const fulfillment_3pl = document.getElementById(
+        "slotted-fulfill-3pl"
+      )?.checked;
+      const fulfillment_dropship = document.getElementById(
+        "slotted-fulfill-dropship"
+      )?.checked;
+      const fulfillment_notyet = document.getElementById(
+        "slotted-fulfill-notyet"
+      )?.checked;
+      const fulfillment_method = fulfillment_inhouse
+        ? "inhouse"
+        : fulfillment_3pl
+        ? "3pl"
+        : fulfillment_dropship
+        ? "dropship"
+        : fulfillment_notyet
+        ? "not_yet"
+        : "";
+
+      const start_month =
+        document.getElementById("slotted-start-month")?.value || "";
+      const start_year =
+        document.getElementById("slotted-start-year")?.value || "";
+      const ship_from_location =
+        document.getElementById("slotted-ship-from")?.value?.trim() || "";
+      const seasonal_peaks =
+        document.getElementById("slotted-seasonal-peaks")?.checked || false;
+
+      const single_sku_yes = document.getElementById(
+        "slotted-single-sku-yes"
+      )?.checked;
+      const single_sku_no = document.getElementById(
+        "slotted-single-sku-no"
+      )?.checked;
+      const single_sku_orders = single_sku_yes
+        ? "yes"
+        : single_sku_no
+        ? "no"
+        : "";
+
+      const volume_distribution =
+        document.getElementById("slotted-volume-distribution")?.value || 50;
+
+      const hazardous_yes = document.getElementById(
+        "slotted-hazardous-yes"
+      )?.checked;
+      const hazardous_no = document.getElementById(
+        "slotted-hazardous-no"
+      )?.checked;
+      const hazardous_products = hazardous_yes
+        ? "yes"
+        : hazardous_no
+        ? "no"
+        : "";
+      console.log({
+        monthly_orders,
+        avg_items,
+        avg_order_value,
+        sku_count,
+        selected_countries: state.outbound_profile?.selected_countries,
+        are_serialized,
+      });
+
+      // Check if at least one shipment type is selected
+      if (
+        !shipment_dtc_parcel &&
+        !shipment_retail_cases &&
+        !shipment_retail_pallets &&
+        !shipment_marketplace_cases &&
+        !shipment_marketplace_pallets
+      ) {
+        alert("Please select at least one shipment type.");
+        return;
+      }
+
+      // Prepare shipment types array with values
+      const shipmentTypes = [];
+      if (shipment_dtc_parcel) shipmentTypes.push("dtcParcelValue");
+      if (shipment_retail_cases) shipmentTypes.push("retailCasesValue");
+      if (shipment_retail_pallets) shipmentTypes.push("retailPalletValue");
+      if (shipment_marketplace_cases)
+        shipmentTypes.push("marketplaceCasesValue");
+      if (shipment_marketplace_pallets)
+        shipmentTypes.push("marketplacePalletValue");
+
+      // Prepare typical order size array
+      const typicalOrderSize = [];
+      if (fits_in_hand) typicalOrderSize.push("Fits in your hand");
+      if (fits_on_porch) typicalOrderSize.push("Fits on the porch");
+      if (fits_in_mailbox) typicalOrderSize.push("Fits in your mailbox");
+      if (needs_two_people) typicalOrderSize.push("Needs two people to carry");
+
+      // Prepare seasonal peaks array (use selected months from state)
+      const seasonalPeaksArray = [];
+      if (seasonal_peaks && state.outbound_profile?.seasonal_months) {
+        // Use the selected months from the checkboxes
+        seasonalPeaksArray.push(...state.outbound_profile.seasonal_months);
+      }
+
+      // Get 3PL provider data if fulfillment method is 3pl
+      const contract_end_month =
+        document.getElementById("slotted-contract-end-month")?.value || "";
+      const contract_end_year =
+        document.getElementById("slotted-contract-end-year")?.value || "";
+
+      // Prepare API payload
+      const apiPayload = {
+        monthlyOrders: parseInt(monthly_orders),
+        avgItemsPerOrder: parseFloat(avg_items),
+        avgOrderValue: parseFloat(avg_order_value),
+        numberOfSKUs: parseInt(sku_count),
+        bestCaseGrowthYear1: year1_best_growth
+          ? parseInt(year1_best_growth)
+          : null,
+        worstCaseGrowthYear1: year1_worst_growth
+          ? parseInt(year1_worst_growth)
+          : null,
+        bestCaseGrowthYear2: year2_best_growth
+          ? parseInt(year2_best_growth)
+          : null,
+        worstCaseGrowthYear2: year2_worst_growth
+          ? parseInt(year2_worst_growth)
+          : null,
+        fulfillmentType:
+          fulfillment_method === "3pl"
+            ? "threePlProvider"
+            : fulfillment_method === "inhouse"
+            ? "inHouseFulfillment"
+            : fulfillment_method === "dropship"
+            ? "dropshipping"
+            : fulfillment_method === "not_yet"
+            ? "notFulfillingYet"
+            : null,
+        // 3PL provider specific fields
+        currentProvider:
+          fulfillment_method === "3pl"
+            ? state.outbound_profile?.current_provider
+            : null,
+        contractExpiryMonth:
+          fulfillment_method === "3pl" && contract_end_month
+            ? parseInt(contract_end_month)
+            : null,
+        contractExpiryYear:
+          fulfillment_method === "3pl" && contract_end_year
+            ? parseInt(contract_end_year)
+            : null,
+        shippingStartMonth: start_month ? parseInt(start_month) : null,
+        shippingStartYear: start_year ? parseInt(start_year) : null,
+        shippingZip: ship_from_location || null,
+        seasonalPeaks: seasonalPeaksArray,
+        isSingleSKU: single_sku_orders === "yes",
+        typicalOrderSize: typicalOrderSize,
+        isSerialized: are_serialized === "yes",
+        isHazardousProducts: hazardous_products === "yes",
+        shipmentTypes: shipmentTypes,
+        percentEaches: parseInt(volume_distribution) || 50,
+        percentCasePallet: 100 - (parseInt(volume_distribution) || 50),
+        whereDoYouSell: getCountryShortCodes(
+          state.outbound_profile?.selected_countries
+        ),
+        // Weight data for selected shipment types (include all, let backend handle nulls)
+        dtcParcelValue: state.outbound_profile?.dtcParcelValue || null,
+        dtcParcelUnit: state.outbound_profile?.dtcParcelUnit || null,
+        retailCasesValue: state.outbound_profile?.retailCasesValue || null,
+        retailCasesUnit: state.outbound_profile?.retailCasesUnit || null,
+        retailPalletValue: state.outbound_profile?.retailPalletValue || null,
+        retailPalletUnit: state.outbound_profile?.retailPalletUnit || null,
+        marketplaceCasesValue:
+          state.outbound_profile?.marketplaceCasesValue || null,
+        marketplaceCasesUnit:
+          state.outbound_profile?.marketplaceCasesUnit || null,
+        marketplacePalletValue:
+          state.outbound_profile?.marketplacePalletValue || null,
+        marketplacePalletUnit:
+          state.outbound_profile?.marketplacePalletUnit || null,
+        leadContactId: state.lead_id,
+      };
+
+      // API integration for outbound profile
       // Determine if this is an update (PUT) or create (POST)
       const isUpdate = state.outbound_profile?.dataLoaded;
       const method = isUpdate ? "PUT" : "POST";
@@ -3915,7 +3949,11 @@
       saveState();
       render();
       console.log("Outbound profile completed:", state.outbound_profile);
+
+      // Show success state briefly
+      showButtonSuccess(buttonId, "Saved!", 1000);
     } catch (err) {
+      hideButtonLoading(buttonId);
       alert("Network error. Please try again later.");
       console.error("Outbound profile API error:", err);
     }
@@ -3923,79 +3961,85 @@
 
   // Step 2 handler - Inbound Profile
   async function handleInboundProfileSubmit() {
-    // Required fields
-    const inbound_frequency_weekly = document.getElementById(
-      "slotted-freq-weekly"
-    ).checked;
-    const inbound_frequency_monthly = document.getElementById(
-      "slotted-freq-monthly"
-    ).checked;
-    const inbound_frequency_quarterly = document.getElementById(
-      "slotted-freq-quarterly"
-    ).checked;
-    const inbound_frequency = inbound_frequency_weekly
-      ? "weekly"
-      : inbound_frequency_monthly
-      ? "monthly"
-      : inbound_frequency_quarterly
-      ? "quarterly"
-      : "";
+    const buttonId = "slotted-next-step-2";
 
-    const storage_type = document
-      .getElementById("slotted-storage-type")
-      .value.trim();
-    const avg_pallets = document
-      .getElementById("slotted-avg-pallets")
-      .value.trim();
-    const return_rate = document
-      .getElementById("slotted-return-rate")
-      .value.trim();
+    // Show loading spinner
+    if (!showButtonLoading(buttonId, "Saving...")) return;
 
-    // Inbound shipment format
-    const palletized = document.getElementById("slotted-palletized").checked;
-    const floor_loaded = document.getElementById(
-      "slotted-floor-loaded"
-    ).checked;
-    const parcel = document.getElementById("slotted-parcel").checked;
-
-    // Optional fields
-    const single_sku_case =
-      document.getElementById("slotted-single-sku-case")?.checked || false;
-    const case_barcoding =
-      document.getElementById("slotted-case-barcoding")?.checked || false;
-
-    // Validation
-    if (!inbound_frequency || !storage_type || !avg_pallets || !return_rate) {
-      alert("Please fill all required fields in the Inbound Profile.");
-      return;
-    }
-
-    // Check if at least one shipment format is selected
-    if (!palletized && !floor_loaded && !parcel) {
-      alert("Please select at least one inbound shipment format.");
-      return;
-    }
-
-    // Build inbound formats array
-    const inboundFormats = [];
-    if (palletized) inboundFormats.push("Palletized");
-    if (floor_loaded) inboundFormats.push("Floor Loaded");
-    if (parcel) inboundFormats.push("Parcels");
-
-    // Prepare API payload
-    const apiPayload = {
-      inventoryFrequency: inbound_frequency.toUpperCase(),
-      storageType: storage_type,
-      averagePalletsPerMonth: parseInt(avg_pallets),
-      inboundFormats: inboundFormats,
-      averageReturnRate: parseFloat(return_rate),
-      isSingleSkuPerCase: single_sku_case,
-      hasCaseLevelBarcoding: case_barcoding,
-      leadContactId: state.lead_id,
-    };
-
-    // API integration for inbound profile
     try {
+      // Required fields
+      const inbound_frequency_weekly = document.getElementById(
+        "slotted-freq-weekly"
+      ).checked;
+      const inbound_frequency_monthly = document.getElementById(
+        "slotted-freq-monthly"
+      ).checked;
+      const inbound_frequency_quarterly = document.getElementById(
+        "slotted-freq-quarterly"
+      ).checked;
+      const inbound_frequency = inbound_frequency_weekly
+        ? "weekly"
+        : inbound_frequency_monthly
+        ? "monthly"
+        : inbound_frequency_quarterly
+        ? "quarterly"
+        : "";
+
+      const storage_type = document
+        .getElementById("slotted-storage-type")
+        .value.trim();
+      const avg_pallets = document
+        .getElementById("slotted-avg-pallets")
+        .value.trim();
+      const return_rate = document
+        .getElementById("slotted-return-rate")
+        .value.trim();
+
+      // Inbound shipment format
+      const palletized = document.getElementById("slotted-palletized").checked;
+      const floor_loaded = document.getElementById(
+        "slotted-floor-loaded"
+      ).checked;
+      const parcel = document.getElementById("slotted-parcel").checked;
+
+      // Optional fields
+      const single_sku_case =
+        document.getElementById("slotted-single-sku-case")?.checked || false;
+      const case_barcoding =
+        document.getElementById("slotted-case-barcoding")?.checked || false;
+
+      // Validation
+      if (!inbound_frequency || !storage_type || !avg_pallets || !return_rate) {
+        hideButtonLoading(buttonId);
+        alert("Please fill all required fields in the Inbound Profile.");
+        return;
+      }
+
+      // Check if at least one shipment format is selected
+      if (!palletized && !floor_loaded && !parcel) {
+        hideButtonLoading(buttonId);
+        alert("Please select at least one inbound shipment format.");
+        return;
+      }
+
+      // Build inbound formats array
+      const inboundFormats = [];
+      if (palletized) inboundFormats.push("Palletized");
+      if (floor_loaded) inboundFormats.push("Floor Loaded");
+      if (parcel) inboundFormats.push("Parcels");
+
+      // Prepare API payload
+      const apiPayload = {
+        inventoryFrequency: inbound_frequency.toUpperCase(),
+        storageType: storage_type,
+        averagePalletsPerMonth: parseInt(avg_pallets),
+        inboundFormats: inboundFormats,
+        averageReturnRate: parseFloat(return_rate),
+        isSingleSkuPerCase: single_sku_case,
+        hasCaseLevelBarcoding: case_barcoding,
+        leadContactId: state.lead_id,
+      };
+
       // Determine if this is an update (PUT) or create (POST)
       console.log("Has existing data:", state.inbound_profile?.hasExistingData);
       const isUpdate = state.inbound_profile?.hasExistingData;
@@ -4015,6 +4059,7 @@
       const inboundResponse = await response.json();
 
       if (!response.ok) {
+        hideButtonLoading(buttonId);
         alert(
           inboundResponse.message ||
             `Failed to ${
@@ -4054,24 +4099,54 @@
       saveState();
       render();
       console.log("Inbound profile completed:", state.inbound_profile);
+
+      // Show success state briefly
+      showButtonSuccess(buttonId, "Saved!", 1000);
     } catch (err) {
+      hideButtonLoading(buttonId);
       alert("Network error. Please try again later.");
       console.error("Inbound profile API error:", err);
     }
   }
 
   // Step 3 handler - Final Submit
-  function handleFinalSubmit() {
-    // Simulate RFP save
-    // saveState();
-    // render();
-    // // Notify parent window of form submission (for embedding)
-    // window.postMessage(
-    //   { type: "slotted-rfp-form-submitted", leadId: state.lead_id },
-    //   "*"
-    // );
-    // // Simulate provider notification
-    // console.log("Provider notified: New lead with ICP score available.");
+  async function handleFinalSubmit() {
+    const buttonId = "slotted-submit-final";
+
+    // Show loading spinner
+    if (!showButtonLoading(buttonId, "Submitting RFP...")) return;
+
+    try {
+      // Simulate RFP save with delay
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Show success state
+      showButtonSuccess(buttonId, "RFP Submitted!", 3000);
+
+      // Simulate final submission logic
+      saveState();
+
+      // Notify parent window of form submission (for embedding)
+      window.postMessage(
+        { type: "slotted-rfp-form-submitted", leadId: state.lead_id },
+        "*"
+      );
+
+      // Simulate provider notification
+      console.log("Provider notified: New lead with ICP score available.");
+
+      // Update state to completed
+      state.status = "complete";
+
+      // Re-render after a delay to show completion state
+      setTimeout(() => {
+        render();
+      }, 3000);
+    } catch (err) {
+      hideButtonLoading(buttonId);
+      alert("Failed to submit RFP. Please try again.");
+      console.error("Final submit error:", err);
+    }
   }
 
   // Main initialization function

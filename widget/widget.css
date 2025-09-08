@@ -259,10 +259,17 @@
   border-radius: 0 0 8px 8px;
 }
 
+.slotted-powered-by {
+  font-size: 0.8rem;
+  color: #6b7280;
+  font-weight: 400;
+}
+
 .slotted-navigation-group {
   display: flex;
   align-items: center;
   gap: 1rem;
+  margin-left: auto;
 }
 
 /* Consistent navigation button styling */
@@ -1563,4 +1570,50 @@ select.slotted-input {
 
 .slotted-load-more-text {
   font-style: italic;
+}
+
+/* Button Loading States */
+.slotted-button-loading,
+.slotted-button-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.slotted-spinner {
+  width: 16px;
+  height: 16px;
+  animation: slotted-spin 1s linear infinite;
+}
+
+.slotted-spinner-track {
+  opacity: 0.25;
+}
+
+.slotted-spinner-fill {
+  opacity: 0.75;
+}
+
+.slotted-success-icon {
+  width: 16px;
+  height: 16px;
+  color: #10b981;
+}
+
+@keyframes slotted-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Button disabled state during loading */
+.slotted-btn:disabled,
+.slotted-btn-back:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  pointer-events: none;
 }
