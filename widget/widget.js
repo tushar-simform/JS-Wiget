@@ -1065,7 +1065,6 @@
       <div class="slotted-step${
         state.step === 0 ? " active" : ""
       }" id="slotted-step-0">
-        <img src="http://localhost:3000/assets/slotted.png" class="slotted-logo" alt="Provider Logo"/>
         <p class="slotted-section-description">Please fill out the required details below</p>
         <form id="slotted-contact-form" novalidate>
           <div class="slotted-input-wrapper">
