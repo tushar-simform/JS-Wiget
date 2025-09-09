@@ -1065,7 +1065,7 @@
       <div class="slotted-step${
         state.step === 0 ? " active" : ""
       }" id="slotted-step-0">
-        <img src="assets/slotted.png" class="slotted-logo" alt="Provider Logo"/>
+        <img src="http://localhost:3000/assets/slotted.png" class="slotted-logo" alt="Provider Logo"/>
         <p class="slotted-section-description">Please fill out the required details below</p>
         <form id="slotted-contact-form" novalidate>
           <div class="slotted-input-wrapper">
@@ -1902,7 +1902,7 @@
       <div class="slotted-navigation-bar">
         <div class="slotted-powered-by">
           <div class="slotted-powered-text">Powered by</div>
-          <img src="assets/slotted.png" alt="Logo" />
+          <img src="http://localhost:3000/assets/slotted.png" alt="Logo" />
         </div>
         ${renderBanner()}
         <div class="slotted-navigation-group">
@@ -2357,7 +2357,7 @@
         <h4 style="margin: 0 0 0.5rem 0; color: #374151;">Ready to submit your RFP?</h4>
           <p style="margin: 0 0 0 0; color: #6b7280; font-size: 0.9rem;">Your RFP is ready to go. Click Submit to send it to the provider, and we'll notify you once they've reviewed.</p>
         </div> 
-        <img src="assets/slotted.png" alt="Slotted" style="width: 100%; max-width: 200px; display: block;border-radius: 8px; "/>
+        <img src="http://localhost:3000/assets/slotted.png" alt="Slotted" style="width: 100%; max-width: 200px; display: block;border-radius: 8px; "/>
         </div>
 
       </div>
@@ -3001,6 +3001,27 @@
 
     if (!areSerializedSelected) {
       alert("Please specify if your products are serialized.");
+      isValid = false;
+    }
+
+    // Validate growth expectations - check if any growth error elements are visible
+    const growthErrorIds = [
+      "slotted-year1-best-error",
+      "slotted-year1-worst-error",
+      "slotted-year2-best-error",
+      "slotted-year2-worst-error",
+    ];
+
+    const hasGrowthErrors = growthErrorIds.some((errorId) => {
+      const errorElement = document.getElementById(errorId);
+      return (
+        errorElement &&
+        errorElement.style.display !== "none" &&
+        errorElement.textContent.trim() !== ""
+      );
+    });
+
+    if (hasGrowthErrors) {
       isValid = false;
     }
 
@@ -3862,7 +3883,6 @@
   // Step 2 handler - Outbound Profile
   async function handleOutboundProfileSubmit() {
     const buttonId = "slotted-next-step-1";
-
     // Show loading spinner
     if (!showButtonLoading(buttonId, "Saving...")) return;
 
