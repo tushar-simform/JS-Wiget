@@ -1,6 +1,5 @@
 // Slotted Easy-RFP Widget (Vanilla JS, static data)
 (function () {
-  // API Configuration
   const API_BASE_URL = "https://api-develop.izba.co"; // Replace with your actual API base URL
 
   // reCAPTCHA Configuration
@@ -335,44 +334,7 @@
       .filter((shortCode) => shortCode !== null);
   }
 
-  // Global functions for country selection (accessible from onclick)
-  window.selectCountry = function (countryName) {
-    if (!state.outbound_profile.selected_countries) {
-      state.outbound_profile.selected_countries = [];
-    }
-
-    // Don't add if already selected
-    if (!state.outbound_profile.selected_countries.includes(countryName)) {
-      state.outbound_profile.selected_countries.push(countryName);
-
-      // Update the selected countries display
-      const selectedCountriesContainer = document.getElementById(
-        "slotted-selected-countries"
-      );
-      if (selectedCountriesContainer) {
-        selectedCountriesContainer.innerHTML = renderSelectedCountries();
-      }
-
-      // Clear the search input
-      const sellLocationInput = document.getElementById(
-        "slotted-sell-location"
-      );
-      if (sellLocationInput) {
-        sellLocationInput.value = "";
-      }
-
-      // Hide the dropdown
-      const countryDropdown = document.getElementById(
-        "slotted-country-dropdown"
-      );
-      if (countryDropdown) {
-        countryDropdown.style.display = "none";
-      }
-
-      saveState();
-    }
-  };
-
+  // Global functions for new multiselect dropdown
   window.removeSelectedCountry = function (countryName) {
     if (state.outbound_profile.selected_countries) {
       state.outbound_profile.selected_countries =
@@ -398,7 +360,6 @@
     }
   };
 
-  // Global functions for new multiselect dropdown
   window.toggleCountryDropdown = function () {
     const dropdown = document.getElementById("slotted-country-dropdown");
     const arrow = document.getElementById("slotted-dropdown-arrow");
@@ -1193,10 +1154,10 @@
           ${renderSelectedCountries()}
         </div>
         <div class="slotted-multiselect-container">
-          <div class="slotted-search-input" onclick="toggleCountryDropdown()">
+          <div class="slotted-search-input">
             <span class="slotted-search-icon">🔍</span>
-            <input class="slotted-input" id="slotted-sell-location" placeholder="Search countries..." value="" autocomplete="off" onclick="event.stopPropagation(); showCountryDropdown()" oninput="filterCountryDropdown(this.value)" onfocus="showCountryDropdown()"/>
-            <span class="slotted-dropdown-arrow" id="slotted-dropdown-arrow">▼</span>
+            <input class="slotted-input" id="slotted-sell-location" placeholder="Search countries..." value="" autocomplete="off" onclick="showCountryDropdown()" oninput="filterCountryDropdown(this.value)" onfocus="showCountryDropdown()"/>
+            <span class="slotted-dropdown-arrow" id="slotted-dropdown-arrow" onclick="toggleCountryDropdown()">▼</span>
           </div>
           <div class="slotted-multiselect-dropdown" id="slotted-country-dropdown" style="display: none;" onclick="event.stopPropagation()">
             <div class="slotted-multiselect-options" id="slotted-country-options">
@@ -3584,15 +3545,8 @@
 
         // Remove old event handlers - using new filterCountryDropdown system instead
         // The HTML oninput="filterCountryDropdown(this.value)" will handle search
-
-        sellLocationInput.onblur = function () {
-          // Delay hiding to allow click on dropdown items
-          setTimeout(() => {
-            countryDropdown.style.display = "none";
-            const arrow = document.getElementById("slotted-dropdown-arrow");
-            if (arrow) arrow.textContent = "▼";
-          }, 200);
-        };
+        // Note: Removed onblur handler as it was interfering with multiselect functionality
+        // The global click outside handler will manage dropdown closing
       }
 
       // Add click outside handler for multiselect dropdown
