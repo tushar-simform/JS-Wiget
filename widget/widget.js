@@ -11,17 +11,17 @@
   const THEME = {
     colors: { primary: "#447ecfff", background: "#ffffffff", text: "#222" },
     fonts: "Inter, Arial, sans-serif",
-    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThlbtKPH9W2wUhsMFRThundJCwEDaLRhjxoQ&s",
   };
 
   // Country codes data for phone number selector
   const COUNTRY_CODES = [
     { code: "+1", flag: "🇺🇸", name: "United States", shortCode: "USA" },
     { code: "+44", flag: "🇬🇧", name: "United Kingdom", shortCode: "GBR" },
-    { code: "+91", flag: "🇮🇳", name: "India", shortCode: "IND" },
+    { code: "+1", flag: "🇨🇦", name: "Canada", shortCode: "CAN" },
     { code: "+61", flag: "🇦🇺", name: "Australia", shortCode: "AUS" },
     { code: "+33", flag: "🇫🇷", name: "France", shortCode: "FRA" },
     { code: "+49", flag: "🇩🇪", name: "Germany", shortCode: "DEU" },
+    { code: "+91", flag: "🇮🇳", name: "India", shortCode: "IND" },
     { code: "+81", flag: "🇯🇵", name: "Japan", shortCode: "JPN" },
     { code: "+86", flag: "🇨🇳", name: "China", shortCode: "CHN" },
     { code: "+7", flag: "🇷🇺", name: "Russia", shortCode: "RUS" },
@@ -41,7 +41,6 @@
     { code: "+36", flag: "🇭🇺", name: "Hungary", shortCode: "HUN" },
     { code: "+30", flag: "🇬🇷", name: "Greece", shortCode: "GRC" },
     { code: "+358", flag: "🇫🇮", name: "Finland", shortCode: "FIN" },
-    { code: "+1", flag: "🇨🇦", name: "Canada", shortCode: "CAN" },
     { code: "+52", flag: "🇲🇽", name: "Mexico", shortCode: "MEX" },
     { code: "+54", flag: "🇦🇷", name: "Argentina", shortCode: "ARG" },
     { code: "+56", flag: "🇨🇱", name: "Chile", shortCode: "CHL" },
@@ -79,19 +78,16 @@
     { value: "12", name: "December" },
   ];
 
-  // Years data for dynamic rendering (2025-2034)
-  const YEARS = [
-    { value: "2025", name: "2025" },
-    { value: "2026", name: "2026" },
-    { value: "2027", name: "2027" },
-    { value: "2028", name: "2028" },
-    { value: "2029", name: "2029" },
-    { value: "2030", name: "2030" },
-    { value: "2031", name: "2031" },
-    { value: "2032", name: "2032" },
-    { value: "2033", name: "2033" },
-    { value: "2034", name: "2034" },
-  ];
+  // Years data for dynamic rendering (current year + 10 years)
+  const YEARS = (() => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let i = 0; i < 10; i++) {
+      const year = currentYear + i;
+      years.push({ value: year.toString(), name: year.toString() });
+    }
+    return years;
+  })();
 
   // Storage type options for inbound profile
   const STORAGE_TYPES = [
@@ -117,7 +113,7 @@
     {
       id: 3,
       title: "Final Review",
-      description: "Submit to providers",
+      description: "Submit",
       percentage: 100,
     },
   ];
@@ -207,11 +203,7 @@
       if (search || page > 1) {
         return { providers: [], hasMore: false, total: 0 };
       }
-
-      // Only fallback on initial load
-      console.log("Falling back to static 3PL provider data");
       providersError = null;
-
       return { providers: [], hasMore: false, total: 0 };
     } finally {
       providersLoading = false;
@@ -228,10 +220,8 @@
       20,
       true // append to existing
     );
-
     // Update the provider dropdown if it's visible
     updateProviderDropdown();
-
     return result;
   }
 
@@ -628,27 +618,14 @@
 
     if (!dropdown || dropdown.hasInfiniteScrollListener) return;
 
-    console.log("Setting up infinite scroll for provider dropdown");
-
     dropdown.addEventListener("scroll", function () {
       const scrollTop = this.scrollTop;
       const scrollHeight = this.scrollHeight;
       const clientHeight = this.clientHeight;
 
-      console.log("Dropdown scroll event:", {
-        scrollTop,
-        scrollHeight,
-        clientHeight,
-        hasMore: providersHasMore,
-        loading: providersLoading,
-        threshold: scrollHeight - 30,
-      });
-
       // Load more when near bottom (within 30px)
       if (scrollTop + clientHeight >= scrollHeight - 30) {
         if (providersHasMore && !providersLoading) {
-          console.log("Infinite scroll triggered - loading more providers...");
-
           const loadMoreElement = document.getElementById(
             "slotted-provider-load-more"
           );
@@ -668,7 +645,6 @@
 
           loadMoreProviders()
             .then(() => {
-              console.log("More providers loaded successfully");
               // Hide spinner after loading
               if (loadMoreElement) {
                 const spinner = loadMoreElement.querySelector(
@@ -687,18 +663,12 @@
             .catch((error) => {
               console.error("Error loading more providers:", error);
             });
-        } else {
-          console.log("Cannot load more:", {
-            hasMore: providersHasMore,
-            loading: providersLoading,
-          });
         }
       }
     });
 
     // Mark as having the listener to avoid duplicates
     dropdown.hasInfiniteScrollListener = true;
-    console.log("Infinite scroll listener attached successfully");
   }
 
   // Retry loading providers
@@ -878,7 +848,7 @@
     }
 
     const result = await fetchProviderData(widgetKey);
-    console.log(result);
+
     if (result.success) {
       PROVIDER = { ...result.data, theme: THEME };
 
@@ -945,36 +915,22 @@
   // Restore from session
   if (sessionStorage.getItem("slotted_state")) {
     state = JSON.parse(sessionStorage.getItem("slotted_state"));
-    console.log("=== LOADING STATE ===");
-    console.log(
-      "Outbound profile loaded:",
-      JSON.stringify(state.outbound_profile, null, 2)
-    );
   }
 
   function saveState() {
-    console.log("=== SAVING STATE ===");
-    console.log(
-      "Outbound profile being saved:",
-      JSON.stringify(state.outbound_profile, null, 2)
-    );
     sessionStorage.setItem("slotted_state", JSON.stringify(state));
   }
 
   // reCAPTCHA Functions
   function initializeRecaptcha() {
-    console.log("Initializing reCAPTCHA...");
-
     // Check if grecaptcha is available
     if (typeof grecaptcha === "undefined") {
-      console.error("reCAPTCHA library not loaded");
       return false;
     }
 
     try {
       // Wait for reCAPTCHA to be ready
       grecaptcha.ready(function () {
-        console.log("reCAPTCHA is ready");
         isRecaptchaLoaded = true;
         renderRecaptchaWidget();
       });
@@ -990,15 +946,7 @@
       "slotted-recaptcha-container"
     );
 
-    if (!recaptchaContainer) {
-      console.log(
-        "reCAPTCHA container not found, will render when contact form is shown"
-      );
-      return;
-    }
-
-    if (!isRecaptchaLoaded) {
-      console.log("reCAPTCHA not loaded yet");
+    if (!recaptchaContainer || !isRecaptchaLoaded) {
       return;
     }
 
@@ -1015,15 +963,12 @@
         "expired-callback": onRecaptchaExpired,
         "error-callback": onRecaptchaError,
       });
-
-      console.log("reCAPTCHA widget rendered with ID:", recaptchaWidgetId);
     } catch (error) {
       console.error("Error rendering reCAPTCHA widget:", error);
     }
   }
 
   function onRecaptchaSuccess(token) {
-    console.log("reCAPTCHA solved successfully");
     // Clear any error message
     const errorElement = document.getElementById("slotted-recaptcha-error");
     if (errorElement) {
@@ -1032,7 +977,6 @@
   }
 
   function onRecaptchaExpired() {
-    console.log("reCAPTCHA token expired");
     // Show error message
     const errorElement = document.getElementById("slotted-recaptcha-error");
     if (errorElement) {
@@ -1042,7 +986,6 @@
   }
 
   function onRecaptchaError() {
-    console.error("reCAPTCHA error occurred");
     // Show error message
     const errorElement = document.getElementById("slotted-recaptcha-error");
     if (errorElement) {
@@ -1054,7 +997,6 @@
 
   function validateRecaptcha() {
     if (!isRecaptchaLoaded || recaptchaWidgetId === null) {
-      console.log("reCAPTCHA not initialized");
       return false;
     }
 
@@ -1064,31 +1006,6 @@
     } catch (error) {
       console.error("Error validating reCAPTCHA:", error);
       return false;
-    }
-  }
-
-  function getRecaptchaToken() {
-    if (!isRecaptchaLoaded || recaptchaWidgetId === null) {
-      return null;
-    }
-
-    try {
-      return grecaptcha.getResponse(recaptchaWidgetId);
-    } catch (error) {
-      console.error("Error getting reCAPTCHA token:", error);
-      return null;
-    }
-  }
-
-  function resetRecaptcha() {
-    if (!isRecaptchaLoaded || recaptchaWidgetId === null) {
-      return;
-    }
-
-    try {
-      grecaptcha.reset(recaptchaWidgetId);
-    } catch (error) {
-      console.error("Error resetting reCAPTCHA:", error);
     }
   }
 
@@ -1133,11 +1050,12 @@
   }
 
   function renderBanner() {
+    console.log("state.status", state.status);
     if (state.status === "Partially Completed") {
       return `<div class="slotted-banner">Partial lead saved. Provider notified.</div>`;
     }
-    if (state.status === "Complete") {
-      return `<div class="slotted-banner">Lead complete! ICP Score: <b>${state.icp_score}</b></div>`;
+    if (state.status === "Completed") {
+      return `<div class="slotted-banner">Lead completed</b></div>`;
     }
     return "";
   }
@@ -1227,8 +1145,7 @@
           <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-no-axes-column-increasing w-6 h-6" data-lov-id="src/components/ShippingProfileForm.tsx:238:14" data-lov-name="BarChart" data-component-path="src/components/ShippingProfileForm.tsx" data-component-line="238" data-component-file="ShippingProfileForm.tsx" data-component-name="BarChart" data-component-content="%7B%22className%22%3A%22w-6%20h-6%22%7D"><line x1="12" x2="12" y1="20" y2="10"></line><line x1="18" x2="18" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="16"></line></svg></span>
           <div>
           <h4>Critical Volume Metrics</h4>
-           <p class="slotted-section-description">Essential information needed for all provider matches</p>
-          </div>
+           </div>
            <span class="slotted-required-badge">Required</span>
         </div>
         
@@ -1299,7 +1216,7 @@
           <span class="slotted-growth-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-target w-5 h-5 text-blue-600" data-lov-id="src/components/GrowthScenarioPlanner.tsx:43:10" data-lov-name="Target" data-component-path="src/components/GrowthScenarioPlanner.tsx" data-component-line="43" data-component-file="GrowthScenarioPlanner.tsx" data-component-name="Target" data-component-content="%7B%22className%22%3A%22w-5%20h-5%20text-blue-600%22%7D"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></span>
           <h5>Growth Expectations</h5>
         </div>
-        <p class="slotted-growth-description">Plan for best and worst case scenarios to help providers understand your range</p>
+        <p class="slotted-growth-description">Plan for best and worst case scenarios to help provider understand your range</p>
         
         <div class="slotted-current-orders">
           <label>Current Monthly Orders</label>
@@ -1392,7 +1309,6 @@
           <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-6 h-6" data-lov-id="src/components/ShippingProfileForm.tsx:347:14" data-lov-name="TrendingUp" data-component-path="src/components/ShippingProfileForm.tsx" data-component-line="347" data-component-file="ShippingProfileForm.tsx" data-component-name="TrendingUp" data-component-content="%7B%22className%22%3A%22w-6%20h-6%22%7D"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
          <div>
          <h4>Important Business Context</h4>
-         <p class="slotted-section-description">Help us find the best provider matches for your needs</p>
          </div>
           <span class="slotted-required-badge">Required</span>
         </div>
@@ -1505,7 +1421,6 @@
             <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up w-5 h-5" data-lov-id="src/components/ShippingProfileForm.tsx:448:18" data-lov-name="TrendingUp" data-component-path="src/components/ShippingProfileForm.tsx" data-component-line="448" data-component-file="ShippingProfileForm.tsx" data-component-name="TrendingUp" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg></span>
           <div>
           <h4>Additional Context</h4>
-           <p class="slotted-section-description">Optional information that can help improve provider matches</p>
           </div> 
           </div>
           
@@ -1802,7 +1717,7 @@
         state.step === 1 ? " active" : ""
       }" id="slotted-step-1">
         <h3>Outbound Profile</h3>
-        <p class="slotted-section-description">Tell us about your volume and business context to get the right provider matches.</p>
+        <p class="slotted-section-description">Tell us about your volume and business context.</p>
         
         ${renderCriticalVolumeMetrics()}
         ${renderBusinessContextCard()}
@@ -2050,16 +1965,16 @@
         state.step === 3 ? " active" : ""
       }" id="slotted-step-3">
         <h3>Final Review</h3>
-        <p style="margin-bottom: 16px; margin-top: 0; color: #6b7280; text-align: center;font-size: 14px">Please review your information before we submit your RFP to potential providers.</p>
+        <p style="margin-bottom: 16px; margin-top: 0; color: #6b7280; text-align: center;font-size: 14px">Please review your information before we submit your RFP to provider.</p>
         
         <!-- Shipping Profile Card -->
         <div class="slotted-business-context-card" style="margin-bottom: 1.5rem;">
           <div class="slotted-section-header-with-actions">
-            <div class="slotted-section-header">
+            <div class="slotted-section-header-left">
               <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin w-5 h-5" data-lov-id="src/components/ReviewSummary.tsx:106:18" data-lov-name="MapPin" data-component-path="src/components/ReviewSummary.tsx" data-component-line="106" data-component-file="ReviewSummary.tsx" data-component-name="MapPin" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
               <div>
                 <h4>Shipping Profile</h4>
-                <p class="slotted-section-description">Volume metrics and business context</p>
+                <p class="slotted-section-icon-description">Volume metrics and business context</p>
               </div>
             </div>
             <div class="slotted-section-header-right">
@@ -2295,14 +2210,6 @@
                   const contractYear =
                     state.outbound_profile?.contract_end_year;
 
-                  console.log("Contract Date Display Logic:", {
-                    fulfillmentMethod,
-                    contractMonth,
-                    contractYear,
-                    monthType: typeof contractMonth,
-                    yearType: typeof contractYear,
-                  });
-
                   if (fulfillmentMethod !== "3pl") {
                     return "Not applicable";
                   }
@@ -2317,10 +2224,8 @@
                         month: "long",
                         year: "numeric",
                       });
-                      console.log("Formatted date:", formatted);
                       return formatted;
                     } catch (error) {
-                      console.error("Date formatting error:", error);
                       return "Invalid date";
                     }
                   }
@@ -2352,12 +2257,12 @@
 
         <!-- Inbound Profile Card -->
         <div class="slotted-business-context-card" style="margin-bottom: 2rem;">
-          <div class="slotted-section-header-with-actions" style="margin-bottom: 1.5rem;">
-            <div class="slotted-section-header">
+          <div class="slotted-section-header" >
+            <div class="slotted-section-header-left">
               <span class="slotted-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-package w-5 h-5" data-lov-id="src/components/ReviewSummary.tsx:190:18" data-lov-name="Package" data-component-path="src/components/ReviewSummary.tsx" data-component-line="190" data-component-file="ReviewSummary.tsx" data-component-name="Package" data-component-content="%7B%22className%22%3A%22w-5%20h-5%22%7D"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"></path><path d="M12 22V12"></path><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"></path><path d="m7.5 4.27 9 5.15"></path></svg></span>
               <div>
                 <h4>Inbound Profile</h4>
-                <p class="slotted-section-description">Product and operational requirements</p>
+                <p class="slotted-section-icon-description">Product and operational requirements</p>
               </div>
             </div>
             <div class="slotted-section-header-right">
@@ -2447,12 +2352,12 @@
         </div>
 
         <!-- Create Volume Profile Section -->
-        <div style="display:flex;justify-content:space-between;align-items:center;background: #f8fafc; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; ">
+        <div style="display:flex;justify-content:space-between;align-items:center;background: #dbeafe; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; ">
         <div >
-        <h4 style="margin: 0 0 0.5rem 0; color: #374151;">Ready to create your volume profile?</h4>
-          <p style="margin: 0 0 1.5rem 0; color: #6b7280; font-size: 0.9rem;">Generate a comprehensive analysis of your business volume and requirements.</p>
+        <h4 style="margin: 0 0 0.5rem 0; color: #374151;">Ready to submit your RFP?</h4>
+          <p style="margin: 0 0 0 0; color: #6b7280; font-size: 0.9rem;">Your RFP is ready to go. Click Submit to send it to the provider, and we'll notify you once they've reviewed.</p>
         </div> 
-        <img src="assets/slotted.png" alt="Slotted" style="width: 100%; max-width: 200px; display: block; "/>
+        <img src="assets/slotted.png" alt="Slotted" style="width: 100%; max-width: 200px; display: block;border-radius: 8px; "/>
         </div>
 
       </div>
@@ -2808,16 +2713,6 @@
           state.outbound_profile = { ...state.outbound_profile, ...mappedData };
           saveState();
 
-          console.log("Outbound profile data fetched and loaded:", mappedData);
-          console.log("3PL Provider debug info:", {
-            currentProvider: profileData.currentProvider,
-            currentProviderRef: profileData.currentProviderRef,
-            mapped_provider_id: mappedData.current_provider,
-            mapped_provider_name: mappedData.current_provider_name,
-            fulfillment_method: mappedData.fulfillment_method,
-            contract_end_month: mappedData.contract_end_month,
-            contract_end_year: mappedData.contract_end_year,
-          });
           return true;
         }
       }
@@ -2883,7 +2778,6 @@
             ...mappedData,
           };
 
-          console.log("Inbound profile fetched successfully:", mappedData);
           return true;
         } else {
           // No data found, set flag to indicate no existing data
@@ -2892,7 +2786,6 @@
             dataLoaded: true,
             hasExistingData: false,
           };
-          console.log("No inbound profile found");
           return false;
         }
       }
@@ -3843,11 +3736,9 @@
     if (state.step === 3) {
       // Fetch existing outbound profile data if available and not already loaded
       if (state.lead_id && !state.outbound_profile?.dataLoaded) {
-        console.log("Step 3: Loading outbound profile data...");
         fetchOutboundProfile(state.lead_id).then((loaded) => {
           if (loaded) {
             state.outbound_profile.dataLoaded = true;
-            console.log("Step 3: Data loaded, re-rendering...");
             render(); // Re-render to show the updated data
           }
         });
@@ -3859,11 +3750,6 @@
 
       const backBtn = document.getElementById("slotted-back-step-3");
       if (backBtn) backBtn.onclick = handleBackToInbound;
-
-      const createProfileBtn = document.getElementById(
-        "slotted-create-profile"
-      );
-      if (createProfileBtn) createProfileBtn.onclick = handleCreateProfile;
 
       // Edit buttons
       const editOutboundBtn = document.getElementById("slotted-edit-outbound");
@@ -3911,13 +3797,6 @@
     render();
   }
 
-  // Create Volume Profile handler
-  function handleCreateProfile() {
-    // This could open a modal, redirect to another page, or trigger an API call
-    console.log("Create Volume Profile clicked");
-    alert("Volume Profile creation feature coming soon!");
-  }
-
   // Step 1 handler - Contact Info
   async function handleContactSubmit() {
     // Validate the form first
@@ -3932,9 +3811,6 @@
     const phone = document.getElementById("slotted-phone").value.trim();
     const countryCode = document.getElementById("slotted-country-code").value;
     const gdpr = document.getElementById("slotted-gdpr").checked;
-
-    // Log provider ID from script URL
-    console.log("Provider ID from URL:", PROVIDER_WIDGET_KEY);
 
     // API integration for contact form
     try {
@@ -4119,14 +3995,6 @@
         : hazardous_no
         ? "no"
         : "";
-      console.log({
-        monthly_orders,
-        avg_items,
-        avg_order_value,
-        sku_count,
-        selected_countries: state.outbound_profile?.selected_countries,
-        are_serialized,
-      });
 
       // Check if at least one shipment type is selected
       if (
@@ -4271,11 +4139,6 @@
         return;
       }
 
-      console.log(
-        `Outbound profile ${isUpdate ? "updated" : "created"} successfully:`,
-        outboundResponse
-      );
-
       // Update state with form data
       state = {
         ...state,
@@ -4328,7 +4191,6 @@
 
       saveState();
       render();
-      console.log("Outbound profile completed:", state.outbound_profile);
 
       // Show success state briefly
       showButtonSuccess(buttonId, "Saved!", 1000);
@@ -4420,8 +4282,6 @@
         leadContactId: state.lead_id,
       };
 
-      // Determine if this is an update (PUT) or create (POST)
-      console.log("Has existing data:", state.inbound_profile?.hasExistingData);
       const isUpdate = state.inbound_profile?.hasExistingData;
       const method = isUpdate ? "PUT" : "POST";
 
@@ -4449,11 +4309,6 @@
         return;
       }
 
-      console.log(
-        `Inbound profile ${isUpdate ? "updated" : "created"} successfully:`,
-        inboundResponse
-      );
-
       // Update state with form data
       state = {
         ...state,
@@ -4478,7 +4333,6 @@
 
       saveState();
       render();
-      console.log("Inbound profile completed:", state.inbound_profile);
 
       // Show success state briefly
       showButtonSuccess(buttonId, "Saved!", 1000);
@@ -4497,26 +4351,40 @@
     if (!showButtonLoading(buttonId, "Submitting RFP...")) return;
 
     try {
-      // Simulate RFP save with delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Call the real API to submit the final review
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/three-pl/lead/submit/lead-rfp-step`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            leadContactId: state.lead_id,
+            // Add other required payload fields here if needed
+          }),
+        }
+      );
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result?.message || "API error");
+      }
+
+      // Store the response data in state
+      if (result.success && result.data) {
+        state.status = result.data.data.status;
+        state.icpScore = result.data.data.icpScore;
+      }
 
       // Show success state
       showButtonSuccess(buttonId, "RFP Submitted!", 3000);
 
-      // Simulate final submission logic
+      // Save state and notify parent window
       saveState();
-
-      // Notify parent window of form submission (for embedding)
       window.postMessage(
         { type: "slotted-rfp-form-submitted", leadId: state.lead_id },
         "*"
       );
-
-      // Simulate provider notification
-      console.log("Provider notified: New lead with ICP score available.");
-
-      // Update state to completed
-      state.status = "complete";
 
       // Re-render after a delay to show completion state
       setTimeout(() => {
@@ -4602,12 +4470,12 @@
           box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
           display: flex;
           flex-direction: column;
-          padding: 36px
+          padding: 12px 36px
         ">
           <button id="slotted-modal-close" style="
             position: absolute;
             top: 8px;
-            right: 13px;
+            right: 8px;
             background: #f3f4f6;
             border: none;
             border-radius: 50%;
