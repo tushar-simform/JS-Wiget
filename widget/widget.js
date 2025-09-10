@@ -95,6 +95,20 @@
     { value: "frozenStorage", name: "Frozen (Below 32°F)" },
   ];
 
+  // Fulfillment method options for outbound profile
+  const FULFILLMENT_METHODS = [
+    {
+      value: "inHouseFulfillment",
+      label: "In house fulfillment",
+    },
+    { value: "threePlProvider", label: "3PL provider" },
+    { value: "dropshipping", label: "Dropshipping" },
+    {
+      value: "notFulfillingYet",
+      label: "Not fulfilling yet",
+    },
+  ];
+
   // Step configuration - Updated for RFP flow after contact
   const STEPS_CONFIG = [
     {
@@ -1010,7 +1024,7 @@
     `;
   }
 
-  function renderBanner() {
+  function renderLeadStatusBanner() {
     console.log("state.status", state.status);
     if (state.status === "Partially Completed") {
       return `<div class="slotted-banner">Partial lead saved. Provider notified.</div>`;
@@ -1402,43 +1416,27 @@
       <div class="slotted-form-section">
         <label class="slotted-label">How do you currently fulfill orders?</label>
         <div class="slotted-radio-group" style="flex-direction: column; gap: 0.75rem;">
-          <div class="slotted-radio-item">
-            <input type="radio" id="slotted-fulfill-inhouse" name="fulfillment" value="inhouse" ${
-              state.outbound_profile.fulfillment_method === "inhouse"
+          ${FULFILLMENT_METHODS.map(
+            (method) => `
+            <div class="slotted-radio-item">
+              <input type="radio" id="slotted-fulfill-${
+                method.value
+              }" name="fulfillment" value="${method.value}" ${
+              state.outbound_profile.fulfillment_method === method.value
                 ? "checked"
                 : ""
             }/>
-            <label for="slotted-fulfill-inhouse">In house fulfillment</label>
-          </div>
-          <div class="slotted-radio-item">
-            <input type="radio" id="slotted-fulfill-3pl" name="fulfillment" value="3pl" ${
-              state.outbound_profile.fulfillment_method === "3pl"
-                ? "checked"
-                : ""
-            }/>
-            <label for="slotted-fulfill-3pl">3PL provider</label>
-          </div>
-          <div class="slotted-radio-item">
-            <input type="radio" id="slotted-fulfill-dropship" name="fulfillment" value="dropship" ${
-              state.outbound_profile.fulfillment_method === "dropship"
-                ? "checked"
-                : ""
-            }/>
-            <label for="slotted-fulfill-dropship">Dropshipping</label>
-          </div>
-          <div class="slotted-radio-item">
-            <input type="radio" id="slotted-fulfill-notyet" name="fulfillment" value="not_yet" ${
-              state.outbound_profile.fulfillment_method === "not_yet"
-                ? "checked"
-                : ""
-            }/>
-            <label for="slotted-fulfill-notyet">Not fulfilling yet</label>
-          </div>
+              <label for="slotted-fulfill-${method.value}">${
+              method.label
+            }</label>
+            </div>
+          `
+          ).join("")}
         </div>
 
         <!-- 3PL Provider Details Card -->
         <div id="slotted-3pl-provider-card" class="slotted-3pl-provider-card ${
-          state.outbound_profile.fulfillment_method === "3pl"
+          state.outbound_profile.fulfillment_method === "threePlProvider"
             ? "slotted-3pl-card-visible"
             : "slotted-3pl-card-hidden"
         }">
@@ -1864,56 +1862,10 @@
           <div class="slotted-powered-text">Powered by</div>
           <img src="http://localhost:3000/assets/slotted.png" alt="Logo" />
         </div>
-        ${renderBanner()}
+        ${renderLeadStatusBanner()}
         <div class="slotted-navigation-group">
           ${backButton}
           ${nextButton}
-        </div>
-      </div>
-    `;
-  }
-
-  // Helper function to render weight summary in final review
-  function renderWeightSummary() {
-    // Define shipment types with their keys and display names
-    const shipmentTypes = [
-      { key: "dtcParcel", label: "DTC (Parcel)" },
-      { key: "retailPallet", label: "Retail (Pallet)" },
-      { key: "marketplacePallet", label: "Marketplace (Pallet)" },
-      { key: "retailCases", label: "Retail (Cases)" },
-      { key: "marketplaceCases", label: "Marketplace (Cases)" },
-    ];
-
-    // Check if any weight data exists
-    const weightData = shipmentTypes
-      .map((type) => {
-        const value = state.outbound_profile?.[type.key + "Value"];
-        const unit = state.outbound_profile?.[type.key + "Unit"];
-        if (value && unit) {
-          return `${type.label}: ${value}${unit}`;
-        }
-        return null;
-      })
-      .filter(Boolean);
-
-    // Only render if there's weight data
-    if (weightData.length === 0) {
-      return "";
-    }
-
-    return `
-      <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb;">
-        <h4 style="margin: 0 0 1rem 0; color: #374151; font-size: 1rem; font-weight: 600;">Average Weight per Shipment Type</h4>
-        <div style="background: #f8fafc; border-radius: 8px; padding: 1rem;">
-          ${weightData
-            .map(
-              (weight) => `
-            <div style="color: #6b7280; font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
-              ${weight}
-            </div>
-          `
-            )
-            .join("")}
         </div>
       </div>
     `;
@@ -2005,7 +1957,7 @@
                   const providerName =
                     state.outbound_profile?.current_provider_name;
 
-                  if (fulfillmentMethod !== "3pl") {
+                  if (fulfillmentMethod !== "threePlProvider") {
                     return "Not applicable";
                   }
 
@@ -2148,17 +2100,15 @@
               
               <div style="margin-bottom: 1rem;">
                 <strong style="color: #374151; font-size: 0.9rem;">How do you currently fulfill orders?</strong>
-                <div style="color: #6b7280; font-size: 0.9rem;">${
-                  state.outbound_profile?.fulfillment_method === "3pl"
-                    ? "3PL Provider"
-                    : state.outbound_profile?.fulfillment_method === "inhouse"
-                    ? "In-house Fulfillment"
-                    : state.outbound_profile?.fulfillment_method === "dropship"
-                    ? "Dropshipping"
-                    : state.outbound_profile?.fulfillment_method === "not_yet"
-                    ? "Not Fulfilling Yet"
-                    : "Not specified"
-                }</div>
+                <div style="color: #6b7280; font-size: 0.9rem;">${(() => {
+                  const method = state.outbound_profile?.fulfillment_method;
+                  const fulfillmentMethod = FULFILLMENT_METHODS.find(
+                    (f) => f.value === method
+                  );
+                  return fulfillmentMethod
+                    ? fulfillmentMethod.label
+                    : "Not specified";
+                })()}</div>
               </div>
               <div style="margin-bottom: 1rem;">
                 <strong style="color: #374151; font-size: 0.9rem;">Current Contract End Date</strong>
@@ -2170,7 +2120,7 @@
                   const contractYear =
                     state.outbound_profile?.contract_end_year;
 
-                  if (fulfillmentMethod !== "3pl") {
+                  if (fulfillmentMethod !== "threePlProvider") {
                     return "Not applicable";
                   }
 
@@ -2322,19 +2272,6 @@
 
       </div>
     `;
-  }
-
-  function renderFooter() {
-    let footer = `<div class="slotted-footer">Powered by Slotted. reCAPTCHA v3 protected.</div>`;
-
-    if (state.status === "complete") {
-      footer =
-        `<div style="margin-top:1.5em;text-align:center;">
-        <b>Thank you!</b><br>Want to edit this later? <a href="#">Finish your account on Slotted</a>
-      </div>` + footer;
-    }
-
-    return footer;
   }
 
   // Inject widget CSS from external file
@@ -2573,17 +2510,8 @@
             year2_best_growth: profileData.bestCaseGrowthYear2,
             year2_worst_growth: profileData.worstCaseGrowthYear2,
 
-            // Map fulfillment type back to form values
-            fulfillment_method:
-              profileData.fulfillmentType === "threePlProvider"
-                ? "3pl"
-                : profileData.fulfillmentType === "inHouseFulfillment"
-                ? "inhouse"
-                : profileData.fulfillmentType === "dropshipping"
-                ? "dropship"
-                : profileData.fulfillmentType === "notFulfillingYet"
-                ? "not_yet"
-                : "",
+            // Store fulfillment type directly as API value for consistency
+            fulfillment_method: profileData.fulfillmentType || "",
 
             start_month: profileData.shippingStartMonth
               ? String(profileData.shippingStartMonth)
@@ -2988,37 +2916,6 @@
     return isValid;
   }
 
-  // 3PL Provider search and selection functions
-  function filterProviders(query) {
-    if (!query || query.length < 1) return [];
-
-    const searchQuery = query.toLowerCase();
-    const filtered = THREE_PL_PROVIDERS.filter((provider) =>
-      provider.name.toLowerCase().includes(searchQuery)
-    );
-
-    // Sort results: exact matches first, then starts with, then contains
-    filtered.sort((a, b) => {
-      const aName = a.name.toLowerCase();
-      const bName = b.name.toLowerCase();
-
-      // Exact match
-      if (aName === searchQuery) return -1;
-      if (bName === searchQuery) return 1;
-
-      // Starts with
-      if (aName.startsWith(searchQuery) && !bName.startsWith(searchQuery))
-        return -1;
-      if (bName.startsWith(searchQuery) && !aName.startsWith(searchQuery))
-        return 1;
-
-      // Alphabetical order for similar matches
-      return aName.localeCompare(bName);
-    });
-
-    return filtered.slice(0, 8); // Limit to 8 results
-  }
-
   function toggle3PLCard() {
     const card = document.getElementById("slotted-3pl-provider-card");
     const fulfillmentRadio = document.querySelector(
@@ -3026,7 +2923,7 @@
     );
 
     if (card && fulfillmentRadio) {
-      if (fulfillmentRadio.value === "3pl") {
+      if (fulfillmentRadio.value === "threePlProvider") {
         card.classList.remove("slotted-3pl-card-hidden");
         card.classList.add("slotted-3pl-card-visible");
       } else {
@@ -3910,28 +3807,14 @@
         "slotted-marketplace-pallets"
       ).checked;
 
-      // Optional fields
-      const fulfillment_inhouse = document.getElementById(
-        "slotted-fulfill-inhouse"
-      )?.checked;
-      const fulfillment_3pl = document.getElementById(
-        "slotted-fulfill-3pl"
-      )?.checked;
-      const fulfillment_dropship = document.getElementById(
-        "slotted-fulfill-dropship"
-      )?.checked;
-      const fulfillment_notyet = document.getElementById(
-        "slotted-fulfill-notyet"
-      )?.checked;
-      const fulfillment_method = fulfillment_inhouse
-        ? "inhouse"
-        : fulfillment_3pl
-        ? "3pl"
-        : fulfillment_dropship
-        ? "dropship"
-        : fulfillment_notyet
-        ? "not_yet"
-        : "";
+      // Optional fields - Dynamic fulfillment method detection
+      const fulfillment_method = (() => {
+        // Find the checked radio button and get its value (which is now the API value)
+        const checkedFulfillment = document.querySelector(
+          'input[name="fulfillment"]:checked'
+        );
+        return checkedFulfillment ? checkedFulfillment.value : "";
+      })();
 
       const start_month =
         document.getElementById("slotted-start-month")?.value || "";
@@ -4029,27 +3912,18 @@
         worstCaseGrowthYear2: year2_worst_growth
           ? parseInt(year2_worst_growth)
           : null,
-        fulfillmentType:
-          fulfillment_method === "3pl"
-            ? "threePlProvider"
-            : fulfillment_method === "inhouse"
-            ? "inHouseFulfillment"
-            : fulfillment_method === "dropship"
-            ? "dropshipping"
-            : fulfillment_method === "not_yet"
-            ? "notFulfillingYet"
-            : null,
+        fulfillmentType: fulfillment_method || null,
         // 3PL provider specific fields
         currentProvider:
-          fulfillment_method === "3pl"
+          fulfillment_method === "threePlProvider"
             ? state.outbound_profile?.current_provider
             : null,
         contractExpiryMonth:
-          fulfillment_method === "3pl" && contract_end_month
+          fulfillment_method === "threePlProvider" && contract_end_month
             ? parseInt(contract_end_month)
             : null,
         contractExpiryYear:
-          fulfillment_method === "3pl" && contract_end_year
+          fulfillment_method === "threePlProvider" && contract_end_year
             ? parseInt(contract_end_year)
             : null,
         shippingStartMonth: start_month ? parseInt(start_month) : null,
